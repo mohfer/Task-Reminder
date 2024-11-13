@@ -14,13 +14,14 @@ return new class extends Migration
         Schema::create('course_contents', function (Blueprint $table) {
             $table->id();
             $table->string('semester');
-            $table->string('code')->unique();
-            $table->string('course_content')->unique();
+            $table->string('code');
+            $table->string('course_content');
             $table->integer('scu');
             $table->string('lecturer');
             $table->string('day');
             $table->time('hour_start');
             $table->time('hour_end');
+            $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

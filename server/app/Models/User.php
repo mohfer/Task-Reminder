@@ -6,12 +6,14 @@ namespace App\Models;
 
 use App\Models\Task;
 use App\Models\Setting;
+use App\Models\CourseContent;
+use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -21,10 +23,8 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
+    protected $guarded = [
+        'id'
     ];
 
     /**
@@ -50,11 +50,18 @@ class User extends Authenticatable
         ];
     }
 
-    public function tasks(): HasMany {
+    public function course_contents(): HasMany
+    {
+        return $this->hasMany(CourseContent::class);
+    }
+
+    public function tasks(): HasMany
+    {
         return $this->hasMany(Task::class);
     }
 
-    public function settings(): HasMany {
+    public function settings(): HasMany
+    {
         return $this->hasMany(Setting::class);
     }
 }
