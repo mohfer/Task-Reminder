@@ -55,7 +55,7 @@ class AuthController
             'token' => $token,
             'token_type' => 'Bearer',
             'data' => $user
-        ], 200);
+        ], 201);
     }
 
     public function verify()
