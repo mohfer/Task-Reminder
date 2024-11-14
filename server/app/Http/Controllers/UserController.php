@@ -10,24 +10,21 @@ class UserController
 {
     use ApiResponse;
 
+    public function getAuthenticatedUser(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user) {
+            return $this->sendResponse($user, 'User retrieved successfully');
+        }
+
+        return $this->sendError('User not found', 404);
+    }
+
     public function index()
     {
         $users = User::orderBy('name', 'ASC')->get();
         return $this->sendResponse($users, 'Users retrieved successfully');
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|unique:users|email',
-            'phone' => 'required|unique:users|integer',
-            'password' => 'required',
-        ]);
-
-        $request['password'] = bcrypt($request['password']);
-        $user = User::create($request->all());
-        return $this->sendResponse($user, 'User created successfully', 201);
     }
 
     public function show(User $user)

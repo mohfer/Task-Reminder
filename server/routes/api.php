@@ -1,16 +1,22 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseContentController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-// Route::get('/course-contents/email', [CourseContentController::class, 'email']);
-Route::get('/users', [UserController::class, 'index']);
-Route::post('/users', [UserController::class, 'store']);
+Route::prefix('auth')->group(function () {
+    Route::post('login', [AuthController::class, 'login'])->name('auth.login');
+    Route::post('register', [AuthController::class, 'register'])->name('auth.register');
+});
 
+// Route::get('/email/verify', [AuthController::class, 'verify'])->middleware('auth')->name('verification.notice');
 
-Route::get('/course-contents', [CourseContentController::class, 'index']);
-Route::post('/course-contents', [CourseContentController::class, 'store']);
-Route::get('/course-contents/{id}', [CourseContentController::class, 'show']);
-Route::put('/course-contents/{id}', [CourseContentController::class, 'update']);
-Route::delete('/course-contents/{id}', [CourseContentController::class, 'destroy']);
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/auth/user', [UserController::class, 'getAuthenticatedUser'])->name('auth.user');
+    Route::resource('course-contents', CourseContentController::class);
+    Route::resource('tasks', TaskController::class);
+    Route::patch('/tasks/{id}/status', [TaskController::class, 'statusChanged'])->name('tasks.statusChanged');
+    Route::post('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
+});
