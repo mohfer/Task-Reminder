@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Setting extends Model
 {
@@ -13,8 +13,8 @@ class Setting extends Model
 
     public $timestamps = false;
 
-    public function user(): BelongsTo
+    public function user(): HasOne
     {
-        return $this->beloBelongsTo(User::class, 'user_id');
+        return $this->hasOne(User::class, 'id', 'user_id');
     }
 }

@@ -32,7 +32,7 @@ class AuthController
             ], 200);
         }
 
-        return $this->sendError('Username or password is incorrect', 400);
+        return $this->sendError('Username or password is incorrect', 401);
     }
 
     public function register(Request $request)
