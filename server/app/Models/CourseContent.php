@@ -3,9 +3,8 @@
 namespace App\Models;
 
 use App\Models\User;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CourseContent extends Model
@@ -16,9 +15,9 @@ class CourseContent extends Model
 
     public $timestamps = false;
 
-    public function user(): HasOne
+    public function user(): BelongsTo
     {
-        return $this->hasOne(User::class, 'id', 'user_id');
+        return $this->belongBelongsTo(User::class, 'user_id');
     }
 
     public function tasks(): HasMany

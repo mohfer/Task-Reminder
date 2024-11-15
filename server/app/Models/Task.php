@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Task extends Model
 {
@@ -34,13 +34,13 @@ class Task extends Model
         }
     }
 
-    public function user(): HasOne
+    public function user(): BelongsTo
     {
-        return $this->hasOne(User::class, 'id', 'user_id');
+        return $this->beloBelongsTo(User::class, 'user_id');
     }
 
-    public function course_content(): HasOne
+    public function course_content(): BelongsTo
     {
-        return $this->hasOne(CourseContent::class, 'id', 'course_content_id');
+        return $this->beloBelongsTo(CourseContent::class, 'course_content_id');
     }
 }
