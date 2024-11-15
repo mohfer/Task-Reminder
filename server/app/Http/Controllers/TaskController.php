@@ -20,7 +20,7 @@ class TaskController
 
     public function store(Request $request)
     {
-        $user = Auth::user()->id;
+        $user = $request->user()->id;
         $courseContent = CourseContent::where('id', $request->course_content_id)->where('user_id', $user)->exists();
 
         $request->validate([
@@ -54,7 +54,7 @@ class TaskController
 
     public function update(Request $request, $id)
     {
-        $user = Auth::user()->id;
+        $user = $request->user()->id;
 
         $task = Task::find($id);
 

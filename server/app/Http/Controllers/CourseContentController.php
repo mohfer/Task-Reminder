@@ -19,12 +19,12 @@ class CourseContentController
 
     public function store(Request $request)
     {
-        $user = Auth::user()->id;
+        $user = $request->user()->id;
         $code = CourseContent::where('code', $request->code)->where('user_id', $user)->exists();
         $courseContent = CourseContent::where('course_content', $request->course_content)->where('user_id', $user)->exists();
 
         if ($code || $courseContent) {
-            return $this->sendError('Course Content Already Added', 400);
+            return $this->sendError('Course Content Already Added', 409);
         }
 
         $request->validate([
@@ -56,7 +56,7 @@ class CourseContentController
 
     public function update(Request $request, $id)
     {
-        $user = Auth::user()->id;
+        $user = $request->user()->id;
 
         $courseContent = CourseContent::where('id', $id)
             ->where('user_id', $user)
@@ -83,7 +83,7 @@ class CourseContentController
             ->exists();
 
         if ($existingCode) {
-            return $this->sendError('Code already exists for this user', 400);
+            return $this->sendError('Code already exists for this user', 409);
         }
 
         $existingContent = CourseContent::where('user_id', $user)
@@ -92,7 +92,7 @@ class CourseContentController
             ->exists();
 
         if ($existingContent) {
-            return $this->sendError('Course Content already exists for this user', 400);
+            return $this->sendError('Course Content already exists for this user', 409);
         }
 
         $request['user_id'] = $user;

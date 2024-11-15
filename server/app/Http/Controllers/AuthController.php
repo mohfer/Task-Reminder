@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Setting;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,12 +18,16 @@ class AuthController
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
+            'remember_me' => 'boolean'
         ]);
 
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $request->remember_me)) {
             $user = Auth::user();
 
-            $token = $user->createToken('Task Reminder')->plainTextToken;
+            // Generate token
+            $token = $request->remember_me
+                ? $user->createToken('Task Reminder')->plainTextToken
+                : $user->createToken('Task Reminder', ['*'], now()->addMinutes(30))->plainTextToken;
 
             return response()->json([
                 'message' => 'User logged in successfully',
@@ -48,7 +53,14 @@ class AuthController
         $request['password'] = bcrypt($request['password']);
         $user = User::create($request->all());
 
-        $token = $user->createToken('Task Reminder')->plainTextToken;
+        Setting::create([
+            'deadline_notification' => "3 days left",
+            'task_created_notification' => 1,
+            'task_completed_notification' => 1,
+            'user_id' => $user->id
+        ]);
+
+        $token = $user->createToken('Task Reminder', ['*'], now()->addMinutes(30))->plainTextToken;
 
         return response()->json([
             'message' => 'User registered successfully',
