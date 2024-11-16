@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CourseContentController;
+use App\Http\Controllers\PasswordResetController;
 
 Route::prefix('auth')->group(function () {
     // Auth
@@ -14,9 +15,17 @@ Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
 });
 
-// Route::get('/email/verify', [AuthController::class, 'verify'])->middleware('auth')->name('verification.notice');
+// Password Reset
+Route::post('/password/email', [PasswordResetController::class, 'sendResetLink']);
+Route::post('/password/reset', [PasswordResetController::class, 'resetPassword'])->name('password.reset');
 
+// Verify Email
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])->middleware(['throttle:6,1'])->name('verification.send');;
+    Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware(['signed'])->name('verification.verify');
+});
+
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // User
     Route::get('/auth/user', [UserController::class, 'getAuthenticatedUser']);
 

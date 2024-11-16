@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Setting;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Events\Registered;
 
@@ -64,6 +65,8 @@ class AuthController
             'user_id' => $user->id
         ]);
 
+        event(new Registered($user));
+
         $token = $user->createToken('Task Reminder', ['*'], now()->addMinutes(30))->plainTextToken;
 
         $data = [
@@ -75,9 +78,32 @@ class AuthController
         return $this->sendResponse($data, 'User registered successfully', 201);
     }
 
-    public function verify()
+    public function resendVerificationEmail(Request $request)
     {
-        return $this->sendResponse(null, 'User verified successfully');
+        $user = $request->user();
+
+        if ($user->hasVerifiedEmail()) {
+            return $this->sendResponse(null, 'Email already verified');
+        }
+
+        $user->sendEmailVerificationNotification();
+
+        return $this->sendResponse(null, 'Verification email sent successfully');
+    }
+
+    public function verifyEmail(Request $request)
+    {
+        $user = User::findOrFail($request->route('id'));
+
+        if ($user->hasVerifiedEmail()) {
+            return $this->sendResponse(null, 'Email already verified');
+        }
+
+        if ($user->markEmailAsVerified()) {
+            event(new Verified($user));
+        }
+
+        return $this->sendResponse(null, 'Email verified successfully');
     }
 
     public function logout(Request $request)
