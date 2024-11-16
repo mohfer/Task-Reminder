@@ -6,17 +6,10 @@ use App\Models\CourseContent;
 use App\Models\Task;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class TaskController
 {
     use ApiResponse;
-
-    public function index()
-    {
-        $tasks = Task::with('course_content')->where('user_id', Auth::user()->id)->orderBy('task', 'ASC')->get();
-        return $this->sendResponse($tasks, 'Tasks retrieved successfully');
-    }
 
     public function store(Request $request)
     {

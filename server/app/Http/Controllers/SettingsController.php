@@ -5,15 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Setting;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class SettingsController
 {
     use ApiResponse;
 
-    public function index()
+    public function index(Request $request)
     {
-        $settings = Setting::where('user_id', Auth::user()->id)->get();
+        $user = $request->user()->id;
+
+        $settings = Setting::where('user_id', $user)->get();
 
         return $this->sendResponse($settings, 'Settings retrieved successfully');
     }

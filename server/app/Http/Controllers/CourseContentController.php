@@ -5,15 +5,21 @@ namespace App\Http\Controllers;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Models\CourseContent;
-use Illuminate\Support\Facades\Auth;
 
 class CourseContentController
 {
     use ApiResponse;
 
-    public function index()
+    public function index(Request $request)
     {
-        $courseContents = CourseContent::where('user_id', Auth::user()->id)->orderBy('course_content', 'ASC')->get();
+        $user = $request->user()->id;
+
+        $courseContents = CourseContent::where('user_id', $user)->where('semester', 'Semester 1')->orderBy('course_content', 'ASC')->get();
+
+        if (!$courseContents) {
+            return $this->sendError('Course Content not found', 404);
+        }
+
         return $this->sendResponse($courseContents, 'Course Contents retrieved successfully');
     }
 
@@ -113,5 +119,18 @@ class CourseContentController
         $courseContent->delete();
 
         return $this->sendResponse(null, 'Course Content deleted successfully');
+    }
+
+    public function filter(Request $request)
+    {
+        $user = $request->user()->id;
+
+        $courseContents = CourseContent::where('user_id', $user)->where('semester', $request->semester)->orderBy('course_content', 'ASC')->get();
+
+        if (!$courseContents) {
+            return $this->sendError('Course Content not found', 404);
+        }
+
+        return $this->sendResponse($courseContents, 'Course Contents retrieved successfully');
     }
 }

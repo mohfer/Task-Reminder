@@ -24,7 +24,6 @@ class AuthController
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $request->remember_me)) {
             $user = Auth::user();
 
-            // Generate token
             $token = $request->remember_me
                 ? $user->createToken('Task Reminder')->plainTextToken
                 : $user->createToken('Task Reminder', ['*'], now()->addMinutes(30))->plainTextToken;
