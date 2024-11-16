@@ -1,0 +1,52 @@
+# Logs
+**/logs
+**/*.log
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/pnpm-debug.log*
+**/lerna-debug.log*
+
+# Dependencies
+**/node_modules
+**/vendor
+
+# Environment files
+**/.env
+**/.env.backup
+**/.env.production
+**/.env.local
+
+# Build and distribution
+**/dist
+**/dist-ssr
+**/public/build
+**/public/hot
+**/public/storage
+
+# Storage
+**/storage/*.key
+**/storage/pail
+
+# Testing and cache
+**/.phpunit.cache
+**/.phpunit.result.cache
+**/.phpactor.json
+
+# Laravel specific
+**/Homestead.json
+**/Homestead.yaml
+**/auth.json
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.fleet
+.zed
+.DS_Store
+**/*.suo
+**/*.ntvs*
+**/*.njsproj
+**/*.sln
+**/*.sw?
