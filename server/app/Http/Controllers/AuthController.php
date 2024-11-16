@@ -15,25 +15,30 @@ class AuthController
 
     public function login(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
-            'remember_me' => 'boolean'
+            'remember_me' => 'boolean',
         ]);
+
+        $data['remember_me'] = $data['remember_me'] ?? 0;
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $request->remember_me)) {
             $user = Auth::user();
 
-            $token = $request->remember_me
-                ? $user->createToken('Task Reminder')->plainTextToken
-                : $user->createToken('Task Reminder', ['*'], now()->addMinutes(30))->plainTextToken;
+            if ($request->remember_me == 1) {
+                $token = $user->createToken('Task Reminder')->plainTextToken;
+            } else if ($request->remember_me == 0) {
+                $token = $user->createToken('Task Reminder', ['*'], now()->addMinutes(30))->plainTextToken;
+            }
 
-            return response()->json([
-                'message' => 'User logged in successfully',
+            $data = [
                 'token' => $token,
                 'token_type' => 'Bearer',
-                'data' => $user
-            ], 200);
+                'user' => $user
+            ];
+
+            return $this->sendResponse($data, 'User logged in successfully');
         }
 
         return $this->sendError('Username or password is incorrect', 401);
@@ -61,12 +66,13 @@ class AuthController
 
         $token = $user->createToken('Task Reminder', ['*'], now()->addMinutes(30))->plainTextToken;
 
-        return response()->json([
-            'message' => 'User registered successfully',
+        $data = [
             'token' => $token,
             'token_type' => 'Bearer',
-            'data' => $user
-        ], 201);
+            'user' => $user
+        ];
+
+        return $this->sendResponse($data, 'User registered successfully', 201);
     }
 
     public function verify()

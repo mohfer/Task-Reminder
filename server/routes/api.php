@@ -22,11 +22,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index']);
-    Route::post('/dashboard', [DashboardController::class, 'filter']);
+    Route::post('/dashboard/filter', [DashboardController::class, 'filter']);
 
     // Course Content
     Route::resource('course-contents', CourseContentController::class);
-    Route::post('/course-contents', [CourseContentController::class, 'filter']);
+    Route::post('/course-contents/filter', [CourseContentController::class, 'filter']);
 
     // Task
     Route::resource('tasks', TaskController::class);

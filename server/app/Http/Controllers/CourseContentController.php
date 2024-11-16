@@ -14,7 +14,22 @@ class CourseContentController
     {
         $user = $request->user()->id;
 
-        $courseContents = CourseContent::where('user_id', $user)->where('semester', 'Semester 1')->orderBy('course_content', 'ASC')->get();
+        $courseContents = CourseContent::where('user_id', $user)
+            ->where('semester', 'Semester 1')
+            ->orderBy('course_content', 'ASC')
+            ->get()
+            ->map(function ($courseContent) {
+                return [
+                    'id' => $courseContent->id,
+                    'code' => $courseContent->code,
+                    'course_content' => $courseContent->course_content,
+                    'scu' => $courseContent->scu,
+                    'lecturer' => $courseContent->lecturer,
+                    'day' => $courseContent->day,
+                    'hour_start' => $courseContent->hour_start,
+                    'hour_end' => $courseContent->hour_end
+                ];
+            });
 
         if (!$courseContents) {
             return $this->sendError('Course Content not found', 404);
@@ -57,7 +72,19 @@ class CourseContentController
             return $this->sendError('Course Content not found', 404);
         }
 
-        return $this->sendResponse($courseContent, 'Course Content retrieved successfully');
+        $data = [
+            'id' => $courseContent->id,
+            'semester' => $courseContent->semester,
+            'code' => $courseContent->code,
+            'course_content' => $courseContent->course_content,
+            'scu' => $courseContent->scu,
+            'lecturer' => $courseContent->lecturer,
+            'day' => $courseContent->day,
+            'hour_start' => $courseContent->hour_start,
+            'hour_end' => $courseContent->hour_end
+        ];
+
+        return $this->sendResponse($data, 'Course Content retrieved successfully');
     }
 
     public function update(Request $request, $id)
@@ -125,7 +152,23 @@ class CourseContentController
     {
         $user = $request->user()->id;
 
-        $courseContents = CourseContent::where('user_id', $user)->where('semester', $request->semester)->orderBy('course_content', 'ASC')->get();
+        $courseContents = CourseContent::where('user_id', $user)
+            ->where('semester', $request->semester)
+            ->orderBy('course_content', 'ASC')
+            ->get()
+            ->map(function ($courseContent) {
+                return [
+                    'id' => $courseContent->id,
+                    'code' => $courseContent->code,
+                    'course_content' => $courseContent->course_content,
+                    'scu' => $courseContent->scu,
+                    'lecturer' => $courseContent->lecturer,
+                    'day' => $courseContent->day,
+                    'hour_start' => $courseContent->hour_start,
+                    'hour_end' => $courseContent->hour_end
+                ];
+            });
+
 
         if (!$courseContents) {
             return $this->sendError('Course Content not found', 404);

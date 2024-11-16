@@ -34,14 +34,27 @@ class DashboardController
         $tasks = Task::with('course_content')->where('user_id', $user)
             ->whereMonth('deadline', date('m'))
             ->whereYear('deadline', date('Y'))
-            ->get();
+            ->orderBy('deadline', 'ASC')
+            ->get()
+            ->map(function ($task) {
+                return [
+                    'id' => $task->id,
+                    'code' => $task->course_content->code ?? null,
+                    'course_content' => $task->course_content->course_content ?? null,
+                    'task' => $task->task,
+                    'deadline' => $task->deadline,
+                    'deadline_text' => $task->deadline_text,
+                    'status' => $task->status,
+                ];
+            });
 
         $data = [
             'monthlyTask' => $monthlyTask,
             'completedTask' => $completedTask,
             'uncompletedTask' => $uncompletedTask,
-            'tasks' => $tasks
+            'tasks' => $tasks,
         ];
+
 
         return $this->sendResponse($data, 'Dashboard retrieved successfully');
     }
@@ -72,7 +85,19 @@ class DashboardController
         $tasks = Task::with('course_content')->where('user_id', $user)
             ->whereMonth('deadline', date('m', strtotime($date)))
             ->whereYear('deadline', date('Y', strtotime($date)))
-            ->get();
+            ->orderBy('deadline', 'ASC')
+            ->get()
+            ->map(function ($task) {
+                return [
+                    'id' => $task->id,
+                    'code' => $task->course_content->code ?? null,
+                    'course_content' => $task->course_content->course_content ?? null,
+                    'task' => $task->task,
+                    'deadline' => $task->deadline,
+                    'deadline_text' => $task->deadline_text,
+                    'status' => $task->status,
+                ];
+            });
 
         $data = [
             'monthlyTask' => $monthlyTask,

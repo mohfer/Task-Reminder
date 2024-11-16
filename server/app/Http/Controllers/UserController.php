@@ -47,7 +47,12 @@ class UserController
 
     public function getAuthenticatedUser(Request $request)
     {
-        $user = $request->user()->id;
+        $user = [
+            'id' => $request->user()->id,
+            'name' => $request->user()->name,
+            'email' => $request->user()->email,
+            'phone' => $request->user()->phone
+        ];
 
         if ($user) {
             return $this->sendResponse($user, 'User retrieved successfully');

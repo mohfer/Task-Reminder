@@ -38,11 +38,20 @@ class TaskController
     {
         $task = Task::with('course_content')->find($id);
 
+
         if (!$task) {
             return $this->sendError('Task not found', 404);
         }
 
-        return $this->sendResponse($task, 'Task retrieved successfully');
+        $data = [
+            'id' => $task->id,
+            'semester' => $task->course_content->semester ?? null,
+            'course_content' => $task->course_content->course_content ?? null,
+            'task' => $task->task,
+            'deadline' => $task->deadline,
+        ];
+
+        return $this->sendResponse($data, 'Task retrieved successfully');
     }
 
     public function update(Request $request, $id)
