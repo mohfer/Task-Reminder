@@ -1,35 +1,57 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import 'rsuite/dist/rsuite.min.css';
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import PasswordEmailSent from './pages/auth/PasswordEmailSent';
+import VerifyEmailSent from './pages/auth/VerifyEmailSent';
+import VerifiedEmail from './pages/auth/VerifiedEmail';
+import Dashboard from './pages/dashboard/Dashboard';
+import ResetPassword from './pages/auth/ResetPassword';
 
-function App() {
-  const [count, setCount] = useState(0)
-
+const App = () => {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <Routes>
+      <Route
+        path='*'
+        element={<Navigate to="/dashboard" replace />}
+      />
+      {/* Auth */}
+      <Route
+        path="/auth/login"
+        element={<Login />}
+      />
+      <Route
+        path="/auth/register"
+        element={<Register />}
+      />
+      <Route
+        path="/auth/forgot-password"
+        element={<ForgotPassword />}
+      />
+      <Route
+        path="/auth/forgot-password/email-sent"
+        element={<PasswordEmailSent />}
+      />
+      <Route
+        path="/auth/forgot-password/reset"
+        element={<ResetPassword />}
+      />
+      <Route
+        path="/auth/verify-email"
+        element={<VerifyEmailSent />}
+      />
+      <Route
+        path="/auth/email/verify/:id/:hash"
+        element={<VerifiedEmail />}
+      />
+      <Route
+        path="/dashboard"
+        element={<Dashboard />}
+      />
+    </Routes>
+  );
+};
 
-export default App
+export default App;

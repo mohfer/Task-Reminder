@@ -28,7 +28,8 @@ class PasswordResetController
         $request->validate([
             'email' => 'required|email|exists:users,email',
             'token' => 'required',
-            'password' => 'required|min:6|confirmed',
+            'password' => 'required|min:8',
+            'password_confirmation' => 'required|same:password',
         ]);
 
         $status = Password::reset(

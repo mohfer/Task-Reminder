@@ -23,6 +23,8 @@ Route::post('/password/reset', [PasswordResetController::class, 'resetPassword']
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])->middleware(['throttle:6,1'])->name('verification.send');;
     Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware(['signed'])->name('verification.verify');
+    Route::get('/auth/check/token', [AuthController::class, 'checkToken']);
+    Route::get('/auth/check/email', [AuthController::class, 'checkEmail']);
 });
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
