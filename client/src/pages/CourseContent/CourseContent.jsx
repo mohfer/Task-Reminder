@@ -1,19 +1,19 @@
 import Sidebar from '../../components/Sidebar/Sidebar';
 import Header from '../../components/Header/Header';
-import { Dashboard as DashboardComponent } from '../../components/Dashboard/Dashboard';
+import { CourseContent as CourseContentComponent } from '../../components/CourseContent/CourseContent';
 
-const Dashboard = () => {
+const CourseContent = () => {
     return (
         <div className="flex h-screen">
             <Sidebar className="flex-shrink-0 h-full" />
             <div className="flex flex-col flex-grow overflow-hidden">
-                <Header title="Dashboard" />
+                <Header title="Course Content" />
                 <div className="flex-grow p-4 bg-gray-100 overflow-y-auto">
-                    <DashboardComponent />
+                    <CourseContentComponent />
                 </div>
             </div>
         </div>
     );
 };
 
-export default Dashboard;
+export default CourseContent;

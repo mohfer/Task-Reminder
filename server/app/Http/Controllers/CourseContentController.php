@@ -26,8 +26,8 @@ class CourseContentController
                     'scu' => $courseContent->scu,
                     'lecturer' => $courseContent->lecturer,
                     'day' => $courseContent->day,
-                    'hour_start' => $courseContent->hour_start,
-                    'hour_end' => $courseContent->hour_end
+                    'hour_start' => date('H:i', strtotime($courseContent->hour_start)),
+                    'hour_end' => date('H:i', strtotime($courseContent->hour_end))
                 ];
             });
 

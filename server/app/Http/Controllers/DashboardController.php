@@ -15,25 +15,25 @@ class DashboardController
         $user = $request->user()->id;
 
         $monthlyTask = Task::where('user_id', $user)
-            ->whereMonth('deadline', date('m'))
-            ->whereYear('deadline', date('Y'))
+            // ->whereMonth('deadline', date('m'))
+            // ->whereYear('deadline', date('Y'))
             ->count();
 
         $completedTask = Task::where('user_id', $user)
             ->where('status', 1)
-            ->whereMonth('deadline', date('m'))
-            ->whereYear('deadline', date('Y'))
+            // ->whereMonth('deadline', date('m'))
+            // ->whereYear('deadline', date('Y'))
             ->count();
 
         $uncompletedTask = Task::where('user_id', $user)
             ->where('status', 0)
-            ->whereMonth('deadline', date('m'))
-            ->whereYear('deadline', date('Y'))
+            // ->whereMonth('deadline', date('m'))
+            // ->whereYear('deadline', date('Y'))
             ->count();
 
         $tasks = Task::with('course_content')->where('user_id', $user)
-            ->whereMonth('deadline', date('m'))
-            ->whereYear('deadline', date('Y'))
+            // ->whereMonth('deadline', date('m'))
+            // ->whereYear('deadline', date('Y'))
             ->orderBy('deadline', 'ASC')
             ->get()
             ->map(function ($task) {

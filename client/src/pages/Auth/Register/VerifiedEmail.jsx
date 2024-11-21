@@ -55,6 +55,7 @@ const VerifiedEmail = () => {
     };
 
     useEffect(() => {
+        localStorage.removeItem('isPasswordReset')
 
         const storedToken = localStorage.getItem('token');
         const storedEmail = localStorage.getItem('email');
@@ -73,33 +74,14 @@ const VerifiedEmail = () => {
 
     return (
         <>
-            <div className="flex">
-                <div className="w-full flex h-screen">
-                    <div className="w-1/2">
-                        <div className='h-screen flex justify-center items-center'>
-                            <div className="w-2/3 mx-auto">
-                                <h1 className="text-[2.25rem] font-bold">
-                                    {loading ? 'Verifying...' : (message || 'Email Verified')}
-                                </h1>
-                                <p className="text-base text-gray-500">
-                                    {loading ? '' : (description || 'Your email address has been successfully verified. You will be redirected shortly.')}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="w-1/2 bg-black p-8 flex items-center justify-center">
-                        <div className="relative w-64 h-64">
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="w-32 h-32 bg-blue-600 rounded-full opacity-80 animate-pulse"></div>
-                                <div className="absolute w-48 h-48 border-4 border-orange-400 rounded-full transform rotate-45"></div>
-                                <div className="absolute w-8 h-24 bg-white rounded-full transform rotate-45 -translate-x-24"></div>
-                                <div className="absolute w-8 h-24 bg-white rounded-full transform rotate-45 translate-x-24"></div>
-                                <div className="absolute w-8 h-24 bg-white rounded-full transform -rotate-45 -translate-y-24"></div>
-                                <div className="absolute w-8 h-24 bg-white rounded-full transform -rotate-45 translate-y-24"></div>
-                            </div>
-                        </div>
-                    </div>
+            <div className='h-screen flex justify-center items-center p-4'>
+                <div className="xl:w-1/3 border p-4 rounded-lg shadow-lg">
+                    <h1 className="text-[2.25rem] font-bold">
+                        {loading ? 'Verifying...' : (message || 'Email Verified')}
+                    </h1>
+                    <p className="text-base text-gray-500">
+                        {loading ? '' : (description || 'Your email address has been successfully verified. You will be redirected shortly.')}
+                    </p>
                 </div>
             </div>
         </>

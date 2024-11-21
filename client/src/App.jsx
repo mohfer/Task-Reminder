@@ -1,14 +1,16 @@
 import 'rsuite/dist/rsuite.min.css';
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-import ForgotPassword from './pages/auth/ForgotPassword';
-import PasswordEmailSent from './pages/auth/PasswordEmailSent';
-import VerifyEmailSent from './pages/auth/VerifyEmailSent';
-import VerifiedEmail from './pages/auth/VerifiedEmail';
-import Dashboard from './pages/dashboard/Dashboard';
-import ResetPassword from './pages/auth/ResetPassword';
+import Login from './pages/Auth/Login/Login';
+import Register from './pages/Auth/Register/Register';
+import VerifyEmailSent from './pages/Auth/Register/VerifyEmailSent';
+import VerifiedEmail from './pages/Auth/Register/VerifiedEmail';
+import ForgotPassword from './pages/Auth/ResetPassword/ForgotPassword';
+import PasswordEmailSent from './pages/Auth/ResetPassword/PasswordEmailSent';
+import ResetPassword from './pages/Auth/ResetPassword/ResetPassword';
+import Dashboard from './pages/Dashboard/Dashboard';
+import CourseContent from './pages/CourseContent/CourseContent';
+import Settings from './pages/Settings/Settings';
 
 const App = () => {
   return (
@@ -17,6 +19,7 @@ const App = () => {
         path='*'
         element={<Navigate to="/dashboard" replace />}
       />
+
       {/* Auth */}
       <Route
         path="/auth/login"
@@ -46,9 +49,19 @@ const App = () => {
         path="/auth/email/verify/:id/:hash"
         element={<VerifiedEmail />}
       />
+
+      {/* Dashboard */}
       <Route
         path="/dashboard"
         element={<Dashboard />}
+      />
+      <Route
+        path="/course-contents"
+        element={<CourseContent />}
+      />
+      <Route
+        path="/settings"
+        element={<Settings />}
       />
     </Routes>
   );
