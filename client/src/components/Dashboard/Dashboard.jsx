@@ -159,6 +159,7 @@ export const Dashboard = () => {
                             <Placeholder.Graph active />
                         ) : (
                             <Calendar
+                            bordered
                                 onSelect={handleDateClick}
                                 onPanelChange={handlePanelChange}
                                 renderCell={(date) => {
