@@ -39,7 +39,9 @@ class DashboardController
             ->map(function ($task) {
                 return [
                     'id' => $task->id,
+                    'semester' => $task->course_content->semester ?? null,
                     'code' => $task->course_content->code ?? null,
+                    'course_content_id' => $task->course_content->id ?? null,
                     'course_content' => $task->course_content->course_content ?? null,
                     'task' => $task->task,
                     'deadline' => $task->deadline,
@@ -90,7 +92,9 @@ class DashboardController
             ->map(function ($task) {
                 return [
                     'id' => $task->id,
+                    'semester' => $task->course_content->semester ?? null,
                     'code' => $task->course_content->code ?? null,
+                    'course_content_id' => $task->course_content->id ?? null,
                     'course_content' => $task->course_content->course_content ?? null,
                     'task' => $task->task,
                     'deadline' => $task->deadline,

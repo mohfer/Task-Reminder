@@ -53,8 +53,8 @@ class CourseContentController
     public function store(Request $request)
     {
         $user = $request->user()->id;
-        $code = CourseContent::where('code', $request->code)->where('user_id', $user)->exists();
-        $courseContent = CourseContent::where('course_content', $request->course_content)->where('user_id', $user)->exists();
+        $code = CourseContent::where('code', $request->code)->where('user_id', $user)->where('semester', $request->semester)->exists();
+        $courseContent = CourseContent::where('course_content', $request->course_content)->where('user_id', $user)->where('semester', $request->semester)->exists();
 
         if ($code || $courseContent) {
             return $this->sendError('Course Content Already Added', 409);
@@ -125,6 +125,7 @@ class CourseContentController
         $existingCode = CourseContent::where('user_id', $user)
             ->where('id', '!=', $id)
             ->where('code', $request->code)
+            ->where('semester', $request->semester)
             ->exists();
 
         if ($existingCode) {
@@ -134,6 +135,7 @@ class CourseContentController
         $existingContent = CourseContent::where('user_id', $user)
             ->where('id', '!=', $id)
             ->where('course_content', $request->course_content)
+            ->where('semester', $request->semester)
             ->exists();
 
         if ($existingContent) {

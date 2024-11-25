@@ -9,6 +9,7 @@ export const CourseContent = () => {
     const [isHovered, setIsHovered] = useState(false);
     const [courseContents, setCourseContents] = useState([]);
     const [totalScu, setTotalScu] = useState(0);
+    const [isLoadingData, setIsLoadingData] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [title, setTitle] = useState('Semester 1');
     const [selectedSemester, setSelectedSemester] = useState('Semester 1');
@@ -26,6 +27,7 @@ export const CourseContent = () => {
     const [message, setMessage] = useState({});
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [deleteContentId, setDeleteContentId] = useState(null);
+
     const token = localStorage.getItem('token');
     const toaster = useToaster();
 
@@ -38,7 +40,7 @@ export const CourseContent = () => {
     );
 
     const fetchCourseContents = async (semester) => {
-        setIsLoading(true);
+        setIsLoadingData(true);
         try {
             const response = await axios.post(`${apiUrl}/course-contents/filter`, {
                 semester: semester,
@@ -54,7 +56,25 @@ export const CourseContent = () => {
         } catch (error) {
             console.error(error);
         } finally {
-            setIsLoading(false);
+            setIsLoadingData(false);
+        }
+    };
+
+    const fetchCourseContentsSilently = async (semester) => {
+        try {
+            const response = await axios.post(`${apiUrl}/course-contents/filter`, {
+                semester: semester,
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            setCourseContents(response.data.data.course_contents);
+            setTotalScu(response.data.data.total_scu);
+        } catch (error) {
+            console.error(error);
         }
     };
 
@@ -122,7 +142,7 @@ export const CourseContent = () => {
                 { placement: 'topEnd', duration: 3000 }
             )
 
-            await fetchCourseContents(semester);
+            await fetchCourseContentsSilently(selectedSemester);
             handleClose();
         } catch (error) {
             const errors = error.response?.data?.errors || {};
@@ -168,7 +188,7 @@ export const CourseContent = () => {
                 { placement: 'topEnd', duration: 3000 }
             )
 
-            await fetchCourseContents(semester);
+            await fetchCourseContentsSilently(selectedSemester);
             handleUpdateClose();
         } catch (error) {
             const errors = error.response?.data?.errors || {};
@@ -201,7 +221,7 @@ export const CourseContent = () => {
                 { placement: 'topEnd', duration: 3000 }
             );
 
-            await fetchCourseContents();
+            await fetchCourseContentsSilently(selectedSemester);
             setDeleteOpen(false);
         } catch (error) {
             toaster.push(
@@ -272,7 +292,7 @@ export const CourseContent = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {isLoading ? (
+                        {isLoadingData ? (
                             <tr>
                                 <td colSpan="8" className='p-4'>
                                     <Placeholder.Grid rows={5} columns={8} rowHeight={20} active />
@@ -305,7 +325,7 @@ export const CourseContent = () => {
                                 </tr>
                             ))
                         )}
-                        {isLoading ? (
+                        {isLoadingData ? (
                             <tr>
                                 <td colSpan="2" className='p-4'>
                                     <Placeholder.Paragraph rowHeight={20} rows={1} active />
@@ -421,15 +441,15 @@ export const CourseContent = () => {
                             />
                         </Form.Group>
                         <Modal.Footer>
+                            <Button onClick={handleClose} appearance="ghost">
+                                Cancel
+                            </Button>
                             <Button
                                 type="submit"
                                 appearance="primary"
                                 disabled={isLoading}
                             >
-                                {isLoading ? <Loader content="Adding..." /> : 'Add Course Content'}
-                            </Button>
-                            <Button onClick={handleClose} appearance="subtle">
-                                Cancel
+                                {isLoading ? <Loader content="Adding..." /> : 'Add'}
                             </Button>
                         </Modal.Footer>
                     </Form>
@@ -544,38 +564,39 @@ export const CourseContent = () => {
                             )}
                         </Form.Group>
                         <Modal.Footer>
+                            <Button onClick={handleUpdateClose} appearance="ghost">
+                                Cancel
+                            </Button>
                             <Button
                                 appearance="primary"
                                 onClick={handleUpdateSubmit}
                                 disabled={isLoading}
                             >
-                                {isLoading ? <Loader content="Updating..." /> : 'Update Course Content'}
-                            </Button>
-                            <Button onClick={handleUpdateClose} appearance="subtle">
-                                Cancel
+                                {isLoading ? <Loader content="Updating..." /> : 'Update'}
                             </Button>
                         </Modal.Footer>
                     </Form>
                 </Modal.Body>
             </Modal>
 
-            <Modal open={deleteOpen} onClose={() => setDeleteOpen(false)} size="xs" backdrop="static" keyboard={false}>
+            <Modal open={deleteOpen} onClose={() => setDeleteOpen(false)}>
                 <Modal.Header>
                     <Modal.Title>Delete Course Content</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p className='text-gray-500'>Once data is deleted, it cannot be restored</p>
+                    <p className='text-gray-500'>Once data is deleted, it cannot be restored. <span className='font-bold'>Deleting this data may also result in related data, such as tasks</span>, being removed as well. Proceed with caution.</p>
                 </Modal.Body>
                 <Modal.Footer>
+                    <Button onClick={() => setDeleteOpen(false)} appearance="ghost">
+                        Cancel
+                    </Button>
                     <Button
                         appearance="primary"
+                        color='red'
                         onClick={handleDelete}
                         disabled={isLoading}
                     >
-                        {isLoading ? <Loader content="Deletting..." /> : 'Delete Course Content'}
-                    </Button>
-                    <Button onClick={() => setDeleteOpen(false)} appearance="subtle">
-                        Cancel
+                        {isLoading ? <Loader content="Deleting..." /> : 'Delete'}
                     </Button>
                 </Modal.Footer>
             </Modal>
