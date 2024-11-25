@@ -25,7 +25,7 @@ class Task extends Model
 
         $diffInDays = $now->diffInDays($deadline);
 
-        if ($diffInDays === 0) {
+        if ($diffInDays == 0) {
             return 'Due today';
         } else if ($diffInDays === 1) {
             return '1 day left';

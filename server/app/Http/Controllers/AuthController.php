@@ -26,7 +26,7 @@ class AuthController
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $request->remember_me)) {
             $user = Auth::user();
 
-            $token = $user->createToken('Task Reminder')->plainTextToken;
+            $token = $user->createToken('Task Reminder', ['*'], now()->addMinutes(30))->plainTextToken;
 
             $data = [
                 'token' => $token,
@@ -62,7 +62,7 @@ class AuthController
 
         event(new Registered($user));
 
-        $token = $user->createToken('Task Reminder')->plainTextToken;
+        $token = $user->createToken('Task Reminder', ['*'], now()->addMinutes(30))->plainTextToken;
 
         $data = [
             'token' => $token,
@@ -113,18 +113,18 @@ class AuthController
             return $this->sendError('Token not found', 401);
         }
 
-        // $tokenRecord = DB::table('personal_access_tokens')->where('id', $token)->first();
+        $tokenRecord = DB::table('personal_access_tokens')->where('id', $token)->first();
 
-        // if (!$tokenRecord) {
-        //     return $this->sendError('Token not found', 401);
-        // }
+        if (!$tokenRecord) {
+            return $this->sendError('Token not found', 401);
+        }
 
-        // $expiresAt = Carbon::parse($tokenRecord->expires_at);
-        // $currentTime = Carbon::now();
+        $expiresAt = Carbon::parse($tokenRecord->expires_at);
+        $currentTime = Carbon::now();
 
-        // if ($currentTime->greaterThan($expiresAt)) {
-        //     return $this->sendError('Token expired', 401);
-        // }
+        if ($currentTime->greaterThan($expiresAt)) {
+            return $this->sendError('Token expired', 401);
+        }
 
         return response()->json(['status' => true]);
     }

@@ -70,11 +70,6 @@ export const Dashboard = () => {
         setSelectedYear(date.getFullYear());
     };
 
-    const handlePanelChange = (date) => {
-        setSelectedMonth(date.getMonth());
-        setSelectedYear(date.getFullYear());
-    };
-
     const filterTasksByMonth = (tasks, month, year) => {
         if (!tasks || month === null || year === null) return { completed: [], uncompleted: [] };
 
@@ -374,7 +369,6 @@ export const Dashboard = () => {
                                     compact
                                     bordered
                                     onSelect={handleDateClick}
-                                    onPanelChange={handlePanelChange}
                                     renderCell={(date) => {
                                         const badgesForDate = getBadgesForDate(date);
                                         return (
