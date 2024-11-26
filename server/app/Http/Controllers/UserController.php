@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Setting;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -30,13 +31,14 @@ class UserController
     {
         $request->validate([
             'old_password' => 'required',
-            'password' => 'required|min:8|confirmed',
+            'password' => 'required|min:8',
+            'password_confirmation' => 'required|same:password'
         ]);
 
         $user = $request->user();
 
         if (!Hash::check($request->old_password, $user->password)) {
-            return $this->sendError('Old password is incorrect', 401);
+            return $this->sendError('Current password is incorrect', 401);
         }
 
         $user->password = Hash::make($request->password);
@@ -47,6 +49,8 @@ class UserController
 
     public function getAuthenticatedUser(Request $request)
     {
+        $settings = Setting::where('user_id', $request->user()->id)->first();
+
         $user = [
             'id' => $request->user()->id,
             'name' => $request->user()->name,
@@ -54,8 +58,13 @@ class UserController
             'phone' => $request->user()->phone
         ];
 
-        if ($user) {
-            return $this->sendResponse($user, 'User retrieved successfully');
+        $data = [
+            'user' => $user,
+            'settings' => $settings
+        ];
+
+        if ($data) {
+            return $this->sendResponse($data, 'User retrieved successfully');
         }
 
         return $this->sendError('User not found', 404);

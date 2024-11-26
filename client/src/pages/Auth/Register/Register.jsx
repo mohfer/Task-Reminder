@@ -92,6 +92,7 @@ const Register = () => {
                                     Name
                                 </label>
                                 <input
+                                placeholder='John Doe'
                                     type="name"
                                     id="name"
                                     value={name}
@@ -113,6 +114,7 @@ const Register = () => {
                                     </Whisper>
                                 </div>
                                 <input
+                                placeholder='bRf0m@example.com'
                                     type="email"
                                     id="email"
                                     value={email}
@@ -136,6 +138,7 @@ const Register = () => {
                                 <div className='flex items-center gap-2'>
                                     <div className='w-full'>
                                         <input
+                                        placeholder='01234567890'
                                             type="phone"
                                             id="phone"
                                             value={phone}
@@ -155,6 +158,7 @@ const Register = () => {
                                 </label>
                                 <div className="relative">
                                     <input
+                                    placeholder='**********'
                                         type={showPassword ? "text" : "password"}
                                         id="password"
                                         value={password}
@@ -184,6 +188,7 @@ const Register = () => {
                                 </label>
                                 <div className="relative">
                                     <input
+                                    placeholder='**********'
                                         type={showConfirmPassword ? "text" : "password"}
                                         id="confirmPassword"
                                         value={confirmPassword}

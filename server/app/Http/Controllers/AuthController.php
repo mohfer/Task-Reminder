@@ -26,7 +26,7 @@ class AuthController
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $request->remember_me)) {
             $user = Auth::user();
 
-            $token = $user->createToken('Task Reminder', ['*'], now()->addMinutes(30))->plainTextToken;
+            $token = $user->createToken('Task Reminder', ['*'], now()->addHours(1))->plainTextToken;
 
             $data = [
                 'token' => $token,
@@ -54,7 +54,7 @@ class AuthController
         $user = User::create($request->all());
 
         Setting::create([
-            'deadline_notification' => "3 days left",
+            'deadline_notification' => "5 days left",
             'task_created_notification' => 1,
             'task_completed_notification' => 1,
             'user_id' => $user->id
@@ -62,7 +62,7 @@ class AuthController
 
         event(new Registered($user));
 
-        $token = $user->createToken('Task Reminder', ['*'], now()->addMinutes(30))->plainTextToken;
+        $token = $user->createToken('Task Reminder', ['*'], now()->addHours(1))->plainTextToken;
 
         $data = [
             'token' => $token,

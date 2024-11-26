@@ -93,6 +93,7 @@ const Login = () => {
                                     Email
                                 </label>
                                 <input
+                                    placeholder='Enter your email'
                                     type="email"
                                     id="email"
                                     value={email}
@@ -110,6 +111,7 @@ const Login = () => {
                                 </label>
                                 <div className="relative">
                                     <input
+                                    placeholder='Enter your password'
                                         type={showPassword ? "text" : "password"}
                                         id="password"
                                         value={password}

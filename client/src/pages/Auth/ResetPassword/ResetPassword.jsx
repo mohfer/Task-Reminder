@@ -93,6 +93,7 @@ const ResetPassword = () => {
                                 <div className="relative">
 
                                     <input
+                                    placeholder='Password'
                                         type={showPassword ? "text" : "password"}
                                         id="password"
                                         value={password}
@@ -122,6 +123,7 @@ const ResetPassword = () => {
                                 </label>
                                 <div className="relative">
                                     <input
+                                    placeholder='Confirm Password'
                                         type={showConfirmPassword ? "text" : "password"}
                                         id="confirmPassword"
                                         value={confirmPassword}

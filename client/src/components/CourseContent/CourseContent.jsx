@@ -246,7 +246,7 @@ export const CourseContent = () => {
                 <Dropdown
                     title={title}
                     trigger="click"
-                    toggleClassName='bg-white rounded-full p-2 px-8 text-gray-500'
+                    toggleClassName='bg-white rounded-full p-2 px-8 text-gray-500 shadow'
                 >
                     {semesters.map((semester) => (
                         <Dropdown.Item
@@ -264,7 +264,7 @@ export const CourseContent = () => {
                 </Dropdown>
                 <IconButton
                     onClick={handleOpen}
-                    className='border'
+                    className='shadow'
                     style={{
                         backgroundColor: isHovered ? 'rgb(229, 229, 234)' : 'white',
                         color: isHovered ? 'black' : 'rgb(107, 114, 128)',
@@ -278,7 +278,7 @@ export const CourseContent = () => {
                 </IconButton>
             </div>
             <div className='my-4'>
-                <table className="min-w-full bg-white rounded-3xl">
+                <table className="min-w-full bg-white rounded-3xl shadow">
                     <thead>
                         <tr className='text-left'>
                             <th className="px-8 py-4">No</th>
@@ -365,6 +365,7 @@ export const CourseContent = () => {
                         <Form.Group>
                             <Form.ControlLabel>Code</Form.ControlLabel>
                             <Input
+                                placeholder='Enter code'
                                 value={code}
                                 onChange={(value) => setCode(value)}
                                 className={`${message.code ? 'border border-red-500' : ''}`}
@@ -376,6 +377,7 @@ export const CourseContent = () => {
                         <Form.Group>
                             <Form.ControlLabel>Course Content</Form.ControlLabel>
                             <Input
+                                placeholder='Enter course content'
                                 value={course}
                                 onChange={(value) => setCourse(value)}
                                 className={`${message.course_content ? 'border border-red-500' : ''}`}
@@ -387,9 +389,11 @@ export const CourseContent = () => {
                         <Form.Group>
                             <Form.ControlLabel>SCU</Form.ControlLabel>
                             <InputNumber
+                                placeholder='Enter SCU'
                                 value={scu}
                                 onChange={(value) => setScu(value)}
-                                min={1} style={{ width: '100%' }}
+                                min={1}
+                                style={{ width: '100%' }}
                                 className={`${message.scu ? 'border border-red-500' : ''}`}
                             />
                             {message.scu && (
@@ -399,6 +403,7 @@ export const CourseContent = () => {
                         <Form.Group controlId="lecturer">
                             <Form.ControlLabel>Lecturer</Form.ControlLabel>
                             <Input
+                                placeholder='Enter lecturer'
                                 value={lecturer}
                                 onChange={(value) => setLecturer(value)}
                                 className={`${message.lecturer ? 'border border-red-500' : ''}`}
@@ -481,6 +486,7 @@ export const CourseContent = () => {
                         <Form.Group>
                             <Form.ControlLabel>Code</Form.ControlLabel>
                             <Input
+                                placeholder='Enter code'
                                 value={code}
                                 onChange={(value) => setCode(value)}
                                 className={`${message.code ? 'border border-red-500' : ''}`}
@@ -492,6 +498,7 @@ export const CourseContent = () => {
                         <Form.Group>
                             <Form.ControlLabel>Course Content</Form.ControlLabel>
                             <Input
+                                placeholder='Enter course content'
                                 value={course}
                                 onChange={(value) => setCourse(value)}
                                 className={`${message.course_content ? 'border border-red-500' : ''}`}
@@ -503,6 +510,7 @@ export const CourseContent = () => {
                         <Form.Group>
                             <Form.ControlLabel>SCU</Form.ControlLabel>
                             <InputNumber
+                                placeholder='Enter scu'
                                 value={scu}
                                 onChange={(value) => setScu(value)}
                                 min={1}
@@ -516,6 +524,7 @@ export const CourseContent = () => {
                         <Form.Group controlId="lecturer">
                             <Form.ControlLabel>Lecturer</Form.ControlLabel>
                             <Input
+                                placeholder='Enter lecturer'
                                 value={lecturer}
                                 onChange={(value) => setLecturer(value)}
                                 className={`${message.lecturer ? 'border border-red-500' : ''}`}

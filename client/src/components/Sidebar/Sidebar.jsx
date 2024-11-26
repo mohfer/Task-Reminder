@@ -24,7 +24,7 @@ const Sidebar = () => {
         <>
             <nav className="w-1/6 flex flex-col justify-between">
                 <div>
-                    <h1 className="text-2xl text-center py-8">Task Reminder</h1>
+                    <h1 className="text-2xl text-center py-8 font-bold">Task Reminder</h1>
                     <div className="flex justify-center">
                         <ul className="w-4/5">
                             <li className="p-2 rounded-lg">

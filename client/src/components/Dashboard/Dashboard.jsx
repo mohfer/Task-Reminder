@@ -101,6 +101,7 @@ export const Dashboard = () => {
 
     const handleStatusChange = async (taskId, value) => {
         try {
+            setIsLoading(true)
             const response = await axios.patch(`${apiUrl}/tasks/${taskId}/status`, { status: value ? 1 : 0 }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -121,6 +122,8 @@ export const Dashboard = () => {
                 </Message>,
                 { placement: 'topEnd', duration: 3000 }
             )
+        } finally {
+            setIsLoading(false)
         }
     };
 
@@ -292,7 +295,7 @@ export const Dashboard = () => {
                 <div className="flex justify-end">
                     <IconButton
                         onClick={handleOpen}
-                        className='border'
+                        className='shadow'
                         style={{
                             backgroundColor: isHovered ? 'rgb(229, 229, 234)' : 'white',
                             color: isHovered ? 'black' : 'rgb(107, 114, 128)',
@@ -307,7 +310,7 @@ export const Dashboard = () => {
                 </div>
 
                 <div className="flex justify-between gap-4 my-4">
-                    <div className="flex items-center justify-between gap-8 bg-white rounded-3xl p-4 px-8 flex-1">
+                    <div className="flex items-center justify-between gap-8 bg-white rounded-3xl p-4 px-8 flex-1 shadow">
                         <div className="space-y-0 text-gray-500">
                             <p>Total Tasks</p>
                             <p className="font-bold text-2xl text-black">
@@ -324,7 +327,7 @@ export const Dashboard = () => {
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between gap-8 bg-white rounded-3xl p-4 px-8 flex-1">
+                    <div className="flex items-center justify-between gap-8 bg-white rounded-3xl p-4 px-8 flex-1 shadow">
                         <div className="space-y-0 text-gray-500">
                             <p>Completed Task</p>
                             <p className="font-bold text-2xl text-black">
@@ -341,7 +344,7 @@ export const Dashboard = () => {
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between gap-8 bg-white rounded-3xl p-4 px-8 flex-1">
+                    <div className="flex items-center justify-between gap-8 bg-white rounded-3xl p-4 px-8 flex-1 shadow">
                         <div className="space-y-0 text-gray-500">
                             <p>Uncompleted Task</p>
                             <p className="font-bold text-2xl text-black">
@@ -361,7 +364,7 @@ export const Dashboard = () => {
 
                 <div className="flex-grow-0">
                     <div className="flex justify-between gap-4 my-4">
-                        <div className="bg-white rounded-3xl p-4 px-8 flex-1">
+                        <div className="bg-white rounded-3xl p-4 px-8 flex-1 shadow">
                             {isLoadingData ? (
                                 <Placeholder.Graph active />
                             ) : (
@@ -401,7 +404,7 @@ export const Dashboard = () => {
                     </div>
                     {selectedDate && (
                         <div>
-                            <table className="min-w-full bg-white rounded-3xl mb-8">
+                            <table className="min-w-full bg-white rounded-3xl mb-8 shadow">
                                 <thead>
                                     <tr className='text-left'>
                                         <th className="px-8 py-4">No</th>
@@ -424,7 +427,19 @@ export const Dashboard = () => {
                                                 <td className="px-8 py-4">{task.course_content}</td>
                                                 <td className="px-8 py-4">{task.task}</td>
                                                 <td className="px-8 py-4">{task.deadline_text}</td>
-                                                <td className="px-8 py-4">{task.status === 0 ? <Checkbox color="green" onChange={(value) => handleStatusChange(task.id, value)} /> : <Checkbox color="green" checked />}</td>
+                                                <td className="px-8 py-4">{task.status === 0 ? (
+                                                    <Checkbox
+                                                        color="green"
+                                                        checked={false}
+                                                        disabled={isLoading}
+                                                        onChange={(value) => handleStatusChange(task.id, value)} />
+                                                ) : (
+                                                    <Checkbox
+                                                        color="green"
+                                                        checked={true}
+                                                        disabled={isLoading}
+                                                        onChange={(value) => handleStatusChange(task.id, value)} />
+                                                )}</td>
                                                 <td className="px-8 py-4">
                                                     <Dropdown
                                                         trigger="click"
@@ -446,7 +461,7 @@ export const Dashboard = () => {
                 </div>
             </div>
 
-            <Modal open={open} onClose={handleClose}>
+            <Modal className='rounded-3xl' open={open} onClose={handleClose}>
                 <Modal.Header>
                     <Modal.Title>Add New Task</Modal.Title>
                     <p className='text-gray-500'>Enter the details of the task you want to do.</p>
@@ -490,6 +505,7 @@ export const Dashboard = () => {
                         <Form.Group controlId="task">
                             <Form.ControlLabel>Task</Form.ControlLabel>
                             <Input
+                                placeholder="Enter task"
                                 as="textarea"
                                 rows={3}
                                 value={task}
@@ -573,6 +589,7 @@ export const Dashboard = () => {
                         <Form.Group controlId="task">
                             <Form.ControlLabel>Task</Form.ControlLabel>
                             <Input
+                                placeholder="Enter task"
                                 as="textarea"
                                 rows={3}
                                 value={task}
