@@ -2,19 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CourseContent;
+use Carbon\Carbon;
 use App\Models\Task;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use App\Models\CourseContent;
+use App\Models\Setting;
+use App\Services\WhatsAppService;
 
 class TaskController
 {
     use ApiResponse;
 
+    protected $whatsappService;
+
+    public function __construct(WhatsAppService $whatsappService)
+    {
+        $this->whatsappService = $whatsappService;
+    }
+
     public function store(Request $request)
     {
         $user = $request->user()->id;
-        $courseContent = CourseContent::where('id', $request->course_content_id)->where('user_id', $user)->exists();
+        $courseContent = CourseContent::where('id', $request->course_content_id)->where('user_id', $user)->first();
+        $settings = Setting::where('user_id', $user)->first();
+        $phone = $request->user()->phone;
+        $name = $request->user()->name;
+        $deadline = Carbon::parse($request->deadline)->format('j F Y');
 
         $request->validate([
             'task' => 'required',
@@ -29,6 +43,31 @@ class TaskController
             return $this->sendError('Course Content not found', 404);
         }
 
+        $courseContentName = $courseContent->course_content;
+
+        if ($settings->task_created_notification === 1) {
+            $to = '+62' . $phone;
+            $message = "
+        Hai, {$name}!
+
+Kamu sudah berhasil membuat tugas baru nih, berikut detailnya:
+
+- Mata Kuliah: *{$courseContentName}*
+- Tugas: *{$request->task}*
+- Deadline: *{$deadline}*
+
+Semoga lancar ya! 😊
+        ";
+
+            try {
+                $this->whatsappService->sendMessage($to, $message);
+                $task = Task::create($request->all());
+                return $this->sendResponse($task, 'Task created successfully');
+            } catch (\Exception $e) {
+                return $this->sendError(null, 'Failed to send WhatsApp message', 500);
+            }
+        }
+
         $task = Task::create($request->all());
 
         return $this->sendResponse($task, 'Task created successfully', 201);
@@ -37,7 +76,6 @@ class TaskController
     public function show($id)
     {
         $task = Task::with('course_content')->find($id);
-
 
         if (!$task) {
             return $this->sendError('Task not found', 404);
@@ -92,20 +130,40 @@ class TaskController
 
     public function statusChanged(Request $request, $id)
     {
-        $task = Task::find($id);
+        $task = Task::with('course_content')->where('id', $id)->where('user_id', $request->user()->id)->first();
+        $settings = Setting::where('user_id', $request->user()->id)->first();
+        $name = $request->user()->name;
+        $phone = $request->user()->phone;
 
         if (!$task) {
             return $this->sendError('Task not found', 404);
         }
 
-        if ($task->status == 1) {
-            $request['status'] = 0;
-        } else if ($task->status == 0) {
-            $request['status'] = 1;
+        $request['status'] = $task->status == 1 ? 0 : 1;
+
+        if ($task->status == 0 && $request['status'] == 1 && $settings->task_completed_notification === 1) {
+            $to = +62 . $phone;
+            $message = "
+        Halo, {$name}!
+
+Makasih banyak sudah ambis menyelesaikan tugas berikut:
+
+- Mata Kuliah: *{$task->course_content->course_content}*
+- Tugas: *{$task->task}*
+
+Semangat terus ya! 😊
+        ";
+
+            try {
+                $this->whatsappService->sendMessage($to, $message);
+                $task->update($request->all());
+                return $this->sendResponse($task, 'Task status changed successfully');
+            } catch (\Exception $e) {
+                return $this->sendError(null, 'Failed to send WhatsApp message');
+            }
         }
 
         $task->update($request->all());
-
         return $this->sendResponse($task, 'Task status changed successfully');
     }
 }

@@ -45,7 +45,7 @@ class SettingSeeder extends Seeder
                 'user_id' => 5,
             ],
             [
-                'deadline_notification' => '10 days left',
+                'deadline_notification' => '7 days left',
                 'task_created_notification' => '1',
                 'task_completed_notification' => '1',
                 'user_id' => 6,
@@ -57,7 +57,7 @@ class SettingSeeder extends Seeder
                 'user_id' => 7,
             ],
             [
-                'deadline_notification' => '14 days left',
+                'deadline_notification' => '1 days left',
                 'task_created_notification' => '0',
                 'task_completed_notification' => '1',
                 'user_id' => 8,
@@ -69,7 +69,7 @@ class SettingSeeder extends Seeder
                 'user_id' => 9,
             ],
             [
-                'deadline_notification' => '8 days left',
+                'deadline_notification' => '3 days left',
                 'task_created_notification' => '1',
                 'task_completed_notification' => '0',
                 'user_id' => 10,

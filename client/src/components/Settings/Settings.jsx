@@ -353,7 +353,7 @@ export const Settings = () => {
                                         <div className='flex items-center justify-center w-[108px]'>
                                             <Toggle
                                                 checked={taskCompleted == 1}
-                                                onChange={handleTaskCreated}
+                                                onChange={handleTaskCompleted}
                                             />
                                         </div>
                                     </div>
