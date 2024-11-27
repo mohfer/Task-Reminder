@@ -285,7 +285,6 @@ export const Dashboard = () => {
 
     useEffect(() => {
         fetchDashboardData();
-        fetchCourseContents(semester);
         document.title = 'Dashboard | Task Reminder';
     }, []);
 
