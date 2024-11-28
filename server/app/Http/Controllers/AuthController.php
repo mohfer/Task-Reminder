@@ -21,12 +21,17 @@ class AuthController
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
+            'remember_me' => 'boolean'
         ]);
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $request->remember_me)) {
             $user = Auth::user();
 
-            $token = $user->createToken('Task Reminder', ['*'], now()->addHours(1))->plainTextToken;
+            if ($request['remember_me'] == true) {
+                $token = $user->createToken('Task Reminder', ['*'], now()->addDays(7))->plainTextToken;
+            } else if ($request['remember_me'] == false) {
+                $token = $user->createToken('Task Reminder', ['*'], now()->addHours(1))->plainTextToken;
+            }
 
             $data = [
                 'token' => $token,

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Loader, useToaster, Message } from 'rsuite'
+import { Loader, useToaster, Message, Checkbox } from 'rsuite'
 import axios from 'axios';
 
 const Login = () => {
@@ -9,6 +9,7 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
     const [message, setMessage] = useState({});
     const [loading, setLoading] = useState(false);
 
@@ -18,15 +19,21 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const formData = new FormData();
-        formData.append('email', email);
-        formData.append('password', password);
+        const loginData = {
+            email,
+            password,
+            remember_me: rememberMe
+        }
 
         try {
             setLoading(true);
             setMessage({});
 
-            const response = await axios.post(`${apiUrl}/auth/login`, formData);
+            const response = await axios.post(`${apiUrl}/auth/login`, loginData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
 
             toaster.push(
                 <Message showIcon type="success" closable >
@@ -111,7 +118,7 @@ const Login = () => {
                                 </label>
                                 <div className="relative">
                                     <input
-                                    placeholder='Enter your password'
+                                        placeholder='Enter your password'
                                         type={showPassword ? "text" : "password"}
                                         id="password"
                                         value={password}
@@ -136,10 +143,19 @@ const Login = () => {
                                 </div>
                             </div>
 
-                            <div className="text-end">
-                                <Link to={'/auth/forgot-password'} className="text-sm text-primary-color hover:text-hover-primary-color mr-2">
-                                    Forgot password?
-                                </Link>
+                            <div className='flex justify-between'>
+                                <div>
+                                    <Checkbox
+                                        value={rememberMe}
+                                        onChange={() => setRememberMe(!rememberMe)}>
+                                        Remember me
+                                    </Checkbox>
+                                </div>
+                                <div>
+                                    <Link to={'/auth/forgot-password'} className="text-sm text-primary-color hover:text-hover-primary-color mr-2">
+                                        Forgot password?
+                                    </Link>
+                                </div>
                             </div>
 
                             <button

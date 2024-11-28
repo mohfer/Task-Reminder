@@ -48,7 +48,7 @@ class TaskController
         if ($settings->task_created_notification === 1) {
             $to = '+62' . $phone;
             $message = "
-        Hai, {$name}!
+        Hai, {$name}! 👋
 
 Kamu sudah berhasil membuat tugas baru nih, berikut detailnya:
 
@@ -144,7 +144,7 @@ Semoga lancar ya! 😊
         if ($task->status == 0 && $request['status'] == 1 && $settings->task_completed_notification === 1) {
             $to = +62 . $phone;
             $message = "
-        Halo, {$name}!
+        Hai, {$name}! 👋
 
 Makasih banyak sudah ambis menyelesaikan tugas berikut:
 
