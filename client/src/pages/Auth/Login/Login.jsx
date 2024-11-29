@@ -143,19 +143,15 @@ const Login = () => {
                                 </div>
                             </div>
 
-                            <div className='flex justify-between'>
-                                <div>
-                                    <Checkbox
-                                        value={rememberMe}
-                                        onChange={() => setRememberMe(!rememberMe)}>
-                                        Remember me
-                                    </Checkbox>
-                                </div>
-                                <div>
-                                    <Link to={'/auth/forgot-password'} className="text-sm text-primary-color hover:text-hover-primary-color mr-2">
-                                        Forgot password?
-                                    </Link>
-                                </div>
+                            <div className='flex justify-between items-center'>
+                                <Checkbox
+                                    value={rememberMe}
+                                    onChange={() => setRememberMe(!rememberMe)}>
+                                    Remember me
+                                </Checkbox>
+                                <Link to={'/auth/forgot-password'} className="text-sm text-primary-color hover:text-hover-primary-color mr-2">
+                                    Forgot password?
+                                </Link>
                             </div>
 
                             <button

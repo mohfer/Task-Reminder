@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ListChecks, Ellipsis } from 'lucide-react';
 import { Placeholder, Calendar, Badge, IconButton, Dropdown, Checkbox, Message, useToaster, Modal, Form, Input, SelectPicker, Button, Loader } from 'rsuite';
 import PlusIcon from '@rsuite/icons/Plus';
@@ -7,7 +6,6 @@ import axios from 'axios';
 
 export const Dashboard = () => {
     const apiUrl = import.meta.env.VITE_API_URL;
-    const navigate = useNavigate();
     const toaster = useToaster();
     const [isHovered, setIsHovered] = useState(false);
     const [dashboardData, setDashboardData] = useState(null);
@@ -308,7 +306,7 @@ export const Dashboard = () => {
                     </IconButton>
                 </div>
 
-                <div className="flex justify-between gap-4 my-4">
+                <div className="lg:flex lg:space-y-0 space-y-4 justify-between gap-4 my-4">
                     <div className="flex items-center justify-between gap-8 bg-white rounded-3xl p-4 px-8 flex-1 shadow">
                         <div className="space-y-0 text-gray-500">
                             <p>Total Tasks</p>
@@ -402,7 +400,7 @@ export const Dashboard = () => {
                         </div>
                     </div>
                     {selectedDate && (
-                        <div>
+                        <div className='overflow-x-auto rounded-3xl'>
                             <table className="min-w-full bg-white rounded-3xl mb-8 shadow">
                                 <thead>
                                     <tr className='text-left'>

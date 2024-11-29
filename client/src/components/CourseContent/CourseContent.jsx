@@ -277,7 +277,7 @@ export const CourseContent = () => {
                     New Course Content
                 </IconButton>
             </div>
-            <div className='my-4'>
+            <div className='my-4 overflow-x-auto rounded-3xl'>
                 <table className="min-w-full bg-white rounded-3xl shadow">
                     <thead>
                         <tr className='text-left'>

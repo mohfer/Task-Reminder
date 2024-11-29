@@ -363,7 +363,7 @@ export const Settings = () => {
                     </Tabs.Tab>
                     <Tabs.Tab eventKey="2" title="Profile">
                         <div className="my-4">
-                            <div className='flex gap-4'>
+                            <div className='flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 gap-4'>
                                 <div className='w-full bg-white rounded-3xl shadow p-6'>
                                     <p className='text-lg'>Profile Information</p>
                                     <span className='text-gray-500'>Update your account's profile information and email address.</span>
@@ -507,6 +507,12 @@ export const Settings = () => {
                         </div>
                     </Tabs.Tab>
                 </Tabs>
+                <Button
+                    className='block lg:hidden'
+                    appearance='primary'
+                    color='red'
+                    block>
+                    Logout</Button>
             </div>
         </>
     )

@@ -9,7 +9,10 @@ export default {
       colors: {
         "primary-color": "var(--primary-color)",
         "hover-primary-color": "var(--hover-primary-color)",
-      }
+      },
+      fontFamily: {
+        sans: ['Poppins', 'sans-serif'],
+      },
     },
   },
   plugins: [],
