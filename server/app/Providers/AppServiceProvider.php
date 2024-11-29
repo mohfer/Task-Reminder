@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
     {
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
             $customUrl = str_replace(
-                env('FRONTEND_URL') . '/api',
+                env('APP_URL') . '/api',
                 env('FRONTEND_URL') . '/auth',
                 $url
             );
