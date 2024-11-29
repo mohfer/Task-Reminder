@@ -8,12 +8,9 @@ const Header = ({ title }) => {
 
     useEffect(() => {
         localStorage.removeItem('isPasswordReset');
-        localStorage.removeItem('email');
 
         const storedToken = localStorage.getItem('token');
         const emailVerified = localStorage.getItem('isEmailVerified');
-
-        localStorage.removeItem('email');
 
         if (!storedToken) {
             navigate('/auth/login');

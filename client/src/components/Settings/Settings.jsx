@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Tabs, Dropdown, Divider, Toggle, Form, Input, Button, InputGroup, useToaster, Message, Placeholder, Loader } from 'rsuite';
 import EyeCloseIcon from '@rsuite/icons/EyeClose';
 import VisibleIcon from '@rsuite/icons/Visible';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 export const Settings = () => {
@@ -27,6 +28,7 @@ export const Settings = () => {
 
     const token = localStorage.getItem('token');
     const toaster = new useToaster();
+    const navigate = new useNavigate();
 
     const handleCurrentPasswordVisibleChange = () => {
         setCurrentPasswordVisible(!currentPasswordVisible);
@@ -280,6 +282,20 @@ export const Settings = () => {
         setConfirmPassword('')
     }
 
+    const handleLogout = () => {
+        toaster.push(
+            <Message showIcon type="success" closable>
+                User logged out successfully
+            </Message>,
+            { placement: 'topEnd', duration: 3000 }
+        );
+
+        localStorage.clear();
+        sessionStorage.clear();
+
+        navigate('/auth/login');
+    };
+
     useEffect(() => {
         fetchUserData()
 
@@ -511,7 +527,8 @@ export const Settings = () => {
                     className='block lg:hidden'
                     appearance='primary'
                     color='red'
-                    block>
+                    block
+                    onClick={handleLogout}>
                     Logout</Button>
             </div>
         </>
