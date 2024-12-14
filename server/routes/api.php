@@ -51,6 +51,6 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::put('/settings/profile', [UserController::class, 'updateProfile']);
     Route::put('/settings/password', [UserController::class, 'changePassword']);
 
-    // Auth
+    // Logout
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 });

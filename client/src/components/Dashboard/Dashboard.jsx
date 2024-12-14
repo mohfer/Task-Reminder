@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { ListChecks, Ellipsis } from 'lucide-react';
-import { Placeholder, Calendar, Badge, IconButton, Dropdown, Checkbox, Message, useToaster, Modal, Form, Input, SelectPicker, Button, Loader } from 'rsuite';
+import { ListChecks, Ellipsis, Info } from 'lucide-react';
+import { Placeholder, Calendar, Badge, IconButton, Dropdown, Checkbox, Message, useToaster, Modal, Form, Input, SelectPicker, Button, Loader, Whisper, Tooltip } from 'rsuite';
 import PlusIcon from '@rsuite/icons/Plus';
 import axios from 'axios';
 
@@ -19,7 +19,9 @@ export const Dashboard = () => {
     const [semester, setSemester] = useState('');
     const [course, setCourse] = useState('');
     const [task, setTask] = useState('');
+    const [description, setDescription] = useState('');
     const [deadline, setDeadline] = useState('');
+    const [priority, setPriority] = useState(false);
     const [courseContents, setCourseContents] = useState([]);
     const [updateOpen, setUpdateOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
@@ -30,6 +32,12 @@ export const Dashboard = () => {
     const semesters = ['Semester 1', 'Semester 2', 'Semester 3', 'Semester 4', 'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8'].map(
         (semester) => ({ label: semester, value: semester })
     );
+
+    const priorityTooltip = (
+        <Tooltip>
+            This task will be notified every day.
+        </Tooltip>
+    )
 
     const fetchDashboardData = async () => {
         try {
@@ -136,7 +144,9 @@ export const Dashboard = () => {
         setSemester(task.semester);
         fetchCourseContents(task.semester).then(() => setCourse(task.course_content_id));
         setTask(task.task);
+        setDescription(task.description);
         setDeadline(task.deadline);
+        setPriority(task.priority);
         setUpdateOpen(true);
     };
 
@@ -149,7 +159,9 @@ export const Dashboard = () => {
         setSemester('');
         setCourse('');
         setTask('')
+        setDescription('')
         setDeadline(null)
+        setPriority(false)
         setMessage({});
     };
 
@@ -177,7 +189,9 @@ export const Dashboard = () => {
         const newTaskData = {
             course_content_id: course,
             task,
+            description,
             deadline,
+            priority
         };
 
         try {
@@ -215,7 +229,9 @@ export const Dashboard = () => {
         const updateTaskData = {
             course_content_id: course,
             task,
+            description,
             deadline,
+            priority
         };
 
         try {
@@ -254,7 +270,7 @@ export const Dashboard = () => {
     const handleDelete = async () => {
         try {
             setIsLoading(true);
-            await axios.delete(`${apiUrl}/tasks/${deleteTaskId}`, {
+            const response = await axios.delete(`${apiUrl}/tasks/${deleteTaskId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -262,7 +278,7 @@ export const Dashboard = () => {
 
             toaster.push(
                 <Message showIcon type="success" closable>
-                    Course content deleted successfully.
+                    {response.data.message}
                 </Message>,
                 { placement: 'topEnd', duration: 3000 }
             );
@@ -272,7 +288,7 @@ export const Dashboard = () => {
         } catch (error) {
             toaster.push(
                 <Message showIcon type="error" closable>
-                    {error.response?.data?.message || 'Failed to delete course content.'}
+                    {error.response?.data?.message || 'Failed to delete task.'}
                 </Message>,
                 { placement: 'topEnd', duration: 3000 }
             );
@@ -379,13 +395,15 @@ export const Dashboard = () => {
                                                             <Badge
                                                                 key={task.id}
                                                                 content={task.code}
-                                                                color={task.deadline_text === 'Overdue' && task.status === 0 ? (
-                                                                    'red'
-                                                                ) : task.status === 0 ? (
-                                                                    'yellow'
-                                                                ) : (
-                                                                    'green'
-                                                                )}
+                                                                color={
+                                                                    task.status === 0 && task.priority === 1
+                                                                        ? 'blue'
+                                                                        : (task.deadline_text === 'Overdue' || task.deadline_text === 'Due today') && task.status === 0
+                                                                            ? 'red'
+                                                                            : task.status === 0
+                                                                                ? 'yellow'
+                                                                                : 'green'
+                                                                }
                                                             />
                                                         ))}
                                                     </div>
@@ -400,7 +418,7 @@ export const Dashboard = () => {
                         </div>
                     </div>
                     {selectedDate && (
-                        <div className='overflow-x-auto rounded-3xl'>
+                        <div className='my-4 overflow-x-auto rounded-3xl'>
                             <table className="min-w-full bg-white rounded-3xl mb-8 shadow">
                                 <thead>
                                     <tr className='text-left'>
@@ -419,8 +437,7 @@ export const Dashboard = () => {
                                         </tr>
                                     ) : (
                                         getBadgesForDate(selectedDate).map((task, index) => (
-                                            <tr key={task.id} className="hover:bg-gray-50">
-                                                <td className="px-8 py-4">{index + 1}</td>
+                                            <tr key={task.id} className={`hover:bg-gray-50 ${task.priority === 1 ? 'text-blue-500' : ''}`}>                                                <td className="px-8 py-4">{index + 1}</td>
                                                 <td className="px-8 py-4">{task.course_content}</td>
                                                 <td className="px-8 py-4">{task.task}</td>
                                                 <td className="px-8 py-4">{task.deadline_text}</td>
@@ -503,14 +520,26 @@ export const Dashboard = () => {
                             <Form.ControlLabel>Task</Form.ControlLabel>
                             <Input
                                 placeholder="Enter task"
-                                as="textarea"
-                                rows={3}
                                 value={task}
                                 onChange={(value) => setTask(value)}
                                 className={`${message.task ? 'border border-red-500' : ''}`}
                             />
                             {message.task && (
                                 <p className="text-red-500 text-sm">{message.task}</p>
+                            )}
+                        </Form.Group>
+                        <Form.Group controlId="description">
+                            <Form.ControlLabel>Description</Form.ControlLabel>
+                            <Input
+                                placeholder="Enter description"
+                                as="textarea"
+                                rows={3}
+                                value={description}
+                                onChange={(value) => setDescription(value)}
+                                className={`${message.description ? 'border border-red-500' : ''}`}
+                            />
+                            {message.description && (
+                                <p className="text-red-500 text-sm">{message.description}</p>
                             )}
                         </Form.Group>
                         <Form.Group>
@@ -524,6 +553,21 @@ export const Dashboard = () => {
                             />
                             {message.deadline && (
                                 <p className="text-red-500 text-sm">{message.deadline}</p>
+                            )}
+                        </Form.Group>
+                        <Form.Group>
+                            <div className="flex items-center">
+                                <Form.ControlLabel>Priority</Form.ControlLabel>
+                                <Whisper placement="top" controlId="control-id-hover" trigger="hover" speaker={priorityTooltip}>
+                                    <Info className='w-3 ml-2' />
+                                </Whisper>
+                            </div>
+                            <Checkbox
+                                value={priority}
+                                onChange={() => setPriority(!priority)}>
+                            </Checkbox>
+                            {message.priority && (
+                                <p className="text-red-500 text-sm">{message.priority}</p>
                             )}
                         </Form.Group>
                         <Modal.Footer>
@@ -587,14 +631,26 @@ export const Dashboard = () => {
                             <Form.ControlLabel>Task</Form.ControlLabel>
                             <Input
                                 placeholder="Enter task"
-                                as="textarea"
-                                rows={3}
                                 value={task}
                                 onChange={(value) => setTask(value)}
                                 className={`${message.task ? 'border border-red-500' : ''}`}
                             />
                             {message.task && (
                                 <p className="text-red-500 text-sm">{message.task}</p>
+                            )}
+                        </Form.Group>
+                        <Form.Group controlId="description">
+                            <Form.ControlLabel>Description</Form.ControlLabel>
+                            <Input
+                                placeholder="Enter description"
+                                as="textarea"
+                                rows={3}
+                                value={description}
+                                onChange={(value) => setDescription(value)}
+                                className={`${message.description ? 'border border-red-500' : ''}`}
+                            />
+                            {message.description && (
+                                <p className="text-red-500 text-sm">{message.description}</p>
                             )}
                         </Form.Group>
                         <Form.Group>
@@ -608,6 +664,22 @@ export const Dashboard = () => {
                             />
                             {message.deadline && (
                                 <p className="text-red-500 text-sm">{message.deadline}</p>
+                            )}
+                        </Form.Group>
+                        <Form.Group>
+                            <div className="flex items-center">
+                                <Form.ControlLabel>Priority</Form.ControlLabel>
+                                <Whisper placement="top" controlId="control-id-hover" trigger="hover" speaker={priorityTooltip}>
+                                    <Info className='w-3 ml-2' />
+                                </Whisper>
+                            </div>
+                            <Checkbox
+                                checked={priority}
+                                value={priority}
+                                onChange={() => setPriority(!priority)}>
+                            </Checkbox>
+                            {message.priority && (
+                                <p className="text-red-500 text-sm">{message.priority}</p>
                             )}
                         </Form.Group>
                         <Modal.Footer>

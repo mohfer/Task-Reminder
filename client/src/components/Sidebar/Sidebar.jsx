@@ -1,23 +1,43 @@
 import { LayoutDashboard, Settings, Book, LogOut } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useToaster, Message } from 'rsuite';
+import axios from 'axios';
 
 const Sidebar = () => {
+    const apiUrl = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
     const toaster = useToaster();
+    const token = localStorage.getItem('token');
 
-    const handleLogout = () => {
-        toaster.push(
-            <Message showIcon type="success" closable>
-                User logged out successfully
-            </Message>,
-            { placement: 'topEnd', duration: 3000 }
-        );
+    const handleLogout = async () => {
+        try {
+            const response = await axios.post(`${apiUrl}/auth/logout`, {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+            );
 
-        localStorage.clear();
-        sessionStorage.clear();
+            toaster.push(
+                <Message showIcon type="success" closable>
+                    {response.data.message}
+                </Message>,
+                { placement: 'topEnd', duration: 3000 }
+            );
+        } catch (error) {
+            toaster.push(
+                <Message showIcon type="error" closable>
+                    {error.response?.data?.message || 'Failed to logout. Please try again.'}
+                </Message>,
+                { placement: 'topEnd', duration: 3000 }
+            );
+            console.error(error);
+        } finally {
+            localStorage.clear();
+            sessionStorage.clear();
 
-        navigate('/auth/login');
+            navigate('/auth/login');
+        }
     };
 
     return (

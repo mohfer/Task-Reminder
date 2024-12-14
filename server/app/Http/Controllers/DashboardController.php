@@ -44,7 +44,9 @@ class DashboardController
                     'course_content_id' => $task->course_content->id ?? null,
                     'course_content' => $task->course_content->course_content ?? null,
                     'task' => $task->task,
+                    'description' => $task->description,
                     'deadline' => $task->deadline,
+                    'priority' => $task->priority,
                     'deadline_text' => $task->deadline_text,
                     'status' => $task->status,
                 ];
@@ -97,7 +99,9 @@ class DashboardController
                     'course_content_id' => $task->course_content->id ?? null,
                     'course_content' => $task->course_content->course_content ?? null,
                     'task' => $task->task,
+                    'description' => $task->description,
                     'deadline' => $task->deadline,
+                    'priority' => $task->priority,
                     'deadline_text' => $task->deadline_text,
                     'status' => $task->status,
                 ];
