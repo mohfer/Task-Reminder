@@ -278,7 +278,7 @@ export const CourseContent = () => {
                 </IconButton>
             </div>
             <div className='my-4 overflow-x-auto rounded-3xl'>
-                <table className="min-w-full bg-white rounded-3xl shadow">
+                <table className="min-w-full bg-white rounded-3xl mb-8 shadow">
                     <thead>
                         <tr className='text-left'>
                             <th className="px-8 py-4">No</th>
