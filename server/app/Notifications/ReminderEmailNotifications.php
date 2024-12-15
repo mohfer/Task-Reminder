@@ -42,10 +42,10 @@ class ReminderEmailNotifications extends Notification
         foreach ($this->notifications as $index => $notification) {
             $mailMessage->line('---')
                 ->line('Task ' . ($index + 1) . ':')
-                ->line('Course Content: "**' . $notification['course_content'] . '**"')
-                ->line('Task: "**' . $notification['task'] . '**"')
-                ->line('Description: "**' . $notification['description'] . '**"')
-                ->line('Deadline: "**' . $notification['deadline'] . '**"');
+                ->line('Course Content: **' . $notification['course_content'] . '**')
+                ->line('Task: **' . $notification['task'] . '**')
+                ->line('Description: **' . $notification['description'] . '**')
+                ->line('Deadline: **' . $notification['deadline'] . '**');
         }
 
         $mailMessage->action('View Dashboard', env('FRONTEND_URL') . '/dashboard');

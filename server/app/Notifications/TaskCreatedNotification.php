@@ -45,10 +45,10 @@ class TaskCreatedNotification extends Notification
             ->subject('Task Created Notification')
             ->line('You just created a new task. Here are the details:')
             ->line('---')
-            ->line('Course Content: "**' . $this->courseContent . '**".')
-            ->line('Task: "**' . $this->task . '**".')
-            ->line('Description: "**' . $this->description . '**".')
-            ->line('Deadline: "**' . $this->deadline . '**".')
+            ->line('Course Content: **' . $this->courseContent . '**.')
+            ->line('Task: **' . $this->task . '**.')
+            ->line('Description: **' . $this->description . '**.')
+            ->line('Deadline: **' . $this->deadline . '**.')
             ->action('View Dashboard', env('FRONTEND_URL') . '/dashboard')
             ->line('Thank you for using our application! Don\'t forget to complete your tasks!');
     }

@@ -31,9 +31,9 @@ class SendReminderEmailNotifications extends Command
     {
         $settings = Setting::all();
         $today = Carbon::now()->format('Y-m-d');
-        $notifications = [];
 
         foreach ($settings as $setting) {
+            $notifications = [];
             $days = intval($setting->deadline_notification);
             $notificationDate = Carbon::now()->addDays($days)->format('Y-m-d');
 

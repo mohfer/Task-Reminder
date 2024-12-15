@@ -39,9 +39,9 @@ class TaskCompletedNotification extends Notification
             ->subject('Task Completed Notification')
             ->line('You just completed a task. Here are the details:')
             ->line('---')
-            ->line('Course Content: "**' . $this->task->course_content->course_content . '**".')
-            ->line('Task "**' . $this->task->task . '**".')
-            ->line('Description: "**' . $this->task->description . '**".')
+            ->line('Course Content: **' . $this->task->course_content->course_content . '**.')
+            ->line('Task: **' . $this->task->task . '**.')
+            ->line('Description: **' . $this->task->description . '**.')
             ->action('View Dashboard', env('FRONTEND_URL') . '/dashboard')
             ->line('Thank you for using our application! Don\'t forget to complete your other tasks!');
     }
