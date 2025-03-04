@@ -32,8 +32,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/auth/user', [UserController::class, 'getAuthenticatedUser']);
 
     // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::post('/dashboard/filter', [DashboardController::class, 'filter']);
+    Route::post('/dashboard/chart', [DashboardController::class, 'chart']);
 
     // Course Content
     Route::resource('course-contents', CourseContentController::class);
