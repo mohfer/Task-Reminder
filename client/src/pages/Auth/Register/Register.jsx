@@ -75,7 +75,7 @@ const Register = () => {
     useEffect(() => {
         localStorage.removeItem('isPasswordReset')
 
-        document.title = 'Register | Task Reminder';
+        document.title = 'Register - Task Reminder';
     }, []);
 
     return (

@@ -299,7 +299,7 @@ export const Dashboard = () => {
 
     useEffect(() => {
         fetchDashboardData();
-        document.title = 'Dashboard | Task Reminder';
+        document.title = 'Dashboard - Task Reminder';
     }, []);
 
     return (

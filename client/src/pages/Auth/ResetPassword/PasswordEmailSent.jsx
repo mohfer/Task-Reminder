@@ -52,7 +52,7 @@ const PasswordEmailSent = () => {
     }, [navigate]);
 
     useEffect(() => {
-        document.title = 'Forgot Password | Task Reminder';
+        document.title = 'Forgot Password - Task Reminder';
     }, []);
 
     return (

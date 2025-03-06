@@ -74,7 +74,7 @@ const ResetPassword = () => {
     }, [navigate])
 
     useEffect(() => {
-        document.title = "Reset Password | Task Reminder";
+        document.title = "Reset Password - Task Reminder";
     })
 
     return (
