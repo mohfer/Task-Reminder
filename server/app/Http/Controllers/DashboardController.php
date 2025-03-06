@@ -39,11 +39,17 @@ class DashboardController
 
             $totalTask = $completedTask + $uncompletedTask;
 
+            $taskLists = Task::where('user_id', $user)
+                ->where('course_content_id', $content->id)
+                ->select('id', 'task', 'status', 'deadline', 'created_at', 'updated_at')
+                ->get();
+
             $data['course_contents'][] = [
                 'course_content' => $content->course_content,
                 'completed_task' => $completedTask,
                 'uncompleted_task' => $uncompletedTask,
-                'total_task' => $totalTask
+                'total_task' => $totalTask,
+                'tasks' => $taskLists
             ];
         }
 
@@ -89,7 +95,7 @@ class DashboardController
                     'description' => $task->description,
                     'deadline' => $task->deadline,
                     'priority' => $task->priority,
-                    'deadline_text' => $task->deadline_text,
+                    'deadline_label' => $task->deadline_label,
                     'status' => $task->status,
                 ];
             });

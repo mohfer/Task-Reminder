@@ -398,7 +398,7 @@ export const Dashboard = () => {
                                                                 color={
                                                                     task.status === 0 && task.priority === 1
                                                                         ? 'blue'
-                                                                        : (task.deadline_text === 'Overdue' || task.deadline_text === 'Due today') && task.status === 0
+                                                                        : (task.deadline_label === 'Overdue' || task.deadline_label === 'Due today') && task.status === 0
                                                                             ? 'red'
                                                                             : task.status === 0
                                                                                 ? 'yellow'
@@ -440,7 +440,7 @@ export const Dashboard = () => {
                                             <tr key={task.id} className={`hover:bg-gray-50 ${task.priority === 1 ? 'text-blue-500' : ''}`}>                                                <td className="px-8 py-4">{index + 1}</td>
                                                 <td className="px-8 py-4">{task.course_content}</td>
                                                 <td className="px-8 py-4">{task.task}</td>
-                                                <td className="px-8 py-4">{task.deadline_text}</td>
+                                                <td className="px-8 py-4">{task.deadline_label}</td>
                                                 <td className="px-8 py-4">{task.status === 0 ? (
                                                     <Checkbox
                                                         color="green"
