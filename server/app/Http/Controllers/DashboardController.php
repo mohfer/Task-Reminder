@@ -40,7 +40,7 @@ class DashboardController
                     'description' => $task->description,
                     'deadline' => $task->deadline,
                     'priority' => $task->priority,
-                    'deadline_text' => $task->deadline_text,
+                    'deadline_label' => $task->deadline_label,
                     'status' => $task->status,
                 ];
             });
