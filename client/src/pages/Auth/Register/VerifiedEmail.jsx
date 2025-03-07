@@ -69,7 +69,7 @@ const VerifiedEmail = () => {
     }, [id, hash, navigate, apiUrl]);
 
     useEffect(() => {
-        document.title = 'Email Verified | Task Reminder';
+        document.title = 'Email Verified - Task Reminder';
     }, []);
 
     return (

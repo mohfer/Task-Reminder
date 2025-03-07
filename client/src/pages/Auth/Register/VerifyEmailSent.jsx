@@ -69,7 +69,7 @@ const VerifyEmailSent = () => {
     }, [navigate]);
 
     useEffect(() => {
-        document.title = 'Email Sent | Task Reminder';
+        document.title = 'Email Sent - Task Reminder';
     }, []);
 
     return (

@@ -237,7 +237,7 @@ export const CourseContent = () => {
 
     useEffect(() => {
         fetchCourseContents(selectedSemester);
-        document.title = 'Course Contents | Task Reminder';
+        document.title = 'Course Contents - Task Reminder';
     }, []);
 
     return (

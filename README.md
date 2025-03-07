@@ -8,10 +8,7 @@ Task Reminder adalah aplikasi pengingat tugas kuliah yang dirancang untuk memban
 - **Penjadwalan Tugas**: Pengguna dapat menambahkan tugas dengan tanggal jatuh tempo dan waktu pengingat yang dapat disesuaikan.
 - **Antarmuka Pengguna yang Ramah**: Aplikasi dirancang dengan antarmuka yang mudah digunakan untuk memberikan pengalaman pengguna yang nyaman.
 - **Prioritas Tugas**: Pengguna akan dapat menetapkan prioritas tugas untuk membantu memfokuskan pada pekerjaan yang lebih penting.
-
-## Upcoming Feature
-
-- **Chart**: Tampilan grafik untuk memvisualisasikan jumlah tugas berdasarkan tahun, memungkinkan pengguna melihat distribusi tugas mereka sepanjang tahun berdasarkan status atau tenggat waktu yang mendekat.
+- **Chart**: Tampilan grafik untuk memvisualisasikan jumlah tugas berdasarkan semester, memungkinkan pengguna melihat distribusi tugas mereka sepanjang semester berdasarkan status.
 
 ## Screenshot
 

@@ -82,7 +82,7 @@ const Login = () => {
     }, [navigate]);
 
     useEffect(() => {
-        document.title = 'Login | Task Reminder';
+        document.title = 'Login - Task Reminder';
     }, []);
 
 

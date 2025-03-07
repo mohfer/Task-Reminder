@@ -318,7 +318,7 @@ export const Settings = () => {
     useEffect(() => {
         fetchUserData()
 
-        document.title = 'Settings | Task Reminder';
+        document.title = 'Settings - Task Reminder';
     }, []);
 
     return (

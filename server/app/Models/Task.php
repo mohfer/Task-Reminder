@@ -8,16 +8,20 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Task extends Model
 {
-    protected $appends = ['deadline_text'];
+    protected $appends = ['deadline_label'];
 
     protected $guarded = [
         'id'
     ];
 
-    public function getDeadlineTextAttribute()
+    public function getDeadlineLabelAttribute()
     {
         $deadline = Carbon::parse($this->deadline)->startOfDay();
         $now = Carbon::now()->startOfDay();
+
+        if ($this->status == 1) {
+            return 'Completed';
+        }
 
         if ($now->greaterThan($deadline)) {
             return 'Overdue';
@@ -32,6 +36,16 @@ class Task extends Model
         } else {
             return $diffInDays . ' days left';
         }
+    }
+
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->locale('id')->translatedFormat('j F Y');
+    }
+
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->locale('id')->translatedFormat('j F Y');
     }
 
     public function user(): HasOne
