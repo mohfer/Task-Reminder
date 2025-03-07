@@ -40,16 +40,12 @@ class Task extends Model
 
     public function getCreatedAtAttribute($value)
     {
-        $created_at = Carbon::parse($value)->locale('id');
-        $created_at->settings(['formatFunction' => 'translatedFormat']);
-        return $created_at->format('j F Y');
+        return Carbon::parse($value)->locale('id')->translatedFormat('j F Y');
     }
 
     public function getUpdatedAtAttribute($value)
     {
-        $updated_at = Carbon::parse($value)->locale('id');
-        $updated_at->settings(['formatFunction' => 'translatedFormat']);
-        return $updated_at->format('j F Y');
+        return Carbon::parse($value)->locale('id')->translatedFormat('j F Y');
     }
 
     public function user(): HasOne

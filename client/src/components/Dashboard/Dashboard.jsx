@@ -440,10 +440,22 @@ export const Dashboard = () => {
                                                 </tr>
                                             ) : (
                                                 getBadgesForDate(selectedDate).map((task, index) => (
-                                                    <tr key={task.id} className={`hover:bg-gray-50 ${task.priority === 1 ? 'text-blue-500' : ''}`}>                                                <td className="px-8 py-4">{index + 1}</td>
+                                                    <tr key={task.id} className={`hover:bg-gray-50 ${task.priority === 1 ? 'text-blue-500' : ''}`}>
+                                                        <td className="px-8 py-4">{index + 1}</td>
                                                         <td className="px-8 py-4">{task.course_content}</td>
                                                         <td className="px-8 py-4">{task.task}</td>
-                                                        <td className="px-8 py-4">{task.deadline_label}</td>
+                                                        <td className="px-8 py-4">
+                                                            <span
+                                                                className={`p-2 rounded-full text-white ${task.deadline_label === 'Completed'
+                                                                    ? 'bg-green-500'
+                                                                    : task.deadline_label === 'Overdue'
+                                                                        ? 'bg-red-500'
+                                                                        : 'bg-yellow-500'
+                                                                    }`}
+                                                            >
+                                                                {task.deadline_label}
+                                                            </span>
+                                                        </td>
                                                         <td className="px-8 py-4">{task.status === 0 ? (
                                                             <Checkbox
                                                                 color="green"
@@ -478,13 +490,7 @@ export const Dashboard = () => {
                         </div>
                     </Tabs.Tab>
                     <Tabs.Tab eventKey="2" title="Bar Chart">
-                        <div className="">
-                            <div className="flex justify-between gap-4 my-4">
-                                <div className="bg-white rounded-3xl p-4 px-8 flex-1 shadow">
-                                    <BarChart />
-                                </div>
-                            </div>
-                        </div>
+                        <BarChart />
                     </Tabs.Tab>
                 </Tabs>
             </div>

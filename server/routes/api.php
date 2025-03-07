@@ -33,7 +33,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index']);
-    Route::post('/dashboard/chart', [DashboardController::class, 'chart']);
+    Route::get('/dashboard/chart', [DashboardController::class, 'chart']);
 
     // Course Content
     Route::resource('course-contents', CourseContentController::class);
