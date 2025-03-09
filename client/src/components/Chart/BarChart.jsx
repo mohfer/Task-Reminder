@@ -230,7 +230,7 @@ export const BarChart = () => {
                                     </tr>
                                 ) : selectedCourse ? (
                                     selectedCourse.tasks.map((task, index) => (
-                                        <tr key={task.id}>
+                                        <tr key={task.id} className="hover:bg-gray-50">
                                             <td className="px-8 py-4">{index + 1}</td>
                                             <td className="px-8 py-4">{selectedCourse.course_content}</td>
                                             <td className="px-8 py-4">{task.task}</td>
@@ -246,7 +246,7 @@ export const BarChart = () => {
                                         content.tasks.map((task) => {
                                             taskNumber += 1;
                                             return (
-                                                <tr key={task.id}>
+                                                <tr key={task.id} className="hover:bg-gray-50">
                                                     <td className="px-8 py-4">{taskNumber}</td>
                                                     <td className="px-8 py-4">{content.course_content}</td>
                                                     <td className="px-8 py-4">{task.task}</td>

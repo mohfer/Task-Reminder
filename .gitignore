@@ -32,7 +32,7 @@
 **/.phpunit.cache
 **/.phpunit.result.cache
 **/.phpactor.json
-/server/database/seeders/
+# /server/database/seeders/
 
 # Laravel specific
 **/Homestead.json

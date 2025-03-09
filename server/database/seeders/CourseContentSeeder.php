@@ -19,6 +19,7 @@ class CourseContentSeeder extends Seeder
                 'day' => 'Monday',
                 'hour_start' => '08:00',
                 'hour_end' => '10:00',
+                'score' => 85,
                 'user_id' => 1
             ],
             [
@@ -30,6 +31,7 @@ class CourseContentSeeder extends Seeder
                 'day' => 'Tuesday',
                 'hour_start' => '10:00',
                 'hour_end' => '12:00',
+                'score' => 78,
                 'user_id' => 1
             ],
             [
@@ -41,6 +43,7 @@ class CourseContentSeeder extends Seeder
                 'day' => 'Wednesday',
                 'hour_start' => '13:00',
                 'hour_end' => '15:00',
+                'score' => 92,
                 'user_id' => 1
             ],
             [
@@ -52,6 +55,7 @@ class CourseContentSeeder extends Seeder
                 'day' => 'Thursday',
                 'hour_start' => '10:00',
                 'hour_end' => '12:00',
+                'score' => 88,
                 'user_id' => 1
             ],
             [
@@ -63,6 +67,7 @@ class CourseContentSeeder extends Seeder
                 'day' => 'Friday',
                 'hour_start' => '09:00',
                 'hour_end' => '11:00',
+                'score' => 75,
                 'user_id' => 1
             ],
 
@@ -75,6 +80,7 @@ class CourseContentSeeder extends Seeder
                 'day' => 'Wednesday',
                 'hour_start' => '13:00',
                 'hour_end' => '15:00',
+                'score' => 82,
                 'user_id' => 1
             ],
             [
@@ -86,6 +92,7 @@ class CourseContentSeeder extends Seeder
                 'day' => 'Monday',
                 'hour_start' => '08:00',
                 'hour_end' => '10:00',
+                'score' => 90,
                 'user_id' => 1
             ],
             [
@@ -97,6 +104,7 @@ class CourseContentSeeder extends Seeder
                 'day' => 'Tuesday',
                 'hour_start' => '10:00',
                 'hour_end' => '12:00',
+                'score' => 95,
                 'user_id' => 1
             ],
             [
@@ -108,6 +116,7 @@ class CourseContentSeeder extends Seeder
                 'day' => 'Thursday',
                 'hour_start' => '09:00',
                 'hour_end' => '11:00',
+                'score' => 87,
                 'user_id' => 1
             ],
             [
@@ -119,6 +128,7 @@ class CourseContentSeeder extends Seeder
                 'day' => 'Friday',
                 'hour_start' => '14:00',
                 'hour_end' => '16:00',
+                'score' => 84,
                 'user_id' => 1
             ],
 
@@ -131,6 +141,7 @@ class CourseContentSeeder extends Seeder
                 'day' => 'Friday',
                 'hour_start' => '10:00',
                 'hour_end' => '12:00',
+                'score' => 79,
                 'user_id' => 1
             ],
             [
@@ -142,6 +153,7 @@ class CourseContentSeeder extends Seeder
                 'day' => 'Monday',
                 'hour_start' => '08:00',
                 'hour_end' => '10:00',
+                'score' => 93,
                 'user_id' => 1
             ],
             [
@@ -153,6 +165,7 @@ class CourseContentSeeder extends Seeder
                 'day' => 'Tuesday',
                 'hour_start' => '13:00',
                 'hour_end' => '15:00',
+                'score' => 89,
                 'user_id' => 1
             ],
             [
@@ -164,6 +177,7 @@ class CourseContentSeeder extends Seeder
                 'day' => 'Wednesday',
                 'hour_start' => '10:00',
                 'hour_end' => '12:00',
+                'score' => 91,
                 'user_id' => 1
             ],
             [
@@ -175,6 +189,7 @@ class CourseContentSeeder extends Seeder
                 'day' => 'Thursday',
                 'hour_start' => '09:00',
                 'hour_end' => '11:00',
+                'score' => 86,
                 'user_id' => 1
             ]
         ];

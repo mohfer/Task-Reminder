@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Database\Seeders\TaskSeeder;
 use Database\Seeders\UserSeeder;
+use Database\Seeders\GradeSeeder;
 use Database\Seeders\SettingSeeder;
 use Database\Seeders\CourseContentSeeder;
 
@@ -21,5 +22,6 @@ class DatabaseSeeder extends Seeder
         $this->call(CourseContentSeeder::class);
         $this->call(TaskSeeder::class);
         $this->call(SettingSeeder::class);
+        $this->call(GradeSeeder::class);
     }
 }
