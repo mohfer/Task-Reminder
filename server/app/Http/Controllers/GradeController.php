@@ -21,9 +21,9 @@ class GradeController
                 return [
                     'id' => $grade->id,
                     'grade' => $grade->grade,
-                    'quality_number' => (float) $grade->quality_number,
-                    'minimal_score' => (float) $grade->minimal_score,
-                    'maximal_score' => (float) $grade->maximal_score,
+                    'quality_number' => number_format($grade->quality_number, 2),
+                    'minimal_score' => number_format($grade->minimal_score, 2),
+                    'maximal_score' => number_format($grade->maximal_score, 2),
                 ];
             });
 

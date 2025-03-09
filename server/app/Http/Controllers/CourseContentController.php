@@ -10,46 +10,6 @@ class CourseContentController
 {
     use ApiResponse;
 
-    public function index(Request $request)
-    {
-        $user = $request->user()->id;
-
-        $courseContents = CourseContent::where('user_id', $user)
-            ->where('semester', 'Semester 1')
-            ->orderBy('course_content', 'ASC')
-            ->get()
-            ->map(function ($courseContent) {
-                return [
-                    'id' => $courseContent->id,
-                    'semester' => $courseContent->semester,
-                    'code' => $courseContent->code,
-                    'course_content' => $courseContent->course_content,
-                    'scu' => $courseContent->scu,
-                    'lecturer' => $courseContent->lecturer,
-                    'day' => $courseContent->day,
-                    'hour_start' => date('H:i', strtotime($courseContent->hour_start)),
-                    'hour_end' => date('H:i', strtotime($courseContent->hour_end)),
-                    'scu_total' => $courseContent->scu
-                ];
-            });
-
-        $totalScu = $courseContents->sum('scu_total');
-
-        if (!$courseContents) {
-            return $this->sendError('Course Content not found', 404);
-        }
-
-        $data = [
-            'total_scu' => $totalScu,
-            'course_contents' => $courseContents,
-        ];
-
-        return response()->json([
-            'message' => 'Course Contents retrieved successfully',
-            'data' => $data
-        ], 200);
-    }
-
     public function store(Request $request)
     {
         $user = $request->user()->id;

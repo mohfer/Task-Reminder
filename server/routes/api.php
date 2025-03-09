@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CourseContentController;
+use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\PasswordResetController;
 
@@ -39,6 +40,10 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Course Content
     Route::resource('course-contents', CourseContentController::class);
     Route::post('/course-contents/filter', [CourseContentController::class, 'filter']);
+
+    // Assessment
+    Route::post('/assessments/filter', [AssessmentController::class, 'filter']);
+    Route::put('/assessments/{id}', [AssessmentController::class, 'update']);
 
     // Task
     Route::resource('tasks', TaskController::class);
