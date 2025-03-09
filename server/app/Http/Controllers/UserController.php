@@ -19,7 +19,6 @@ class UserController
         $request->validate([
             'name' => 'required',
             'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
-            'phone' => ['required', 'integer', Rule::unique('users', 'phone')->ignore($user->id)]
         ]);
 
         $user->update($request->all());
@@ -55,7 +54,6 @@ class UserController
             'id' => $request->user()->id,
             'name' => $request->user()->name,
             'email' => $request->user()->email,
-            'phone' => $request->user()->phone
         ];
 
         $data = [

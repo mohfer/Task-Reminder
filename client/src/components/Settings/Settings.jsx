@@ -12,7 +12,6 @@ export const Settings = () => {
     const [taskCompleted, setTaskCompleted] = useState('');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -61,7 +60,6 @@ export const Settings = () => {
 
             setName(response.data.data.user.name)
             setEmail(response.data.data.user.email)
-            setPhone(response.data.data.user.phone)
         } catch (error) {
             toaster.push(
                 <Message showIcon type="error" closable >
@@ -88,7 +86,6 @@ export const Settings = () => {
 
             setName(response.data.data.user.name)
             setEmail(response.data.data.user.email)
-            setPhone(response.data.data.user.phone)
         } catch (error) {
             toaster.push(
                 <Message showIcon type="error" closable >
@@ -189,7 +186,6 @@ export const Settings = () => {
         const profileData = {
             name: name,
             email: email,
-            phone: phone
         }
 
         try {
@@ -428,18 +424,6 @@ export const Settings = () => {
                                                 />
                                                 {message.email && (
                                                     <p className="text-red-500 text-sm">{message.email}</p>
-                                                )}
-                                            </Form.Group>
-                                            <Form.Group>
-                                                <Form.ControlLabel>Phone</Form.ControlLabel>
-                                                <Input
-                                                    placeholder='Enter your phone'
-                                                    value={phone}
-                                                    onChange={(value) => setPhone(value)}
-                                                    className={`${message.phone ? 'border border-red-500' : ''}`}
-                                                />
-                                                {message.phone && (
-                                                    <p className="text-red-500 text-sm">{message.phone}</p>
                                                 )}
                                             </Form.Group>
                                             <Form.Group>

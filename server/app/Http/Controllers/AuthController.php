@@ -50,7 +50,6 @@ class AuthController
         $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users',
-            'phone' => 'required|unique:users|integer',
             'password' => 'required|min:8',
             'password_confirmation' => 'required|same:password',
         ]);

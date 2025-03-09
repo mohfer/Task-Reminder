@@ -10,7 +10,6 @@ const Register = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -18,12 +17,6 @@ const Register = () => {
 
     const toaster = useToaster();
     const navigate = useNavigate();
-
-    const phoneTooltip = (
-        <Tooltip>
-            Phone number is used to send notifications.
-        </Tooltip>
-    )
 
     const emailTooltip = (
         <Tooltip>
@@ -38,7 +31,6 @@ const Register = () => {
 
         formData.append('name', name);
         formData.append('email', email);
-        formData.append('phone', phone);
         formData.append('password', password);
         formData.append('password_confirmation', confirmPassword);
 
@@ -114,7 +106,7 @@ const Register = () => {
                                     </Whisper>
                                 </div>
                                 <input
-                                placeholder='bRf0m@example.com'
+                                placeholder='john.doe@gmail.com'
                                     type="email"
                                     id="email"
                                     value={email}
@@ -123,32 +115,6 @@ const Register = () => {
                                 />
                                 {message.email && (
                                     <p className="text-red-500 text-sm">{message.email}</p>
-                                )}
-                            </div>
-
-                            <div>
-                                <div className='flex'>
-                                    <label htmlFor="phone" className="text-base font-medium text-gray-700">
-                                        Phone
-                                    </label>
-                                    <Whisper placement="top" controlId="control-id-hover" trigger="hover" speaker={phoneTooltip}>
-                                        <Info className='w-3 ml-2' />
-                                    </Whisper>
-                                </div>
-                                <div className='flex items-center gap-2'>
-                                    <div className='w-full'>
-                                        <input
-                                        placeholder='01234567890'
-                                            type="phone"
-                                            id="phone"
-                                            value={phone}
-                                            onChange={(e) => setPhone(e.target.value)}
-                                            className={`mt-1 block w-full px-3 py-2 border ${message.email ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm my-2`}
-                                        />
-                                    </div>
-                                </div>
-                                {message.phone && (
-                                    <p className="text-red-500 text-sm">{message.phone}</p>
                                 )}
                             </div>
 
@@ -163,7 +129,7 @@ const Register = () => {
                                         id="password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className={`mt-1 block w-full px-3 py-2 border ${message.email ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm my-2`}
+                                        className={`mt-1 block w-full px-3 py-2 border ${message.password ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm my-2`}
                                     />
                                     <button
                                         type="button"
@@ -193,7 +159,7 @@ const Register = () => {
                                         id="confirmPassword"
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className={`mt-1 block w-full px-3 py-2 border ${message.email ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm my-2`}
+                                        className={`mt-1 block w-full px-3 py-2 border ${message.password_confirmation ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm my-2`}
                                     />
                                     <button
                                         type="button"
