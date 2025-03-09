@@ -16,7 +16,7 @@ class AssessmentController
         $user = $request->user()->id;
         $selectedSemester = $request->semester;
 
-        $grades = Grade::all();
+        $grades = Grade::where('user_id', $user)->get();
 
         $semesters = CourseContent::where('user_id', $user)
             ->distinct('semester')
@@ -71,6 +71,7 @@ class AssessmentController
                 });
 
                 return [
+                    'id' => $courseContent->id,
                     'course_content' => $courseContent->course_content,
                     'score' => number_format($courseContent->score, 2),
                     'scu' => $courseContent->scu,
