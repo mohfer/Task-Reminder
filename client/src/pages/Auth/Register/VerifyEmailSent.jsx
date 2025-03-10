@@ -73,8 +73,8 @@ const VerifyEmailSent = () => {
     }, []);
 
     return (
-        <div className='h-screen flex flex-col justify-center items-center p-4'>
-            <img src="../../../../public/logo.png" className='w-32 mb-4' alt="logo" />
+        <div className='min-h-screen flex flex-col justify-center items-center p-4'>
+            <img src="../../../../public/logo.png" className='w-32 mb-8 mt-4' alt="logo" />
             <div className="xl:w-1/3 border p-4 rounded-lg shadow-lg">
                 <h1 className="text-[2.25rem] font-bold">Email Sent</h1>
                 <p className="text-base text-gray-500">We’ve sent a confirmation email to <span className='font-bold'>{email}.</span> Please check your inbox and click the link to verify your email address. If you didn’t receive the email, check your spam folder or try resending the request.</p>
@@ -84,7 +84,7 @@ const VerifyEmailSent = () => {
                         <button
                             disabled={loading}
                             type="submit"
-                            className="w-full py-2 px-4 bg-primary-color text-white font-medium rounded-md shadow-sm hover:bg-hover-primary-color transition duration-200">
+                            className="w-full py-2 px-4 bg-blue-500 text-white font-medium rounded-md shadow-sm hover:bg-hover-blue-500 transition duration-200">
                             {loading ? <Loader content="Resending..." /> : 'Resend Email'}
                         </button>
                     </div>

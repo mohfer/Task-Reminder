@@ -55,7 +55,7 @@ const Sidebar = () => {
                                 <NavLink
                                     to="/dashboard"
                                     className={({ isActive }) =>
-                                        `flex items-center gap-2 text-gray-500 ${isActive ? 'bg-blue-100 rounded-lg p-2 text-primary-color' : ''}`
+                                        `flex items-center gap-2 hover:text-blue-500 ${isActive ? 'bg-blue-100 rounded-lg p-2 text-blue-500' : 'text-gray-500'}`
                                     }
                                 >
                                     <LayoutDashboard className="w-5 h-5" />
@@ -66,7 +66,7 @@ const Sidebar = () => {
                                 <NavLink
                                     to="/course-contents"
                                     className={({ isActive }) =>
-                                        `flex items-center gap-2 text-gray-500 ${isActive ? 'bg-blue-100 rounded-lg p-2 text-primary-color' : ''}`
+                                        `flex items-center gap-2 hover:text-blue-500 ${isActive ? 'bg-blue-100 rounded-lg p-2 text-blue-500' : 'text-gray-500'}`
                                     }
                                 >
                                     <Book className="w-5 h-5" />
@@ -77,7 +77,7 @@ const Sidebar = () => {
                                 <NavLink
                                     to="/assessments"
                                     className={({ isActive }) =>
-                                        `flex items-center gap-2 text-gray-500 ${isActive ? 'bg-blue-100 rounded-lg p-2 text-primary-color' : ''}`
+                                        `flex items-center gap-2 hover:text-blue-500 ${isActive ? 'bg-blue-100 rounded-lg p-2 text-blue-500' : 'text-gray-500'}`
                                     }
                                 >
                                     <Trophy className="w-5 h-5" />
@@ -88,7 +88,7 @@ const Sidebar = () => {
                                 <NavLink
                                     to="/settings"
                                     className={({ isActive }) =>
-                                        `flex items-center gap-2 text-gray-500 ${isActive ? 'bg-blue-100 rounded-lg p-2 text-primary-color' : ''}`
+                                        `flex items-center gap-2 hover:text-blue-500 ${isActive ? 'bg-blue-100 rounded-lg p-2 text-blue-500' : 'text-gray-500'}`
                                     }
                                 >
                                     <Settings className="w-5 h-5" />
@@ -101,7 +101,7 @@ const Sidebar = () => {
 
                 <div className='flex justify-center'>
                     <div className="p-4 w-4/5">
-                        <button onClick={handleLogout} className="flex items-center gap-2 text-red-500 hover:text-red-600 my-8"><LogOut className="w-5 h-5 text-red-500" />Logout</button>
+                        <button onClick={handleLogout} className="flex items-center gap-2 text-red-500 hover:text-red-500 my-8"><LogOut className="w-5 h-5 text-red-500" />Logout</button>
                     </div>
                 </div>
             </nav>

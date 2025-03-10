@@ -6,10 +6,6 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {
-        "primary-color": "var(--primary-color)",
-        "hover-primary-color": "var(--hover-primary-color)",
-      },
       fontFamily: {
         sans: ['Poppins', 'sans-serif'],
       },

@@ -198,22 +198,20 @@ export const Assessment = () => {
                             {isLoadingData ? (
                                 <tr>
                                     <td colSpan="8" className='p-4'>
-                                        <Placeholder.Paragraph rowHeight={20} rows={2} active />
+                                        <Placeholder.Paragraph rowHeight={20} rows={1} active />
                                     </td>
                                 </tr>
                             ) : (
                                 <>
                                     <tr>
                                         <td colSpan="8">
-                                            <div className="mt-4 mb-2 p-2 px-4 font-bold bg-blue-500 rounded-full text-white text-center mx-4 sm:mx-auto" style={{ width: 'fit-content' }}>
-                                                Total IPS: {totalIps}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colSpan="8">
-                                            <div className="mt-2 mb-4 p-2 px-4 font-bold bg-green-500 rounded-full text-white text-center mx-4 sm:mx-auto" style={{ width: 'fit-content' }}>
-                                                Total IPK: {totalIpk}
+                                            <div className="flex justify-start mx-4 sm:justify-center items-center gap-4 mt-4 mb-4">
+                                                <div className="p-2 px-4 font-bold bg-blue-500 rounded-full text-white text-center" style={{ width: 'fit-content' }}>
+                                                    Total IPS: {totalIps}
+                                                </div>
+                                                <div className="p-2 px-4 font-bold bg-green-500 rounded-full text-white text-center" style={{ width: 'fit-content' }}>
+                                                    Total IPK: {totalIpk}
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>
