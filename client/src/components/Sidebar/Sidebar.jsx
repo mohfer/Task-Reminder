@@ -1,4 +1,4 @@
-import { LayoutDashboard, Settings, Book, LogOut } from 'lucide-react'
+import { LayoutDashboard, Settings, Book, Trophy, LogOut } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useToaster, Message } from 'rsuite';
 import axios from 'axios';
@@ -44,7 +44,11 @@ const Sidebar = () => {
         <>
             <nav className="hidden lg:flex w-1/6 flex-col justify-between">
                 <div>
-                    <h1 className="text-2xl text-center py-8 font-bold">Task Reminder</h1>
+                    <div className='flex justify-center gap-4 items-center px-4 py-8'>
+                        <img src="../../../public/logo.png" className='w-8' alt="logo" />
+                        <h1 className="text-2xl font-bold">Task Reminder</h1>
+                    </div>
+
                     <div className="flex justify-center">
                         <ul className="w-4/5">
                             <li className="p-2 rounded-lg">
@@ -67,6 +71,17 @@ const Sidebar = () => {
                                 >
                                     <Book className="w-5 h-5" />
                                     Course Content
+                                </NavLink>
+                            </li>
+                            <li className="p-2 rounded-lg">
+                                <NavLink
+                                    to="/assessments"
+                                    className={({ isActive }) =>
+                                        `flex items-center gap-2 text-gray-500 ${isActive ? 'bg-blue-100 rounded-lg p-2 text-primary-color' : ''}`
+                                    }
+                                >
+                                    <Trophy className="w-5 h-5" />
+                                    Assessment
                                 </NavLink>
                             </li>
                             <li className="p-2 rounded-lg">

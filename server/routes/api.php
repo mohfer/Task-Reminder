@@ -43,7 +43,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     // Assessment
     Route::post('/assessments/filter', [AssessmentController::class, 'filter']);
-    Route::put('/assessments/{id}', [AssessmentController::class, 'update']);
+    Route::patch('/assessments/{id}', [AssessmentController::class, 'update']);
 
     // Task
     Route::resource('tasks', TaskController::class);

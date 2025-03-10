@@ -88,7 +88,8 @@ const Login = () => {
 
     return (
         <>
-            <div className='h-screen flex justify-center items-center p-4'>
+            <div className='h-screen flex flex-col justify-center items-center p-4'>
+                <img src="../../../../public/logo.png" className='w-32 mb-4' alt="logo" />
                 <div className="xl:w-1/3 border p-4 rounded-lg shadow-lg">
                     <h1 className="text-[2.25rem] font-bold">Get Started Now</h1>
                     <p className="text-base text-gray-500">Enter your credentials to access your account.</p>
@@ -167,13 +168,13 @@ const Login = () => {
                     </form>
 
                     <p className="mt-6 text-sm">
-                        Don't have an account?{' '}
+                        Don’t have an account?{' '}
                         <Link to={'/auth/register'} className="text-primary-color hover:hover:text-hover-primary-color">
                             Sign up
                         </Link>
                     </p>
                 </div>
-            </div>
+            </div >
         </>
     );
 };

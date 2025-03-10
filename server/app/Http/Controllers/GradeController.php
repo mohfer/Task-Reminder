@@ -16,6 +16,20 @@ class GradeController
         $user = $request->user()->id;
 
         $grades = Grade::where('user_id', $user)
+            ->orderByRaw("
+                CASE grade
+                    WHEN 'A' THEN 1
+                    WHEN 'A-' THEN 2
+                    WHEN 'B+' THEN 3
+                    WHEN 'B' THEN 4
+                    WHEN 'B-' THEN 5
+                    WHEN 'C+' THEN 6
+                    WHEN 'C' THEN 7
+                    WHEN 'D' THEN 8
+                    WHEN 'E' THEN 9
+                    ELSE 10
+                END
+            ")
             ->get()
             ->map(function ($grade) {
                 return [

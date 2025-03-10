@@ -208,11 +208,11 @@ export const BarChart = () => {
                                     <th className="px-8 py-4">No</th>
                                     <th className="px-8 py-4">Course Content</th>
                                     <th className="px-8 py-4">Task</th>
-                                    <th className="px-8 py-4">Status</th>
-                                    <th className="px-8 py-4">Deadline</th>
-                                    <th className="px-8 py-4">Created At</th>
-                                    <th className="px-8 py-4">Updated At</th>
-                                    <th className="px-8 py-4">Deadline Label</th>
+                                    <th className="px-8 py-4 text-center">Status</th>
+                                    <th className="px-8 py-4 text-center">Created At</th>
+                                    <th className="px-8 py-4 text-center">Updated At</th>
+                                    <th className="px-8 py-4 text-center">Deadline</th>
+                                    <th className="px-8 py-4 text-center">Deadline Label</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -234,11 +234,11 @@ export const BarChart = () => {
                                             <td className="px-8 py-4">{index + 1}</td>
                                             <td className="px-8 py-4">{selectedCourse.course_content}</td>
                                             <td className="px-8 py-4">{task.task}</td>
-                                            <td className="px-8 py-4"><span className={`p-2 rounded-full text-white ${task.status === 1 ? 'bg-green-500' : 'bg-yellow-500'}`}>{task.status === 1 ? 'Completed' : 'Uncompleted'}</span></td>
-                                            <td className="px-8 py-4">{task.deadline}</td>
-                                            <td className="px-8 py-4">{task.created_at}</td>
-                                            <td className="px-8 py-4">{task.updated_at}</td>
-                                            <td className="px-8 py-4">{task.deadline_label}</td>
+                                            <td className="px-8 py-4 text-center"><span className={`p-2 rounded-full text-white ${task.status === 1 ? 'bg-green-500' : 'bg-yellow-500'}`}>{task.status === 1 ? 'Completed' : 'Uncompleted'}</span></td>
+                                            <td className="px-8 py-4 text-center">{task.created_at}</td>
+                                            <td className="px-8 py-4 text-center">{task.updated_at}</td>
+                                            <td className="px-8 py-4 text-center">{task.deadline}</td>
+                                            <td className="px-8 py-4 text-center">{task.deadline_label}</td>
                                         </tr>
                                     ))
                                 ) : (
@@ -250,11 +250,11 @@ export const BarChart = () => {
                                                     <td className="px-8 py-4">{taskNumber}</td>
                                                     <td className="px-8 py-4">{content.course_content}</td>
                                                     <td className="px-8 py-4">{task.task}</td>
-                                                    <td className="px-8 py-4"><span className={`p-2 rounded-full text-white ${task.status === 1 ? 'bg-green-500' : 'bg-yellow-500'}`}>{task.status === 1 ? 'Completed' : 'Uncompleted'}</span></td>
-                                                    <td className="px-8 py-4">{task.deadline}</td>
-                                                    <td className="px-8 py-4">{task.created_at}</td>
-                                                    <td className="px-8 py-4">{task.updated_at}</td>
-                                                    <td className="px-8 py-4">{task.deadline_label}</td>
+                                                    <td className="px-8 py-4 text-center"><span className={`p-2 rounded-full text-white ${task.status === 1 ? 'bg-green-500' : 'bg-yellow-500'}`}>{task.status === 1 ? 'Completed' : 'Uncompleted'}</span></td>
+                                                    <td className="px-8 py-4 text-center">{task.created_at}</td>
+                                                    <td className="px-8 py-4 text-center">{task.updated_at}</td>
+                                                    <td className="px-8 py-4 text-center">{task.deadline}</td>
+                                                    <td className="px-8 py-4 text-center">{task.deadline_label}</td>
                                                 </tr>
                                             );
                                         })

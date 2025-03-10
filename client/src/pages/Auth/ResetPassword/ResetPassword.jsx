@@ -79,10 +79,11 @@ const ResetPassword = () => {
 
     return (
         <>
-            <div className='h-screen flex justify-center items-center p-4'>
+            <div className='h-screen flex flex-col justify-center items-center p-4'>
+                <img src="../../../../public/logo.png" className='w-32 mb-4' alt="logo" />
                 <div className="xl:w-1/3 border p-4 rounded-lg shadow-lg">
                     <h1 className="text-[2.25rem] font-bold">Create a New Password</h1>
-                    <p className="text-base text-gray-500">Enter your new password and don't forget it</p>
+                    <p className="text-base text-gray-500">Enter your new password and don’t forget it</p>
 
                     <form onSubmit={handleSubmit}>
                         <div className="space-y-2 mt-12">
@@ -93,7 +94,7 @@ const ResetPassword = () => {
                                 <div className="relative">
 
                                     <input
-                                    placeholder='Password'
+                                        placeholder='Password'
                                         type={showPassword ? "text" : "password"}
                                         id="password"
                                         value={password}
@@ -123,7 +124,7 @@ const ResetPassword = () => {
                                 </label>
                                 <div className="relative">
                                     <input
-                                    placeholder='Confirm Password'
+                                        placeholder='Confirm Password'
                                         type={showConfirmPassword ? "text" : "password"}
                                         id="confirmPassword"
                                         value={confirmPassword}

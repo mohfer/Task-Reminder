@@ -26,37 +26,52 @@ class AssessmentController
         $totalSCUAllSemesters = 0;
 
         $ipsPerSemester = [];
+        $semestersWithCompleteScores = [];
 
         foreach ($semesters as $semester) {
             $courseContents = CourseContent::where('user_id', $user)
                 ->where('semester', $semester)
-                ->get()
-                ->map(function ($courseContent) use ($grades) {
+                ->get();
+
+            $hasEmptyScores = $courseContents->contains(function ($courseContent) {
+                return $courseContent->score === null;
+            });
+
+            $courseContentsFormatted = $courseContents->map(function ($courseContent) use ($grades) {
+                $grade = null;
+                if ($courseContent->score !== null) {
                     $grade = $grades->first(function ($grade) use ($courseContent) {
                         return $courseContent->score >= $grade->minimal_score && $courseContent->score <= $grade->maximal_score;
                     });
+                }
 
-                    return [
-                        'course_content' => $courseContent->course_content,
-                        'score' => number_format($courseContent->score, 2),
-                        'scu' => $courseContent->scu,
-                        'grade' => $grade ? $grade->grade : null,
-                        'quality_number' => $grade ? $grade->quality_number : 0,
-                    ];
-                });
-
-            $totalQualityNumberTimesSCU = $courseContents->sum(function ($courseContent) {
-                return $courseContent['quality_number'] * $courseContent['scu'];
+                return [
+                    'course_content' => $courseContent->course_content,
+                    'score' => $courseContent->score !== null ? number_format($courseContent->score, 2) : null,
+                    'scu' => $courseContent->scu,
+                    'grade' => $grade ? $grade->grade : null,
+                    'quality_number' => $grade ? $grade->quality_number : 0,
+                ];
             });
 
-            $totalSCU = $courseContents->sum('scu');
+            if (!$hasEmptyScores) {
+                $totalQualityNumberTimesSCU = $courseContentsFormatted->sum(function ($courseContent) {
+                    return $courseContent['quality_number'] * $courseContent['scu'];
+                });
 
-            $ips = $totalSCU > 0 ? $totalQualityNumberTimesSCU / $totalSCU : 0;
+                $totalSCU = $courseContentsFormatted->sum('scu');
 
-            $ipsPerSemester[$semester] = number_format($ips, 2);
+                $ips = $totalSCU > 0 ? $totalQualityNumberTimesSCU / $totalSCU : 0;
 
-            $totalQualityNumberTimesSCUAllSemesters += $ips * $totalSCU;
-            $totalSCUAllSemesters += $totalSCU;
+                $ipsPerSemester[$semester] = number_format($ips, 2);
+
+                $totalQualityNumberTimesSCUAllSemesters += $totalQualityNumberTimesSCU;
+                $totalSCUAllSemesters += $totalSCU;
+
+                $semestersWithCompleteScores[] = $semester;
+            } else {
+                $ipsPerSemester[$semester] = "0.00";
+            }
         }
 
         $ipk = $totalSCUAllSemesters > 0 ? $totalQualityNumberTimesSCUAllSemesters / $totalSCUAllSemesters : 0;
@@ -64,32 +79,46 @@ class AssessmentController
         $selectedSemester = $selectedSemester ?? $semesters->last();
         $courseContentsSelectedSemester = CourseContent::where('user_id', $user)
             ->where('semester', $selectedSemester)
+            ->orderBy('course_content', 'ASC')
             ->get()
             ->map(function ($courseContent) use ($grades) {
-                $grade = $grades->first(function ($grade) use ($courseContent) {
-                    return $courseContent->score >= $grade->minimal_score && $courseContent->score <= $grade->maximal_score;
-                });
+                $grade = null;
+                if ($courseContent->score !== null) {
+                    $grade = $grades->first(function ($grade) use ($courseContent) {
+                        return $courseContent->score >= $grade->minimal_score && $courseContent->score <= $grade->maximal_score;
+                    });
+                }
 
                 return [
                     'id' => $courseContent->id,
                     'course_content' => $courseContent->course_content,
-                    'score' => number_format($courseContent->score, 2),
+                    'score' => $courseContent->score !== null ? number_format($courseContent->score, 2) : null,
                     'scu' => $courseContent->scu,
                     'grade' => $grade ? $grade->grade : null,
                     'quality_number' => $grade ? $grade->quality_number : 0,
                 ];
             });
 
-        $totalQualityNumberTimesSCUSelectedSemester = $courseContentsSelectedSemester->sum(function ($courseContent) {
-            return $courseContent['quality_number'] * $courseContent['scu'];
+        $hasEmptyScoresInSelectedSemester = $courseContentsSelectedSemester->contains(function ($courseContent) {
+            return $courseContent['score'] === null;
         });
 
-        $totalSCUSelectedSemester = $courseContentsSelectedSemester->sum('scu');
+        $ipsSelectedSemester = null;
+        if (!$hasEmptyScoresInSelectedSemester) {
+            $totalQualityNumberTimesSCUSelectedSemester = $courseContentsSelectedSemester->sum(function ($courseContent) {
+                return $courseContent['quality_number'] * $courseContent['scu'];
+            });
 
-        $ipsSelectedSemester = $totalSCUSelectedSemester > 0 ? $totalQualityNumberTimesSCUSelectedSemester / $totalSCUSelectedSemester : 0;
+            $totalSCUSelectedSemester = $courseContentsSelectedSemester->sum('scu');
+
+            $ipsSelectedSemester = $totalSCUSelectedSemester > 0 ? $totalQualityNumberTimesSCUSelectedSemester / $totalSCUSelectedSemester : 0;
+            $ipsSelectedSemester = number_format($ipsSelectedSemester, 2);
+        } else {
+            $ipsSelectedSemester = "0.00";
+        }
 
         $data = [
-            'ips' => number_format($ipsSelectedSemester, 2),
+            'ips' => $ipsSelectedSemester,
             'ipk' => number_format($ipk, 2),
             'ips_per_semester' => $ipsPerSemester,
             'course_contents' => $courseContentsSelectedSemester,
@@ -111,7 +140,7 @@ class AssessmentController
         }
 
         $request->validate([
-            'score' => "numeric"
+            'score' => "nullable|numeric|min:0|max:100"
         ]);
 
         $request['user_id'] = $user;

@@ -1,5 +1,4 @@
 import 'rsuite/dist/rsuite.min.css';
-import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import Login from './pages/Auth/Login/Login';
@@ -11,6 +10,7 @@ import PasswordEmailSent from './pages/Auth/ResetPassword/PasswordEmailSent';
 import ResetPassword from './pages/Auth/ResetPassword/ResetPassword';
 import Dashboard from './pages/Dashboard/Dashboard';
 import CourseContent from './pages/CourseContent/CourseContent';
+import Assessment from './pages/Assessment/Assessment';
 import Settings from './pages/Settings/Settings';
 
 const App = () => {
@@ -59,6 +59,10 @@ const App = () => {
       <Route
         path="/course-contents"
         element={<ProtectedRoute><CourseContent /></ProtectedRoute>}
+      />
+      <Route
+        path="/assessments"
+        element={<ProtectedRoute><Assessment /></ProtectedRoute>}
       />
       <Route
         path="/settings"

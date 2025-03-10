@@ -428,9 +428,9 @@ export const Dashboard = () => {
                                                 <th className="px-8 py-4">No</th>
                                                 <th className="px-8 py-4">Course Content</th>
                                                 <th className="px-8 py-4">Task</th>
-                                                <th className="px-8 py-4">Deadline</th>
-                                                <th className="px-8 py-4">Status</th>
-                                                <th className="px-8 py-4">Options</th>
+                                                <th className="px-8 py-4 text-center">Deadline</th>
+                                                <th className="px-8 py-4 text-center">Status</th>
+                                                <th className="px-8 py-4 text-center">Options</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -444,7 +444,7 @@ export const Dashboard = () => {
                                                         <td className="px-8 py-4">{index + 1}</td>
                                                         <td className="px-8 py-4">{task.course_content}</td>
                                                         <td className="px-8 py-4">{task.task}</td>
-                                                        <td className="px-8 py-4">
+                                                        <td className="px-8 py-4 text-center">
                                                             <span
                                                                 className={`p-2 rounded-full text-white ${task.deadline_label === 'Completed'
                                                                     ? 'bg-green-500'
@@ -456,7 +456,7 @@ export const Dashboard = () => {
                                                                 {task.deadline_label}
                                                             </span>
                                                         </td>
-                                                        <td className="px-8 py-4">{task.status === 0 ? (
+                                                        <td className="px-8 py-4 text-center">{task.status === 0 ? (
                                                             <Checkbox
                                                                 color="green"
                                                                 checked={false}
@@ -469,7 +469,7 @@ export const Dashboard = () => {
                                                                 disabled={isLoading}
                                                                 onChange={(value) => handleStatusChange(task.id, value)} />
                                                         )}</td>
-                                                        <td className="px-8 py-4">
+                                                        <td className="px-8 py-4 text-center">
                                                             <Dropdown
                                                                 trigger="click"
                                                                 icon={<Ellipsis />}
