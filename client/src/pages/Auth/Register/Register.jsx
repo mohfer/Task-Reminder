@@ -20,7 +20,7 @@ const Register = () => {
 
     const emailTooltip = (
         <Tooltip>
-            Email is used to send verification.
+            Email is used to send notification.
         </Tooltip>
     )
 
@@ -72,28 +72,27 @@ const Register = () => {
 
     return (
         <>
-            <div className='h-screen flex justify-center items-center p-4'>
-                <div className="xl:w-1/3 border p-4 rounded-lg shadow-lg">
+            <div className='min-h-screen flex flex-col justify-center items-center p-4'>
+                <img src="../../../../public/logo.webp" className='w-32 mb-8 mt-4' alt="logo" />
+                <div className="xl:w-1/3 border p-6 rounded-lg shadow-lg bg-white">
                     <h1 className="text-[2.25rem] font-bold">Let’s Sign Up</h1>
                     <p className="text-base text-gray-500">Enter your credentials to create your account.</p>
 
                     <form onSubmit={handleSubmit}>
-                        <div className="space-y-2 mt-12">
+                        <div className="space-y-4 mt-8">
                             <div>
                                 <label htmlFor="name" className="text-base font-medium text-gray-700">
                                     Name
                                 </label>
                                 <input
-                                placeholder='John Doe'
+                                    placeholder='John Doe'
                                     type="name"
                                     id="name"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     className={`mt-1 block w-full px-3 py-2 border ${message.name ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm my-2`}
                                 />
-                                {message.name && (
-                                    <p className="text-red-500 text-sm">{message.name}</p>
-                                )}
+                                {message.name && <p className="text-red-500 text-sm">{message.name}</p>}
                             </div>
 
                             <div>
@@ -106,16 +105,14 @@ const Register = () => {
                                     </Whisper>
                                 </div>
                                 <input
-                                placeholder='john.doe@gmail.com'
+                                    placeholder='john.doe@gmail.com'
                                     type="email"
                                     id="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className={`mt-1 block w-full px-3 py-2 border ${message.email ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm my-2`}
                                 />
-                                {message.email && (
-                                    <p className="text-red-500 text-sm">{message.email}</p>
-                                )}
+                                {message.email && <p className="text-red-500 text-sm">{message.email}</p>}
                             </div>
 
                             <div>
@@ -124,28 +121,18 @@ const Register = () => {
                                 </label>
                                 <div className="relative">
                                     <input
-                                    placeholder='**********'
+                                        placeholder='**********'
                                         type={showPassword ? "text" : "password"}
                                         id="password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         className={`mt-1 block w-full px-3 py-2 border ${message.password ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm my-2`}
                                     />
-                                    <button
-                                        type="button"
-                                        className="absolute right-3 top-3"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                    >
-                                        {showPassword ? (
-                                            <EyeOffIcon className="h-5 w-5 text-gray-400" />
-                                        ) : (
-                                            <EyeIcon className="h-5 w-5 text-gray-400" />
-                                        )}
+                                    <button type="button" className="absolute right-3 top-3" onClick={() => setShowPassword(!showPassword)}>
+                                        {showPassword ? <EyeOffIcon className="h-5 w-5 text-gray-400" /> : <EyeIcon className="h-5 w-5 text-gray-400" />}
                                     </button>
-                                    {message.password && (
-                                        <p className="text-red-500 text-sm">{message.password}</p>
-                                    )}
                                 </div>
+                                {message.password && <p className="text-red-500 text-sm">{message.password}</p>}
                             </div>
 
                             <div>
@@ -154,46 +141,33 @@ const Register = () => {
                                 </label>
                                 <div className="relative">
                                     <input
-                                    placeholder='**********'
+                                        placeholder='**********'
                                         type={showConfirmPassword ? "text" : "password"}
                                         id="confirmPassword"
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         className={`mt-1 block w-full px-3 py-2 border ${message.password_confirmation ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm my-2`}
                                     />
-                                    <button
-                                        type="button"
-                                        className="absolute right-3 top-3"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                    >
-                                        {showConfirmPassword ? (
-                                            <EyeOffIcon className="h-5 w-5 text-gray-400" />
-                                        ) : (
-                                            <EyeIcon className="h-5 w-5 text-gray-400" />
-                                        )}
+                                    <button type="button" className="absolute right-3 top-3" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                                        {showConfirmPassword ? <EyeOffIcon className="h-5 w-5 text-gray-400" /> : <EyeIcon className="h-5 w-5 text-gray-400" />}
                                     </button>
-                                    {message.password_confirmation && (
-                                        <p className="text-red-500 text-sm">{message.password_confirmation}</p>
-                                    )}
                                 </div>
+                                {message.password_confirmation && <p className="text-red-500 text-sm">{message.password_confirmation}</p>}
                             </div>
 
                             <button
                                 disabled={loading}
                                 type="submit"
-                                className="w-full py-2 px-4 bg-primary-color text-white font-medium rounded-md shadow-sm hover:bg-hover-primary-color transition duration-200">
-                                {loading ? (
-                                    <Loader content='Registering...' />
-                                ) : (
-                                    'Register'
-                                )}
+                                className="w-full py-2 px-4 bg-blue-500 text-white font-medium rounded-md shadow-sm hover:bg-blue-600 transition duration-200"
+                            >
+                                {loading ? <Loader content='Registering...' /> : 'Register'}
                             </button>
                         </div>
                     </form>
 
-                    <p className="mt-6 text-sm">
+                    <p className="mt-6 text-sm text-center">
                         Already have an account?{' '}
-                        <Link to={'/auth/login'} className="text-primary-color hover:text-hover-primary-color">
+                        <Link to={'/auth/login'} className="text-blue-500 hover:text-blue-600">
                             Login
                         </Link>
                     </p>

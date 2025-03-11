@@ -47,30 +47,11 @@ class TaskController
         return $this->sendResponse($task, 'Task created successfully', 201);
     }
 
-    public function show($id)
-    {
-        $task = Task::with('course_content')->find($id);
-
-        if (!$task) {
-            return $this->sendError('Task not found', 404);
-        }
-
-        $data = [
-            'id' => $task->id,
-            'semester' => $task->course_content->semester ?? null,
-            'course_content' => $task->course_content->course_content ?? null,
-            'task' => $task->task,
-            'deadline' => $task->deadline,
-        ];
-
-        return $this->sendResponse($data, 'Task retrieved successfully');
-    }
-
     public function update(Request $request, $id)
     {
         $user = $request->user()->id;
 
-        $task = Task::find($id);
+        $task = Task::where('user_id', $user)->where('id', $id)->first();
 
         if (!$task) {
             return $this->sendError('Task not found', 404);
@@ -89,9 +70,11 @@ class TaskController
         return $this->sendResponse($task, 'Task updated successfully');
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $task = Task::find($id);
+        $user = $request->user()->id;
+
+        $task = Task::where('user_id', $user)->where('id', $id)->first();
 
         if (!$task) {
             return $this->sendError('Task not found', 404);

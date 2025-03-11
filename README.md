@@ -1,18 +1,19 @@
+<p align="center">
+  <img src="https://i.imgur.com/HKm1Q6q.png" alt="Logo" width="150">
+</p>
+
 # Task Reminder
 
 Task Reminder adalah aplikasi pengingat tugas kuliah yang dirancang untuk membantu mahasiswa mengelola dan memprioritaskan tugas mereka. Aplikasi ini menawarkan fitur pengingat otomatis, penjadwalan tugas, dan antarmuka yang ramah pengguna untuk memastikan semua pekerjaan selesai tepat waktu.
 
 ## Fitur
 
-- **Pengingat Otomatis**: Aplikasi akan mengirimkan pengingat kepada pengguna tentang tugas yang mendekati tenggat waktu.
-- **Penjadwalan Tugas**: Pengguna dapat menambahkan tugas dengan tanggal jatuh tempo dan waktu pengingat yang dapat disesuaikan.
-- **Antarmuka Pengguna yang Ramah**: Aplikasi dirancang dengan antarmuka yang mudah digunakan untuk memberikan pengalaman pengguna yang nyaman.
-- **Prioritas Tugas**: Pengguna akan dapat menetapkan prioritas tugas untuk membantu memfokuskan pada pekerjaan yang lebih penting.
-- **Chart**: Tampilan grafik untuk memvisualisasikan jumlah tugas berdasarkan semester, memungkinkan pengguna melihat distribusi tugas mereka sepanjang semester berdasarkan status.
-
-## Upcoming Feature
-
-- **Penilaian**: Fitur yang memungkinkan mahasiswa untuk mencatat dan melacak nilai akademik mereka di setiap mata kuliah. Sistem akan secara otomatis menghitung Indeks Prestasi Semester (IPS) dan Indeks Prestasi Kumulatif (IPK) berdasarkan nilai yang dimasukkan di Course Content.
+- **Pengingat Otomatis**: Mengirim notifikasi kepada pengguna untuk tugas yang mendekati tenggat waktu, memastikan tidak ada tugas yang terlewat.
+- **Penjadwalan Tugas**: Memungkinkan pengguna menambahkan tugas dengan tanggal jatuh tempo serta pengingat yang dapat disesuaikan sesuai kebutuhan.
+- **Antarmuka Pengguna yang Ramah**: Dirancang dengan tampilan sederhana dan intuitif untuk memberikan pengalaman pengguna yang nyaman dan efisien.
+- **Prioritas Tugas**: Memungkinkan pengguna menetapkan tingkat kepentingan pada setiap tugas untuk membantu fokus pada pekerjaan yang lebih mendesak.
+- **Chart**: Menampilkan grafik jumlah tugas berdasarkan semester dan status, membantu pengguna memahami distribusi tugas secara keseluruhan.
+- **Penilaian**: Memungkinkan mahasiswa mencatat nilai untuk setiap mata kuliah, dengan sistem yang otomatis menghitung IPS dan IPK berdasarkan data yang dimasukkan.
 
 ## Screenshot
 
@@ -24,8 +25,14 @@ Berikut adalah tampilan antarmuka aplikasi Task Reminder:
 ### Bar Chart
 ![Task Reminder Bar Chart Screenshot](./screen/bar-chart.png)
 
-### Course Content
-![Task Reminder Course Content Screenshot](./screen/course-content.png)
+### Course Contents
+![Task Reminder Course Contents Screenshot](./screen/course-contents.png)
+
+### Assessments
+![Task Reminder  Screenshot](./screen/assessments.png)
 
 ### Settings
 ![Task Reminder Settings Screenshot](./screen/settings.png)
+
+### Grades
+![Task Reminder Grades Screenshot](./screen/grades.png)

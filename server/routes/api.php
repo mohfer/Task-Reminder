@@ -7,6 +7,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CourseContentController;
+use App\Http\Controllers\AssessmentController;
+use App\Http\Controllers\GradeController;
 use App\Http\Controllers\PasswordResetController;
 
 Route::prefix('auth')->group(function () {
@@ -39,6 +41,10 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::resource('course-contents', CourseContentController::class);
     Route::post('/course-contents/filter', [CourseContentController::class, 'filter']);
 
+    // Assessment
+    Route::get('/assessments/calculate', [AssessmentController::class, 'calculateIp']);
+    Route::patch('/assessments/{id}', [AssessmentController::class, 'update']);
+
     // Task
     Route::resource('tasks', TaskController::class);
     Route::patch('/tasks/{id}/status', [TaskController::class, 'statusChanged']);
@@ -50,6 +56,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::patch('/settings/task-completed-notification', [SettingsController::class, 'taskCompletedNotification']);
     Route::put('/settings/profile', [UserController::class, 'updateProfile']);
     Route::put('/settings/password', [UserController::class, 'changePassword']);
+    Route::resource('/settings/grades', GradeController::class);
 
     // Logout
     Route::post('/auth/logout', [AuthController::class, 'logout']);

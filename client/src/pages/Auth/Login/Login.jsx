@@ -88,13 +88,14 @@ const Login = () => {
 
     return (
         <>
-            <div className='h-screen flex justify-center items-center p-4'>
+            <div className='min-h-screen flex flex-col justify-center items-center p-4'>
+                <img src="../../../../public/logo.webp" className='w-32 mb-8 mt-4' alt="logo" />
                 <div className="xl:w-1/3 border p-4 rounded-lg shadow-lg">
                     <h1 className="text-[2.25rem] font-bold">Get Started Now</h1>
                     <p className="text-base text-gray-500">Enter your credentials to access your account.</p>
 
                     <form onSubmit={handleSubmit}>
-                        <div className="space-y-2 mt-12">
+                        <div className="space-y-4 mt-8">
                             <div>
                                 <label htmlFor="email" className="text-base font-medium text-gray-700">
                                     Email
@@ -149,7 +150,7 @@ const Login = () => {
                                     onChange={() => setRememberMe(!rememberMe)}>
                                     Remember me
                                 </Checkbox>
-                                <Link to={'/auth/forgot-password'} className="text-sm text-primary-color hover:text-hover-primary-color mr-2">
+                                <Link to={'/auth/forgot-password'} className="text-sm text-blue-500 hover:text-hover-blue-500 mr-2">
                                     Forgot password?
                                 </Link>
                             </div>
@@ -157,7 +158,7 @@ const Login = () => {
                             <button
                                 disabled={loading}
                                 type="submit"
-                                className="w-full py-2 px-4 bg-primary-color text-white font-medium rounded-md shadow-sm hover:bg-hover-primary-color transition duration-200">
+                                className="w-full py-2 px-4 bg-blue-500 text-white font-medium rounded-md shadow-sm hover:bg-hover-blue-500 transition duration-200">
                                 {loading ? (
                                     <Loader content='Authenticating...' />
                                 ) : (
@@ -167,13 +168,13 @@ const Login = () => {
                     </form>
 
                     <p className="mt-6 text-sm">
-                        Don't have an account?{' '}
-                        <Link to={'/auth/register'} className="text-primary-color hover:hover:text-hover-primary-color">
+                        Don’t have an account?{' '}
+                        <Link to={'/auth/register'} className="text-blue-500">
                             Sign up
                         </Link>
                     </p>
                 </div>
-            </div>
+            </div >
         </>
     );
 };

@@ -10,46 +10,6 @@ class CourseContentController
 {
     use ApiResponse;
 
-    public function index(Request $request)
-    {
-        $user = $request->user()->id;
-
-        $courseContents = CourseContent::where('user_id', $user)
-            ->where('semester', 'Semester 1')
-            ->orderBy('course_content', 'ASC')
-            ->get()
-            ->map(function ($courseContent) {
-                return [
-                    'id' => $courseContent->id,
-                    'semester' => $courseContent->semester,
-                    'code' => $courseContent->code,
-                    'course_content' => $courseContent->course_content,
-                    'scu' => $courseContent->scu,
-                    'lecturer' => $courseContent->lecturer,
-                    'day' => $courseContent->day,
-                    'hour_start' => date('H:i', strtotime($courseContent->hour_start)),
-                    'hour_end' => date('H:i', strtotime($courseContent->hour_end)),
-                    'scu_total' => $courseContent->scu
-                ];
-            });
-
-        $totalScu = $courseContents->sum('scu_total');
-
-        if (!$courseContents) {
-            return $this->sendError('Course Content not found', 404);
-        }
-
-        $data = [
-            'total_scu' => $totalScu,
-            'course_contents' => $courseContents,
-        ];
-
-        return response()->json([
-            'message' => 'Course Contents retrieved successfully',
-            'data' => $data
-        ], 200);
-    }
-
     public function store(Request $request)
     {
         $user = $request->user()->id;
@@ -74,29 +34,6 @@ class CourseContentController
         $request['user_id'] = $user;
         $courseContent = CourseContent::create($request->all());
         return $this->sendResponse($courseContent, 'Course Content created successfully', 201);
-    }
-
-    public function show($id)
-    {
-        $courseContent = CourseContent::find($id);
-
-        if (!$courseContent) {
-            return $this->sendError('Course Content not found', 404);
-        }
-
-        $data = [
-            'id' => $courseContent->id,
-            'semester' => $courseContent->semester,
-            'code' => $courseContent->code,
-            'course_content' => $courseContent->course_content,
-            'scu' => $courseContent->scu,
-            'lecturer' => $courseContent->lecturer,
-            'day' => $courseContent->day,
-            'hour_start' => $courseContent->hour_start,
-            'hour_end' => $courseContent->hour_end
-        ];
-
-        return $this->sendResponse($data, 'Course Content retrieved successfully');
     }
 
     public function update(Request $request, $id)
@@ -149,9 +86,11 @@ class CourseContentController
         return $this->sendResponse($courseContent, 'Course Content updated successfully');
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $courseContent = CourseContent::find($id);
+        $user = $request->user()->id;
+
+        $courseContent = CourseContent::where('id', $id)->where('user_id', $user)->first();;
 
         if (!$courseContent) {
             return $this->sendError('Course Content not found', 404);

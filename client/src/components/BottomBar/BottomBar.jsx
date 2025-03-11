@@ -1,4 +1,4 @@
-import { LayoutDashboard, Settings, Book } from 'lucide-react'
+import { LayoutDashboard, Settings, Book, Trophy } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
 const BottomBar = () => {
@@ -25,6 +25,17 @@ const BottomBar = () => {
                 >
                     <Book className="w-6 h-6" />
                     <span className="text-xs mt-1">Courses</span>
+                </NavLink>
+
+                <NavLink
+                    to="/assessments"
+                    className={({ isActive }) => `
+                        flex flex-col items-center 
+                        ${isActive ? 'text-blue-600' : 'text-gray-500'}
+                    `}
+                >
+                    <Trophy className="w-6 h-6" />
+                    <span className="text-xs mt-1">Assessments</span>
                 </NavLink>
 
                 <NavLink
