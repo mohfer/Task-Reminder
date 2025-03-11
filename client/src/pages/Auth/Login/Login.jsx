@@ -89,7 +89,7 @@ const Login = () => {
     return (
         <>
             <div className='min-h-screen flex flex-col justify-center items-center p-4'>
-                <img src="../../../../public/logo.webp" className='w-32 mb-8 mt-4' alt="logo" />
+                <img src="/logo.webp" className='w-32 mb-8 mt-4' alt="logo" />
                 <div className="xl:w-1/3 border p-4 rounded-lg shadow-lg">
                     <h1 className="text-[2.25rem] font-bold">Get Started Now</h1>
                     <p className="text-base text-gray-500">Enter your credentials to access your account.</p>

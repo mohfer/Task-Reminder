@@ -57,7 +57,7 @@ const PasswordEmailSent = () => {
 
     return (
         <div className='min-h-screen flex flex-col justify-center items-center p-4'>
-            <img src="../../../../public/logo.webp" className='w-32 mb-8 mt-4' alt="logo" />
+            <img src="/logo.webp" className='w-32 mb-8 mt-4' alt="logo" />
             <div className="xl:w-1/3 border p-4 rounded-lg shadow-lg">
                 <h1 className="text-[2.25rem] font-bold">Email Sent</h1>
                 <p className="text-base text-gray-500">We’ve sent a password reset email to <span className='font-bold'>{email}.</span> Please check your inbox and follow the instructions to reset your password. If you didn’t receive the email, check your spam folder or try resending the request.</p>

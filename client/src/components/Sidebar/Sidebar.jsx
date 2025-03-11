@@ -45,7 +45,7 @@ const Sidebar = () => {
             <nav className="hidden lg:flex w-1/6 flex-col justify-between">
                 <div>
                     <Link to={'/dashboard'} className="flex justify-center gap-4 items-center px-4 py-8 hover:no-underline hover:text-black">
-                        <img src="../../../public/logo.webp" className="w-8" alt="logo" />
+                        <img src="/logo.webp" className="w-8" alt="logo" />
                         <h1 className="text-2xl font-bold">Task Reminder</h1>
                     </Link>
 

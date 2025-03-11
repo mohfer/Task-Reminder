@@ -51,7 +51,7 @@ const ForgotPassword = () => {
 
     return (
         <div className='min-h-screen flex flex-col justify-center items-center p-4'>
-            <img src="../../../../public/logo.webp" className='w-32 mb-8 mt-4' alt="logo" />
+            <img src="/logo.webp" className='w-32 mb-8 mt-4' alt="logo" />
             <div className="xl:w-1/3 border p-4 rounded-lg shadow-lg">
                 <h1 className="text-[2.25rem] font-bold">Oh, You Lost Your Password?</h1>
                 <p className="text-base text-gray-500">No worries, we’ll send you reset instructions.</p>
