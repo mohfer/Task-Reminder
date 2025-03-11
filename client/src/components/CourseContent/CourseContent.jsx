@@ -281,14 +281,14 @@ export const CourseContent = () => {
                 <table className="min-w-full bg-white rounded-3xl mb-8 shadow">
                     <thead>
                         <tr className='text-left'>
-                            <th className="px-8 py-4">No</th>
-                            <th className="px-8 py-4">Code</th>
+                            <th className="px-8 py-4 text-center">No</th>
+                            <th className="px-8 py-4 text-center">Code</th>
                             <th className="px-8 py-4">Course Content</th>
                             <th className="px-8 py-4">Lecturer</th>
-                            <th className="px-8 py-4">Semester Credit Units</th>
-                            <th className="px-8 py-4">Day</th>
-                            <th className="px-8 py-4">Time</th>
-                            <th className="px-8 py-4">Options</th>
+                            <th className="px-8 py-4 text-center">Semester Credit Units</th>
+                            <th className="px-8 py-4 text-center">Day</th>
+                            <th className="px-8 py-4 text-center">Time</th>
+                            <th className="px-8 py-4 text-center">Options</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -305,14 +305,14 @@ export const CourseContent = () => {
                         ) : (
                             courseContents.map((content, index) => (
                                 <tr key={content.id} className="hover:bg-gray-50 text-gray-500">
-                                    <td className="px-8 py-4">{index + 1}</td>
-                                    <td className="px-8 py-4">{content.code}</td>
+                                    <td className="px-8 py-4 text-center">{index + 1}</td>
+                                    <td className="px-8 py-4 text-center">{content.code}</td>
                                     <td className="px-8 py-4">{content.course_content}</td>
                                     <td className="px-8 py-4">{content.lecturer}</td>
                                     <td className="px-8 py-4 text-center">{content.scu}</td>
-                                    <td className="px-8 py-4">{content.day}</td>
-                                    <td className="px-8 py-4">{content.hour_start} - {content.hour_end}</td>
-                                    <td className="px-8 py-4">
+                                    <td className="px-8 py-4 text-center">{content.day}</td>
+                                    <td className="px-8 py-4 text-center">{content.hour_start} - {content.hour_end}</td>
+                                    <td className="px-8 py-4 text-center">
                                         <Dropdown
                                             trigger="click"
                                             placement='leftStart'
@@ -320,7 +320,8 @@ export const CourseContent = () => {
                                             toggleClassName='bg-white rounded-full text-gray-500'
                                         >
                                             <Dropdown.Item onClick={() => handleUpdateOpen(content)}>Edit</Dropdown.Item>
-                                            <Dropdown.Item onClick={() => { setDeleteContentId(content.id); setDeleteOpen(true); }}>Delete</Dropdown.Item>                                        </Dropdown>
+                                            <Dropdown.Item onClick={() => { setDeleteContentId(content.id); setDeleteOpen(true); }}>Delete</Dropdown.Item>
+                                        </Dropdown>
                                     </td>
                                 </tr>
                             ))

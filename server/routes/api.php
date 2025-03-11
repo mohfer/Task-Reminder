@@ -56,7 +56,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::patch('/settings/task-completed-notification', [SettingsController::class, 'taskCompletedNotification']);
     Route::put('/settings/profile', [UserController::class, 'updateProfile']);
     Route::put('/settings/password', [UserController::class, 'changePassword']);
-    Route::resource('/settings/grade', GradeController::class);
+    Route::resource('/settings/grades', GradeController::class);
 
     // Logout
     Route::post('/auth/logout', [AuthController::class, 'logout']);

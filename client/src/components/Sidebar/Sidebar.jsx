@@ -1,5 +1,5 @@
 import { LayoutDashboard, Settings, Book, Trophy, LogOut } from 'lucide-react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useToaster, Message } from 'rsuite';
 import axios from 'axios';
 
@@ -44,10 +44,10 @@ const Sidebar = () => {
         <>
             <nav className="hidden lg:flex w-1/6 flex-col justify-between">
                 <div>
-                    <div className='flex justify-center gap-4 items-center px-4 py-8'>
-                        <img src="../../../public/logo.webp" className='w-8' alt="logo" />
+                    <Link to={'/dashboard'} className="flex justify-center gap-4 items-center px-4 py-8 hover:no-underline hover:text-black">
+                        <img src="../../../public/logo.webp" className="w-8" alt="logo" />
                         <h1 className="text-2xl font-bold">Task Reminder</h1>
-                    </div>
+                    </Link>
 
                     <div className="flex justify-center">
                         <ul className="w-4/5">

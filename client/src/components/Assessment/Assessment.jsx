@@ -51,8 +51,9 @@ export const Assessment = () => {
     const fetchCourseContentsSilently = async (semester) => {
         try {
             const response = await axios.get(`${apiUrl}/assessments/calculate`, {
-                semester: semester,
-            }, {
+                params: {
+                    semester: semester,
+                },
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -154,7 +155,7 @@ export const Assessment = () => {
                     <table className="min-w-full bg-white rounded-3xl mb-8 shadow">
                         <thead>
                             <tr className='text-left'>
-                                <th className="px-8 py-4">No</th>
+                                <th className="px-8 py-4 text-center">No</th>
                                 <th className="px-8 py-4">Course Content</th>
                                 <th className="px-8 py-4 text-center">SCU</th>
                                 <th className="px-8 py-4 text-center">Score</th>
@@ -177,7 +178,7 @@ export const Assessment = () => {
                             ) : (
                                 courseContents.map((content, index) => (
                                     <tr key={content.id} className="hover:bg-gray-50 text-gray-500">
-                                        <td className="px-8 py-4">{index + 1}</td>
+                                        <td className="px-8 py-4 text-center">{index + 1}</td>
                                         <td className="px-8 py-4">{content.course_content}</td>
                                         <td className="px-8 py-4 text-center">{content.scu}</td>
                                         <td className="px-8 py-4 text-center">{content.score}</td>

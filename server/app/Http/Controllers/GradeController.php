@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Grade;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class GradeController
 {
@@ -17,16 +18,21 @@ class GradeController
         $grades = Grade::where('user_id', $user)
             ->orderByRaw("
                 CASE grade
-                    WHEN 'A' THEN 1
-                    WHEN 'A-' THEN 2
-                    WHEN 'B+' THEN 3
-                    WHEN 'B' THEN 4
-                    WHEN 'B-' THEN 5
-                    WHEN 'C+' THEN 6
-                    WHEN 'C' THEN 7
-                    WHEN 'D' THEN 8
-                    WHEN 'E' THEN 9
-                    ELSE 10
+                    WHEN 'A+' THEN 1
+                    WHEN 'A' THEN 2
+                    WHEN 'A-' THEN 3
+                    WHEN 'B+' THEN 4
+                    WHEN 'B' THEN 5
+                    WHEN 'B-' THEN 6
+                    WHEN 'C+' THEN 7
+                    WHEN 'C' THEN 8
+                    WHEN 'C-' THEN 9
+                    WHEN 'D+' THEN 10
+                    WHEN 'D' THEN 11
+                    WHEN 'D-' THEN 12
+                    WHEN 'E' THEN 13
+                    WHEN 'F' THEN 14
+                    ELSE 15
                 END
             ")
             ->get()
@@ -54,10 +60,10 @@ class GradeController
         }
 
         $request->validate([
-            'grade' => 'required',
+            'grade' => ['required', Rule::unique('grades')->where(fn($query) => $query->where('user_id', $user))->ignore($request->id),],
             'quality_number' => 'required|numeric',
-            'minimal_score' => 'required|numeric',
-            'maximal_score' => 'required|numeric',
+            'minimal_score' => 'required|numeric|min:0|max:100',
+            'maximal_score' => 'required|numeric|min:0|max:100',
         ]);
 
         $request['user_id'] = $user;
@@ -78,7 +84,7 @@ class GradeController
         }
 
         $request->validate([
-            'grade' => 'required',
+            'grade' => ['required', Rule::unique('grades')->where(fn($query) => $query->where('user_id', $user))->ignore($id),],
             'quality_number' => 'required|numeric',
             'minimal_score' => 'required|numeric',
             'maximal_score' => 'required|numeric',

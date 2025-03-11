@@ -3,6 +3,7 @@ import { Tabs, Dropdown, Divider, Toggle, Form, Input, Button, InputGroup, useTo
 import EyeCloseIcon from '@rsuite/icons/EyeClose';
 import VisibleIcon from '@rsuite/icons/Visible';
 import { useNavigate } from 'react-router-dom';
+import { Grade } from '../Grade/Grade'
 import axios from 'axios';
 
 export const Settings = () => {
@@ -392,7 +393,12 @@ export const Settings = () => {
                             </div>
                         </div>
                     </Tabs.Tab>
-                    <Tabs.Tab eventKey="2" title="Profile">
+                    <Tabs.Tab eventKey="2" title="Grades">
+                        <div className="my-4">
+                            <Grade />
+                        </div>
+                    </Tabs.Tab>
+                    <Tabs.Tab eventKey="3" title="Profile">
                         <div className="my-4">
                             <div className='flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 gap-4'>
                                 <div className='w-full bg-white rounded-3xl shadow p-6'>
