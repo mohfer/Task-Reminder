@@ -28,9 +28,10 @@ export const Assessment = () => {
     const fetchCourseContents = async (semester) => {
         setIsLoadingData(true);
         try {
-            const response = await axios.post(`${apiUrl}/assessments/filter`, {
-                semester: semester,
-            }, {
+            const response = await axios.get(`${apiUrl}/assessments/calculate`, {
+                params: {
+                    semester: semester,
+                },
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -49,7 +50,7 @@ export const Assessment = () => {
 
     const fetchCourseContentsSilently = async (semester) => {
         try {
-            const response = await axios.post(`${apiUrl}/assessments/filter`, {
+            const response = await axios.get(`${apiUrl}/assessments/calculate`, {
                 semester: semester,
             }, {
                 headers: {

@@ -11,7 +11,7 @@ class AssessmentController
 {
     use ApiResponse;
 
-    public function filter(Request $request)
+    public function calculateIp(Request $request)
     {
         $user = $request->user()->id;
         $selectedSemester = $request->semester;

@@ -51,13 +51,13 @@ const ForgotPassword = () => {
 
     return (
         <div className='min-h-screen flex flex-col justify-center items-center p-4'>
-            <img src="../../../../public/logo.png" className='w-32 mb-8 mt-4' alt="logo" />
+            <img src="../../../../public/logo.webp" className='w-32 mb-8 mt-4' alt="logo" />
             <div className="xl:w-1/3 border p-4 rounded-lg shadow-lg">
                 <h1 className="text-[2.25rem] font-bold">Oh, You Lost Your Password?</h1>
                 <p className="text-base text-gray-500">No worries, we’ll send you reset instructions.</p>
 
                 <form onSubmit={handleSubmit}>
-                    <div className="space-y-2 mt-12">
+                    <div className="space-y-4 mt-8">
                         <div>
                             <label htmlFor="email" className="text-base font-medium text-gray-700">
                                 Email

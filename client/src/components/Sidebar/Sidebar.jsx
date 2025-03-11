@@ -45,7 +45,7 @@ const Sidebar = () => {
             <nav className="hidden lg:flex w-1/6 flex-col justify-between">
                 <div>
                     <div className='flex justify-center gap-4 items-center px-4 py-8'>
-                        <img src="../../../public/logo.png" className='w-8' alt="logo" />
+                        <img src="../../../public/logo.webp" className='w-8' alt="logo" />
                         <h1 className="text-2xl font-bold">Task Reminder</h1>
                     </div>
 

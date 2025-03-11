@@ -42,7 +42,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::post('/course-contents/filter', [CourseContentController::class, 'filter']);
 
     // Assessment
-    Route::post('/assessments/filter', [AssessmentController::class, 'filter']);
+    Route::get('/assessments/calculate', [AssessmentController::class, 'calculateIp']);
     Route::patch('/assessments/{id}', [AssessmentController::class, 'update']);
 
     // Task

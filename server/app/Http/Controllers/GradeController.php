@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Grade;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use Ramsey\Uuid\Type\Decimal;
 
 class GradeController
 {
