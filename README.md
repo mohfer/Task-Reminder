@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://i.imgur.com/HKm1Q6q.png" alt="Logo" width="150">
+</p>
+
 # Task Reminder
 
 Task Reminder adalah aplikasi pengingat tugas kuliah yang dirancang untuk membantu mahasiswa mengelola dan memprioritaskan tugas mereka. Aplikasi ini menawarkan fitur pengingat otomatis, penjadwalan tugas, dan antarmuka yang ramah pengguna untuk memastikan semua pekerjaan selesai tepat waktu.
