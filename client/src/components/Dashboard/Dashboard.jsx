@@ -441,10 +441,10 @@ export const Dashboard = () => {
                                             ) : (
                                                 getBadgesForDate(selectedDate).map((task, index) => (
                                                     <tr key={task.id} className={`hover:bg-gray-50 ${task.priority === 1 ? 'text-blue-500' : ''}`}>
-                                                        <td className="px-8 py-4 text-center">{index + 1}</td>
+                                                        <td className="px-8 py-4 text-center font-bold">{index + 1}</td>
                                                         <td className="px-8 py-4">{task.course_content}</td>
                                                         <td className="px-8 py-4">{task.task}</td>
-                                                        <td className="px-8 py-4 text-center">
+                                                        <td className="text-center">
                                                             <span
                                                                 className={`p-2 rounded-full text-white ${task.deadline_label === 'Completed'
                                                                     ? 'bg-green-500'
@@ -553,7 +553,7 @@ export const Dashboard = () => {
                             <Input
                                 placeholder="Enter description"
                                 as="textarea"
-                                rows={3}
+                                rows={7}
                                 value={description}
                                 onChange={(value) => setDescription(value)}
                                 className={`${message.description ? 'border border-red-500' : ''}`}
@@ -664,7 +664,7 @@ export const Dashboard = () => {
                             <Input
                                 placeholder="Enter description"
                                 as="textarea"
-                                rows={3}
+                                rows={7}
                                 value={description}
                                 onChange={(value) => setDescription(value)}
                                 className={`${message.description ? 'border border-red-500' : ''}`}

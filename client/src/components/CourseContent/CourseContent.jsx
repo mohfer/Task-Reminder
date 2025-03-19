@@ -305,7 +305,7 @@ export const CourseContent = () => {
                         ) : (
                             courseContents.map((content, index) => (
                                 <tr key={content.id} className="hover:bg-gray-50 text-gray-500">
-                                    <td className="px-8 py-4 text-center">{index + 1}</td>
+                                    <td className="px-8 py-4 text-center font-bold">{index + 1}</td>
                                     <td className="px-8 py-4 text-center">{content.code}</td>
                                     <td className="px-8 py-4">{content.course_content}</td>
                                     <td className="px-8 py-4">{content.lecturer}</td>

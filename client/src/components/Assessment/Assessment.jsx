@@ -167,8 +167,8 @@ export const Assessment = () => {
                         <tbody>
                             {isLoadingData ? (
                                 <tr>
-                                    <td colSpan="8" className='p-4'>
-                                        <Placeholder.Grid rows={5} columns={8} rowHeight={20} active />
+                                    <td colSpan="7" className='p-4'>
+                                        <Placeholder.Grid rows={5} columns={7} rowHeight={20} active />
                                     </td>
                                 </tr>
                             ) : courseContents.length === 0 ? (
@@ -178,7 +178,7 @@ export const Assessment = () => {
                             ) : (
                                 courseContents.map((content, index) => (
                                     <tr key={content.id} className="hover:bg-gray-50 text-gray-500">
-                                        <td className="px-8 py-4 text-center">{index + 1}</td>
+                                        <td className="px-8 py-4 text-center font-bold">{index + 1}</td>
                                         <td className="px-8 py-4">{content.course_content}</td>
                                         <td className="px-8 py-4 text-center">{content.scu}</td>
                                         <td className="px-8 py-4 text-center">{content.score}</td>
@@ -199,7 +199,7 @@ export const Assessment = () => {
                             )}
                             {isLoadingData ? (
                                 <tr>
-                                    <td colSpan="8" className='p-4'>
+                                    <td colSpan="7" className='p-4'>
                                         <Placeholder.Paragraph rowHeight={20} rows={1} active />
                                     </td>
                                 </tr>

@@ -229,30 +229,28 @@ export const Grade = () => {
                             <th className="px-8 py-4 text-center">No</th>
                             <th className="px-8 py-4 text-center">Grade</th>
                             <th className="px-8 py-4 text-center">Quality Number</th>
-                            <th className="px-8 py-4 text-center">Minimal Score</th>
-                            <th className="px-8 py-4 text-center">Maximal Score</th>
+                            <th className="px-8 py-4 text-center">Score</th>
                             <th className="px-8 py-4 text-center">Options</th>
                         </tr>
                     </thead>
                     <tbody>
                         {isLoadingData ? (
                             <tr>
-                                <td colSpan="8" className='p-4'>
-                                    <Placeholder.Grid rows={5} columns={8} rowHeight={20} active />
+                                <td colSpan="5" className='p-4'>
+                                    <Placeholder.Grid rows={5} columns={5} rowHeight={20} active />
                                 </td>
                             </tr>
                         ) : grades.length === 0 ? (
                             <tr>
-                                <td colSpan="8" className="px-8 py-4 text-center">No grade found</td>
+                                <td colSpan="5" className="px-8 py-4 text-center">No grade found</td>
                             </tr>
                         ) : (
                             grades.map((grade, index) => (
                                 <tr key={grade.id} className="hover:bg-gray-50 text-gray-500">
-                                    <td className="px-8 py-4 text-center">{index + 1}</td>
+                                    <td className="px-8 py-4 text-center font-bold">{index + 1}</td>
                                     <td className="px-8 py-4 text-center">{grade.grade}</td>
                                     <td className="px-8 py-4 text-center">{grade.quality_number}</td>
-                                    <td className="px-8 py-4 text-center">{grade.minimal_score}</td>
-                                    <td className="px-8 py-4 text-center">{grade.maximal_score}</td>
+                                    <td className="px-8 py-4 text-center">{grade.minimal_score} - {grade.maximal_score}</td>
                                     <td className="px-8 py-4 text-center">
                                         <Dropdown
                                             trigger="click"
@@ -292,10 +290,12 @@ export const Grade = () => {
                         </Form.Group>
                         <Form.Group>
                             <Form.ControlLabel>Quality Number</Form.ControlLabel>
-                            <Input
+                            <InputNumber
                                 placeholder='Enter quality number'
                                 value={qualityNumber}
                                 onChange={(value) => setQualityNumber(value)}
+                                min={0}
+                                style={{ width: '100%' }}
                                 className={`${message.quality_number ? 'border border-red-500' : ''}`}
                             />
                             {message.quality_number && (
@@ -367,10 +367,12 @@ export const Grade = () => {
                         </Form.Group>
                         <Form.Group>
                             <Form.ControlLabel>Quality Number</Form.ControlLabel>
-                            <Input
+                            <InputNumber
                                 placeholder='Enter quality number'
                                 value={qualityNumber}
                                 onChange={(value) => setQualityNumber(value)}
+                                min={0}
+                                style={{ width: '100%' }}
                                 className={`${message.quality_number ? 'border border-red-500' : ''}`}
                             />
                             {message.quality_number && (

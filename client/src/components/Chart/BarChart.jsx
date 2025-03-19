@@ -225,13 +225,13 @@ export const BarChart = () => {
                                 ) : courseContents.length === 0 || totalTask === 0 ? (
                                     <tr>
                                         <td colSpan="8" className="text-center py-4">
-                                            Tidak ada data tugas yang tersedia.
+                                            No task data is available.
                                         </td>
                                     </tr>
                                 ) : selectedCourse ? (
                                     selectedCourse.tasks.map((task, index) => (
                                         <tr key={task.id} className="hover:bg-gray-50">
-                                            <td className="px-8 py-4 text-center">{index + 1}</td>
+                                            <td className="px-8 py-4 text-center font-bold">{index + 1}</td>
                                             <td className="px-8 py-4">{selectedCourse.course_content}</td>
                                             <td className="px-8 py-4">{task.task}</td>
                                             <td className="px-8 py-4 text-center"><span className={`p-2 rounded-full text-white ${task.status === 1 ? 'bg-green-500' : 'bg-yellow-500'}`}>{task.status === 1 ? 'Completed' : 'Uncompleted'}</span></td>
@@ -247,7 +247,7 @@ export const BarChart = () => {
                                             taskNumber += 1;
                                             return (
                                                 <tr key={task.id} className="hover:bg-gray-50">
-                                                    <td className="px-8 py-4 text-center">{taskNumber}</td>
+                                                    <td className="px-8 py-4 text-center font-bold">{taskNumber}</td>
                                                     <td className="px-8 py-4">{content.course_content}</td>
                                                     <td className="px-8 py-4">{task.task}</td>
                                                     <td className="px-8 py-4 text-center"><span className={`p-2 rounded-full text-white ${task.status === 1 ? 'bg-green-500' : 'bg-yellow-500'}`}>{task.status === 1 ? 'Completed' : 'Uncompleted'}</span></td>

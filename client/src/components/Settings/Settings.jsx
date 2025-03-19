@@ -394,9 +394,7 @@ export const Settings = () => {
                         </div>
                     </Tabs.Tab>
                     <Tabs.Tab eventKey="2" title="Grades">
-                        <div className="my-4">
-                            <Grade />
-                        </div>
+                        <Grade />
                     </Tabs.Tab>
                     <Tabs.Tab eventKey="3" title="Profile">
                         <div className="my-4">
