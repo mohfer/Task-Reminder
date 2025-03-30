@@ -2,15 +2,14 @@ import { Bar } from 'react-chartjs-2';
 import { ListChecks } from 'lucide-react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { useEffect, useState } from 'react';
-import { Placeholder, Dropdown } from 'rsuite';
+import { Placeholder } from 'rsuite';
 import axios from 'axios';
+import useSemesterStore from '../../store/useSemesterStore';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export const BarChart = () => {
     const apiUrl = import.meta.env.VITE_API_URL;
-    const [title, setTitle] = useState('Semester 1');
-    const [selectedSemester, setSelectedSemester] = useState('Semester 1');
     const [isLoadingData, setIsLoadingData] = useState(false);
     const [courseContents, setCourseContents] = useState([]);
     const [selectedCourse, setSelectedCourse] = useState(null);
@@ -18,12 +17,10 @@ export const BarChart = () => {
     const [uncompletedTask, setUncompletedTask] = useState(null)
     const [totalTask, setTotalTask] = useState(null)
 
+    const { semester: selectedSemester } = useSemesterStore();
+
     const token = localStorage.getItem('token');
     let taskNumber = 0;
-
-    const semesters = ['Semester 1', 'Semester 2', 'Semester 3', 'Semester 4', 'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8'].map(
-        (semester) => ({ label: semester, value: semester })
-    );
 
     const fetchCourseContents = async (semester) => {
         setIsLoadingData(true);
@@ -113,27 +110,6 @@ export const BarChart = () => {
 
     return (
         <>
-            <div className="flex justify-end">
-                <Dropdown
-                    title={title}
-                    trigger="click"
-                    toggleClassName='bg-white rounded-full p-2 px-8 text-gray-500 shadow hover:bg-gray-50 transition-colors'
-                >
-                    {semesters.map((semester) => (
-                        <Dropdown.Item
-                            key={semester.value}
-                            eventKey={semester.value}
-                            onClick={() => {
-                                setTitle(semester.label);
-                                setSelectedSemester(semester.value);
-                            }}
-                            className='hover:bg-gray-100 transition-colors'
-                        >
-                            {semester.label}
-                        </Dropdown.Item>
-                    ))}
-                </Dropdown>
-            </div>
             <div className="lg:flex lg:space-y-0 space-y-4 justify-between gap-4 my-4">
                 <div className="flex items-center justify-between gap-8 bg-white rounded-3xl p-4 px-8 flex-1 shadow">
                     <div className="space-y-0 text-gray-500">

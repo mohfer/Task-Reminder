@@ -3,6 +3,7 @@ import { Placeholder, IconButton, Dropdown, Modal, Button, Form, Input, SelectPi
 import { Ellipsis } from 'lucide-react';
 import PlusIcon from '@rsuite/icons/Plus';
 import axios from 'axios';
+import useSemesterStore from '../../store/useSemesterStore';
 
 export const CourseContent = () => {
     const apiUrl = import.meta.env.VITE_API_URL;
@@ -11,8 +12,6 @@ export const CourseContent = () => {
     const [totalScu, setTotalScu] = useState(0);
     const [isLoadingData, setIsLoadingData] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [title, setTitle] = useState('Semester 1');
-    const [selectedSemester, setSelectedSemester] = useState('Semester 1');
     const [open, setOpen] = useState(false);
     const [updateOpen, setUpdateOpen] = useState(false);
     const [selectedContent, setSelectedContent] = useState(null);
@@ -27,6 +26,8 @@ export const CourseContent = () => {
     const [message, setMessage] = useState({});
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [deleteContentId, setDeleteContentId] = useState(null);
+
+    const { semester: selectedSemester } = useSemesterStore();
 
     const token = localStorage.getItem('token');
     const toaster = useToaster();
@@ -238,30 +239,11 @@ export const CourseContent = () => {
     useEffect(() => {
         fetchCourseContents(selectedSemester);
         document.title = 'Course Contents - Task Reminder';
-    }, []);
+    }, [selectedSemester]);
 
     return (
         <div className='container'>
             <div className="flex justify-between">
-                <Dropdown
-                    title={title}
-                    trigger="click"
-                    toggleClassName='bg-white rounded-full p-2 px-8 text-gray-500 shadow'
-                >
-                    {semesters.map((semester) => (
-                        <Dropdown.Item
-                            key={semester.value}
-                            eventKey={semester.value}
-                            onClick={() => {
-                                setTitle(semester.label);
-                                setSelectedSemester(semester.label);
-                                fetchCourseContents(semester.label);
-                            }}
-                        >
-                            {semester.label}
-                        </Dropdown.Item>
-                    ))}
-                </Dropdown>
                 <IconButton
                     onClick={handleOpen}
                     className='shadow'

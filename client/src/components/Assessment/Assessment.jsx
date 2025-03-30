@@ -2,11 +2,10 @@ import { useEffect, useState } from 'react'
 import { Placeholder, Dropdown, Modal, Button, Form, Input, InputNumber, useToaster, Message, Loader } from 'rsuite';
 import { Ellipsis } from 'lucide-react';
 import axios from 'axios';
+import useSemesterStore from '../../store/useSemesterStore';
 
 export const Assessment = () => {
     const apiUrl = import.meta.env.VITE_API_URL;
-    const [title, setTitle] = useState('Semester 1');
-    const [selectedSemester, setSelectedSemester] = useState('Semester 1');
     const [isLoadingData, setIsLoadingData] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [courseContents, setCourseContents] = useState([]);
@@ -18,12 +17,10 @@ export const Assessment = () => {
     const [totalIpk, setTotalIpk] = useState(0);
     const [course, setCourse] = useState('');
 
+    const { semester: selectedSemester } = useSemesterStore();
+
     const token = localStorage.getItem('token');
     const toaster = useToaster();
-
-    const semesters = ['Semester 1', 'Semester 2', 'Semester 3', 'Semester 4', 'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8'].map(
-        (semester) => ({ label: semester, value: semester })
-    );
 
     const fetchCourseContents = async (semester) => {
         setIsLoadingData(true);
@@ -128,29 +125,10 @@ export const Assessment = () => {
     useEffect(() => {
         fetchCourseContents(selectedSemester)
         document.title = 'Assessments - Task Reminder';
-    }, []);
+    }, [selectedSemester]);
     return (
         <>
             <div className='container'>
-                <Dropdown
-                    title={title}
-                    trigger="click"
-                    toggleClassName='bg-white rounded-full p-2 px-8 text-gray-500 shadow'
-                >
-                    {semesters.map((semester) => (
-                        <Dropdown.Item
-                            key={semester.value}
-                            eventKey={semester.value}
-                            onClick={() => {
-                                setTitle(semester.label);
-                                setSelectedSemester(semester.label);
-                                fetchCourseContents(semester.label);
-                            }}
-                        >
-                            {semester.label}
-                        </Dropdown.Item>
-                    ))}
-                </Dropdown>
                 <div className='my-4 overflow-x-auto rounded-3xl'>
                     <table className="min-w-full bg-white rounded-3xl mb-8 shadow">
                         <thead>
