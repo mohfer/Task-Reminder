@@ -308,7 +308,7 @@ export const Dashboard = () => {
             <div className='container'>
                 <Tabs defaultActiveKey="1" appearance="subtle">
                     <Tabs.Tab eventKey="1" title="Task Lists">
-                        <div className="flex justify-end">
+                        <div className="flex justify-end lg:justify-start">
                             <IconButton
                                 onClick={handleOpen}
                                 className='shadow'

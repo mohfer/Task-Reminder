@@ -206,7 +206,7 @@ export const Grade = () => {
 
     return (
         <>
-            <div className="flex justify-end">
+            <div className="flex justify-end lg:justify-start">
                 <IconButton
                     onClick={handleOpen}
                     className='shadow'

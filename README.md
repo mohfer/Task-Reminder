@@ -20,22 +20,19 @@ Task Reminder is a college assignment reminder application designed to help stud
 Here are the interface screenshots of Task Reminder:
 
 ### Dashboard
-<img src="./screen/dashboard.png" alt="Task Reminder Dashboard Screenshot" style="border-radius: 10px;">
+![Task Reminder Dashboard Screenshot](./screen/dashboard.png)
 
 ### Bar Chart
-<img src="./screen/bar-chart.png" alt="Task Reminder Bar Chart Screenshot" style="border-radius: 10px;">
+![Task Reminder Bar Chart Screenshot](./screen/bar-chart.png)
 
 ### Course Contents
-<img src="./screen/course-contents.png" alt="Task Reminder Course Contents Screenshot" style="border-radius: 10px;">
+![Task Reminder Course Contents Screenshot](./screen/course-contents.png)
 
 ### Assessments
-<img src="./screen/assessments.png" alt="Task Reminder Screenshot" 
-style="border-radius: 10px;">
+![Task Reminder  Screenshot](./screen/assessments.png)
 
 ### Settings
-<img src="./screen/settings.png" alt="Task Reminder Settings Screenshot" 
-style="border-radius: 10px;">
+![Task Reminder Settings Screenshot](./screen/settings.png)
 
 ### Grades
-<img src="./screen/grades.png" alt="Task Reminder Grades Screenshot" 
-style="border-radius: 10px;">
+![Task Reminder Grades Screenshot](./screen/grades.png)
