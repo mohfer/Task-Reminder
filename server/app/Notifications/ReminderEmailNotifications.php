@@ -2,12 +2,13 @@
 
 namespace App\Notifications;
 
+use App\Helpers\DateHelper;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ReminderEmailNotifications extends Notification
+class ReminderEmailNotifications extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -35,6 +36,10 @@ class ReminderEmailNotifications extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
+        usort($this->notifications, function ($a, $b) {
+            return strtotime($a['deadline']) <=> strtotime($b['deadline']);
+        });
+
         $mailMessage = (new MailMessage)
             ->subject('Task Reminder Notification')
             ->line('You have tasks to complete. Here are the details:');
@@ -45,7 +50,7 @@ class ReminderEmailNotifications extends Notification
                 ->line('Course Content: **' . $notification['course_content'] . '**')
                 ->line('Task: **' . $notification['task'] . '**')
                 ->line('Description: **' . $notification['description'] . '**')
-                ->line('Deadline: **' . $notification['deadline'] . '**');
+                ->line('Deadline: **' . DateHelper::formatIndonesianDate($notification['deadline']) . '**');
         }
 
         $mailMessage->action('View Dashboard', env('FRONTEND_URL') . '/dashboard');
@@ -53,6 +58,7 @@ class ReminderEmailNotifications extends Notification
 
         return $mailMessage;
     }
+
 
     /**
      * Get the array representation of the notification.

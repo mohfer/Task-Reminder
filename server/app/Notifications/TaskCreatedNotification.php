@@ -2,12 +2,13 @@
 
 namespace App\Notifications;
 
+use App\Helpers\DateHelper;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class TaskCreatedNotification extends Notification
+class TaskCreatedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -18,7 +19,7 @@ class TaskCreatedNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct($courseContent, $task, $description,$deadline)
+    public function __construct($courseContent, $task, $description, $deadline)
     {
         $this->courseContent = $courseContent;
         $this->task = $task;
@@ -48,7 +49,7 @@ class TaskCreatedNotification extends Notification
             ->line('Course Content: **' . $this->courseContent . '**.')
             ->line('Task: **' . $this->task . '**.')
             ->line('Description: **' . $this->description . '**.')
-            ->line('Deadline: **' . $this->deadline . '**.')
+            ->line('Deadline: **' . DateHelper::formatIndonesianDate($this->deadline) . '**.')
             ->action('View Dashboard', env('FRONTEND_URL') . '/dashboard')
             ->line('Thank you for using our application! Don\'t forget to complete your tasks!');
     }
