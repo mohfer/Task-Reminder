@@ -41,12 +41,16 @@ class ReminderEmailNotifications extends Notification implements ShouldQueue
         });
 
         $mailMessage = (new MailMessage)
-            ->subject('Task Reminder Notification')
-            ->line('You have tasks to complete. Here are the details:');
+            ->subject('Task Reminder Notification');
+
+        $count = count($this->notifications);
+        $taskWord = $count === 1 ? 'task' : 'tasks';
+
+        $mailMessage->line('You have' . $count . '' . $taskWord . 'to complete. Here are the details:');
 
         foreach ($this->notifications as $index => $notification) {
             $mailMessage->line('---')
-                ->line('Task ' . ($index + 1) . ':')
+                ->line('Task ' . $index + 1 . ':')
                 ->line('Course Content: **' . $notification['course_content'] . '**')
                 ->line('Task: **' . $notification['task'] . '**')
                 ->line('Description: **' . $notification['description'] . '**')
