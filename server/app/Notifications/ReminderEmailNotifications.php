@@ -46,7 +46,7 @@ class ReminderEmailNotifications extends Notification implements ShouldQueue
         $count = count($this->notifications);
         $taskWord = $count === 1 ? 'task' : 'tasks';
 
-        $mailMessage->line('You have' . $count . '' . $taskWord . 'to complete. Here are the details:');
+        $mailMessage->line("You have $count $taskWord to complete. Here are the details:");
 
         foreach ($this->notifications as $index => $notification) {
             $mailMessage->line('---')
