@@ -4,7 +4,7 @@ import { persist } from "zustand/middleware";
 const useSemesterStore = create(
     persist(
         (set) => ({
-            semester: "",
+            semester: "Semester 1",
             semesterLabel: "Semester 1",
             setSemester: (semester, label) => set({ semester, semesterLabel: label }),
         }),
