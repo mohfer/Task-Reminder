@@ -214,7 +214,7 @@ export const BarChart = () => {
                                             <td className="px-8 py-4 text-center">{task.created_at}</td>
                                             <td className="px-8 py-4 text-center">{task.updated_at}</td>
                                             <td className="px-8 py-4 text-center">{task.deadline}</td>
-                                            <td className="px-8 py-4 text-center">{task.deadline_label}</td>
+                                            <td className="px-8 py-4 text-center"><span className={`p-2 rounded-full text-white ${task.deadline_label === 'Completed' ? 'bg-green-500' : task.deadline_label === 'Overdue' ? 'bg-red-500' : 'bg-yellow-500'}`}>{task.deadline_label}</span></td>
                                         </tr>
                                     ))
                                 ) : (
@@ -230,8 +230,7 @@ export const BarChart = () => {
                                                     <td className="px-8 py-4 text-center">{task.created_at}</td>
                                                     <td className="px-8 py-4 text-center">{task.updated_at}</td>
                                                     <td className="px-8 py-4 text-center">{task.deadline}</td>
-                                                    <td className="px-8 py-4 text-center"> <span className={`p-2 rounded-full text-white ${task.deadline_label === 'Completed' ? 'bg-green-500' : task.deadline_label === 'Overdue' ? 'bg-red-500' : 'bg-yellow-500'}`}>{task.deadline_label} </span>
-                                                    </td>
+                                                    <td className="px-8 py-4 text-center"><span className={`p-2 rounded-full text-white ${task.deadline_label === 'Completed' ? 'bg-green-500' : task.deadline_label === 'Overdue' ? 'bg-red-500' : 'bg-yellow-500'}`}>{task.deadline_label}</span></td>
                                                 </tr>
                                             );
                                         })
