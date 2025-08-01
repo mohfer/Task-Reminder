@@ -38,8 +38,12 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/dashboard/chart', [DashboardController::class, 'chart']);
 
     // Course Content
-    Route::resource('course-contents', CourseContentController::class);
+    Route::post('/course-contents', [CourseContentController::class, 'store']);
+    Route::put('/course-contents/{id}', [CourseContentController::class, 'update']);
+    Route::delete('/course-contents/{id}', [CourseContentController::class, 'destroy']);
     Route::post('/course-contents/filter', [CourseContentController::class, 'filter']);
+    Route::get('/course-contents/download-template', [CourseContentController::class, 'downloadTemplate']);
+    Route::post('/course-contents/import-from-excel', [CourseContentController::class, 'importFromExcel']);
 
     // Assessment
     Route::get('/assessments/calculate', [AssessmentController::class, 'calculateIp']);

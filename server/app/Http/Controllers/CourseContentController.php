@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Models\CourseContent;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\CourseContentsImport;
 
 class CourseContentController
 {
@@ -139,5 +141,84 @@ class CourseContentController
             'message' => 'Course Contents retrieved successfully',
             'data' => $data
         ], 200);
+    }
+
+    public function downloadTemplate()
+    {
+        $filePath = public_path('storage/templates/course_content_template.xlsx');
+
+        if (!file_exists($filePath)) {
+            return $this->sendError('Template file not found', 404);
+        }
+
+        return response()->download($filePath, 'course_content_template.xlsx');
+    }
+
+    public function importFromExcel(Request $request)
+    {
+        $user = $request->user()->id;
+
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv',
+        ]);
+
+        $file = $request->file('file');
+
+        $data = Excel::toArray(new CourseContentsImport, $file);
+
+        $duplicateRows = [];
+        $importedCount = 0;
+
+        foreach ($data[0] as $row) {
+            $code = $row['code'];
+            $courseContent = $row['course_content'];
+            $semester = $row['semester'];
+
+            $isDuplicate = CourseContent::where('code', $code)
+                ->where('user_id', $user)
+                ->where('semester', $semester)
+                ->exists();
+
+            $isDuplicateCourseContent = CourseContent::where('course_content', $courseContent)
+                ->where('user_id', $user)
+                ->where('semester', $semester)
+                ->exists();
+
+            if ($isDuplicate || $isDuplicateCourseContent) {
+                $duplicateRows[] = $row;
+            } else {
+                CourseContent::create([
+                    'semester' => $semester,
+                    'code' => $code,
+                    'course_content' => $courseContent,
+                    'scu' => $row['scu'],
+                    'lecturer' => $row['lecturer'],
+                    'day' => $row['day'],
+                    'hour_start' => $row['hour_start'],
+                    'hour_end' => $row['hour_end'],
+                    'user_id' => $user,
+                ]);
+                $importedCount++;
+            }
+        }
+
+        if (count($duplicateRows) > 0) {
+            return response()->json([
+                'code' => 200,
+                'message' => 'Import completed with some duplicates.',
+                'data' => [
+                    'imported_count' => $importedCount,
+                    'duplicate_rows' => $duplicateRows
+                ]
+            ], 200);
+        }
+
+        return response()->json([
+            'code' => 201,
+            'message' => 'Import completed successfully.',
+            'data' => [
+                'imported_count' => $importedCount
+            ]
+        ], 201);
     }
 }
