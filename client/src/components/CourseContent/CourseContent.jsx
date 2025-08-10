@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
-import { Placeholder, IconButton, Dropdown, Modal, Button, Form, Input, SelectPicker, InputNumber, useToaster, Message, Loader } from 'rsuite';
+import { useEffect, useState, useCallback } from 'react';
+import { Placeholder, IconButton, Dropdown, Modal, Button, Form, Input, SelectPicker, InputNumber, useToaster, Message, Loader, Progress } from 'rsuite';
 import { Ellipsis } from 'lucide-react';
 import PlusIcon from '@rsuite/icons/Plus';
+import ImportIcon from '@rsuite/icons/Import';
 import axios from 'axios';
 import useSemesterStore from '../../store/useSemesterStore';
 
 export const CourseContent = () => {
     const apiUrl = import.meta.env.VITE_API_URL;
     const [isHovered, setIsHovered] = useState(false);
+    const [isExcelButtonHovered, setIsExcelButtonHovered] = useState(false);
     const [courseContents, setCourseContents] = useState([]);
     const [totalScu, setTotalScu] = useState(0);
     const [isLoadingData, setIsLoadingData] = useState(false);
@@ -26,6 +28,10 @@ export const CourseContent = () => {
     const [message, setMessage] = useState({});
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [deleteContentId, setDeleteContentId] = useState(null);
+    const [excelOpen, setExcelOpen] = useState(false);
+    const [excelFile, setExcelFile] = useState(null);
+    const [uploadProgress, setUploadProgress] = useState(null);
+    const [isProcessingImport, setIsProcessingImport] = useState(false);
 
     const { semester: selectedSemester } = useSemesterStore();
 
@@ -40,7 +46,7 @@ export const CourseContent = () => {
         (day) => ({ label: day, value: day })
     );
 
-    const fetchCourseContents = async (semester) => {
+    const fetchCourseContents = useCallback(async (semester) => {
         setIsLoadingData(true);
         try {
             const response = await axios.post(`${apiUrl}/course-contents/filter`, {
@@ -59,7 +65,7 @@ export const CourseContent = () => {
         } finally {
             setIsLoadingData(false);
         }
-    };
+    }, [apiUrl, token]);
 
     const fetchCourseContentsSilently = async (semester) => {
         try {
@@ -101,6 +107,14 @@ export const CourseContent = () => {
     const handleUpdateClose = () => {
         setUpdateOpen(false);
         resetForm();
+    };
+
+    const handleExcelOpen = () => setExcelOpen(true);
+    const handleExcelClose = () => {
+        setExcelOpen(false);
+        setExcelFile(null);
+        setUploadProgress(null);
+        setIsProcessingImport(false);
     };
 
     const resetForm = () => {
@@ -236,14 +250,109 @@ export const CourseContent = () => {
         }
     };
 
+    const handleDownloadTemplate = async () => {
+        try {
+            const response = await axios.get(`${apiUrl}/course-contents/download-template`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                responseType: 'blob',
+            });
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'course_contents_template.xlsx');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            toaster.push(
+                <Message showIcon type="success" closable>
+                    Template downloaded successfully.
+                </Message>,
+                { placement: 'topEnd', duration: 3000 }
+            );
+        } catch (error) {
+            toaster.push(
+                <Message showIcon type="error" closable>
+                    Failed to download template.
+                </Message>,
+                { placement: 'topEnd', duration: 3000 }
+            );
+            console.error(error);
+        }
+    }
+
+    const handleExcelImportSubmit = async (e) => {
+        e.preventDefault();
+        if (!excelFile) {
+            toaster.push(
+                <Message showIcon type="error" closable>
+                    Please select an Excel file first.
+                </Message>,
+                { placement: 'topEnd', duration: 3000 }
+            );
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', excelFile);
+
+        try {
+            setIsLoading(true);
+            setUploadProgress(0);
+            setIsProcessingImport(false);
+
+            const response = await axios.post(`${apiUrl}/course-contents/import-from-excel`, formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+                onUploadProgress: (progressEvent) => {
+                    if (progressEvent.total) {
+                        const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setUploadProgress(percent);
+                        if (percent === 100) {
+                            setIsProcessingImport(true);
+                        }
+                    }
+                }
+            });
+
+            toaster.push(
+                <Message showIcon type="success" closable>
+                    {response?.data?.message || 'Import successful.'}
+                </Message>,
+                { placement: 'topEnd', duration: 3000 }
+            );
+
+            await fetchCourseContentsSilently(selectedSemester);
+            handleExcelClose();
+        } catch (error) {
+            toaster.push(
+                <Message showIcon type="error" closable>
+                    {error.response?.data?.message || 'Failed to import file.'}
+                </Message>,
+                { placement: 'topEnd', duration: 3000 }
+            );
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+            setIsProcessingImport(false);
+        }
+    };
+
     useEffect(() => {
         fetchCourseContents(selectedSemester);
         document.title = 'Course Contents - Task Reminder';
-    }, [selectedSemester]);
+    }, [selectedSemester, fetchCourseContents]);
 
     return (
         <div className='container'>
-            <div className="flex justify-between">
+            <div className="flex gap-4">
                 <IconButton
                     onClick={handleOpen}
                     className='shadow'
@@ -257,6 +366,20 @@ export const CourseContent = () => {
                     onMouseLeave={() => setIsHovered(false)}
                 >
                     New Course Content
+                </IconButton>
+                <IconButton
+                    onClick={handleExcelOpen}
+                    className='shadow'
+                    style={{
+                        backgroundColor: isExcelButtonHovered ? 'rgb(229, 229, 234)' : 'white',
+                        color: isExcelButtonHovered ? 'black' : 'rgb(107, 114, 128)',
+                        borderRadius: '9999px'
+                    }}
+                    icon={<ImportIcon style={{ backgroundColor: 'white', color: 'inherit' }} />}
+                    onMouseEnter={() => setIsExcelButtonHovered(true)}
+                    onMouseLeave={() => setIsExcelButtonHovered(false)}
+                >
+                    Excel
                 </IconButton>
             </div>
             <div className='my-4 overflow-x-auto rounded-3xl'>
@@ -591,6 +714,79 @@ export const CourseContent = () => {
                         {isLoading ? <Loader content="Deleting..." /> : 'Delete'}
                     </Button>
                 </Modal.Footer>
+            </Modal>
+
+            <Modal open={excelOpen} onClose={handleExcelClose}>
+                <Modal.Header>
+                    <Modal.Title>Import Data From Excel</Modal.Title>
+                    <p className='text-gray-500'>Download the template, fill it, then upload the Excel file (.xlsx / .xls).</p>
+                </Modal.Header>
+                <Modal.Body>
+                    <form onSubmit={handleExcelImportSubmit} className='space-y-6'>
+                        {/* Row 1: Download Template */}
+                        <div className='flex items-start justify-between gap-4 flex-wrap'>
+                            <div className='flex-1'>
+                                <p className='text-sm text-gray-500 mb-2'>1. Download the template.</p>
+                                <Button type='button' appearance='primary' onClick={handleDownloadTemplate} disabled={isLoading}>
+                                    Download Template
+                                </Button>
+                            </div>
+                        </div>
+                        {/* Row 2: File Input */}
+                        <div>
+                            <p className='text-sm text-gray-500 mb-2'>2. Upload the completed Excel file.</p>
+                            <div className='border border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 transition relative'>
+                                <input
+                                    type='file'
+                                    accept='.xlsx,.xls'
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        setExcelFile(file || null);
+                                        setUploadProgress(null);
+                                        setIsProcessingImport(false);
+                                    }}
+                                    disabled={isLoading}
+                                    className='absolute inset-0 opacity-0 cursor-pointer'
+                                />
+                                {excelFile ? (
+                                    <div>
+                                        <p className='text-sm font-medium'>{excelFile.name}</p>
+                                        <p className='text-xs text-gray-400'>{(excelFile.size / 1024).toFixed(1)} KB</p>
+                                    </div>
+                                ) : (
+                                    <p className='text-sm text-gray-500'>Click or drag a file here to select</p>
+                                )}
+                            </div>
+                            {/* Progress Bars */}
+                            {uploadProgress !== null && (
+                                <div className='mt-4 space-y-2'>
+                                    <div>
+                                        <p className='text-xs mb-1 text-gray-500'>Uploading: {uploadProgress}%</p>
+                                        <Progress.Line percent={uploadProgress} strokeColor='#3b82f6' status={uploadProgress === 100 ? 'success' : 'active'} />
+                                    </div>
+                                    {isProcessingImport && (
+                                        <div>
+                                            <p className='text-xs mb-1 text-gray-500'>Processing import...</p>
+                                            <Progress.Line percent={100} strokeColor='#6366f1' status='active' />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                        <Modal.Footer className='px-0 pt-2'>
+                            <Button onClick={handleExcelClose} appearance='ghost' disabled={isLoading}>
+                                Cancel
+                            </Button>
+                            <Button
+                                type='submit'
+                                appearance='primary'
+                                disabled={isLoading || !excelFile}
+                            >
+                                {isLoading ? <Loader content={isProcessingImport ? 'Processing...' : 'Uploading...'} /> : 'Import'}
+                            </Button>
+                        </Modal.Footer>
+                    </form>
+                </Modal.Body>
             </Modal>
         </div>
     );

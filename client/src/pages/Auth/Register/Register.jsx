@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { EyeIcon, EyeOffIcon, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Whisper, Tooltip, useToaster, Message, Loader } from 'rsuite';
+import { Whisper, Tooltip, useToaster, Message, Input, InputGroup, Button } from 'rsuite';
+import VisibleIcon from '@rsuite/icons/Visible';
+import EyeCloseIcon from '@rsuite/icons/EyeClose';
 import axios from 'axios';
 
 const Register = () => {
@@ -84,13 +86,13 @@ const Register = () => {
                                 <label htmlFor="name" className="text-base font-medium text-gray-700">
                                     Name
                                 </label>
-                                <input
+                                <Input
+                                    id='name'
                                     placeholder='John Doe'
-                                    type="name"
-                                    id="name"
                                     value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    className={`mt-1 block w-full px-3 py-2 border ${message.name ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm my-2`}
+                                    onChange={value => setName(value)}
+                                    className={`${message.name ? 'border border-red-500' : ''} my-2`}
+                                    autoComplete='name'
                                 />
                                 {message.name && <p className="text-red-500 text-sm">{message.name}</p>}
                             </div>
@@ -104,13 +106,14 @@ const Register = () => {
                                         <Info className='w-3 ml-2' />
                                     </Whisper>
                                 </div>
-                                <input
+                                <Input
+                                    id='email'
+                                    type='email'
                                     placeholder='john.doe@gmail.com'
-                                    type="email"
-                                    id="email"
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className={`mt-1 block w-full px-3 py-2 border ${message.email ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm my-2`}
+                                    onChange={value => setEmail(value)}
+                                    className={`${message.email ? 'border border-red-500' : ''} my-2`}
+                                    autoComplete='email'
                                 />
                                 {message.email && <p className="text-red-500 text-sm">{message.email}</p>}
                             </div>
@@ -119,19 +122,19 @@ const Register = () => {
                                 <label htmlFor="password" className="text-base font-medium text-gray-700">
                                     Password
                                 </label>
-                                <div className="relative">
-                                    <input
+                                <InputGroup inside className={`${message.password ? 'border border-red-500 rounded-md' : ''} my-2`}>
+                                    <Input
+                                        id='password'
                                         placeholder='**********'
-                                        type={showPassword ? "text" : "password"}
-                                        id="password"
+                                        type={showPassword ? 'text' : 'password'}
                                         value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        className={`mt-1 block w-full px-3 py-2 border ${message.password ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm my-2`}
+                                        autoComplete='new-password'
+                                        onChange={value => setPassword(value)}
                                     />
-                                    <button type="button" className="absolute right-3 top-3" onClick={() => setShowPassword(!showPassword)}>
-                                        {showPassword ? <EyeOffIcon className="h-5 w-5 text-gray-400" /> : <EyeIcon className="h-5 w-5 text-gray-400" />}
-                                    </button>
-                                </div>
+                                    <InputGroup.Button onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
+                                        {showPassword ? <VisibleIcon /> : <EyeCloseIcon />}
+                                    </InputGroup.Button>
+                                </InputGroup>
                                 {message.password && <p className="text-red-500 text-sm">{message.password}</p>}
                             </div>
 
@@ -139,29 +142,30 @@ const Register = () => {
                                 <label htmlFor="confirmPassword" className="text-base font-medium text-gray-700">
                                     Confirm Password
                                 </label>
-                                <div className="relative">
-                                    <input
+                                <InputGroup inside className={`${message.password_confirmation ? 'border border-red-500 rounded-md' : ''} my-2`}>
+                                    <Input
+                                        id='confirmPassword'
                                         placeholder='**********'
-                                        type={showConfirmPassword ? "text" : "password"}
-                                        id="confirmPassword"
+                                        type={showConfirmPassword ? 'text' : 'password'}
                                         value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className={`mt-1 block w-full px-3 py-2 border ${message.password_confirmation ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm my-2`}
+                                        autoComplete='new-password'
+                                        onChange={value => setConfirmPassword(value)}
                                     />
-                                    <button type="button" className="absolute right-3 top-3" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                                        {showConfirmPassword ? <EyeOffIcon className="h-5 w-5 text-gray-400" /> : <EyeIcon className="h-5 w-5 text-gray-400" />}
-                                    </button>
-                                </div>
+                                    <InputGroup.Button onClick={() => setShowConfirmPassword(!showConfirmPassword)} aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}>
+                                        {showConfirmPassword ? <VisibleIcon /> : <EyeCloseIcon />}
+                                    </InputGroup.Button>
+                                </InputGroup>
                                 {message.password_confirmation && <p className="text-red-500 text-sm">{message.password_confirmation}</p>}
                             </div>
-
-                            <button
-                                disabled={loading}
-                                type="submit"
-                                className="w-full py-2 px-4 bg-blue-500 text-white font-medium rounded-md shadow-sm hover:bg-blue-600 transition duration-200"
+                            <Button
+                                appearance='primary'
+                                type='submit'
+                                loading={loading}
+                                className='w-full !bg-blue-500 hover:!bg-blue-600'
+                                block
                             >
-                                {loading ? <Loader content='Registering...' /> : 'Register'}
-                            </button>
+                                {loading ? 'Registering...' : 'Register'}
+                            </Button>
                         </div>
                     </form>
 

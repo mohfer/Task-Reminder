@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { EyeOffIcon, EyeIcon } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Loader, useToaster, Message } from 'rsuite';
+import { useToaster, Message, Input, InputGroup, Button } from 'rsuite';
+import VisibleIcon from '@rsuite/icons/Visible';
+import EyeCloseIcon from '@rsuite/icons/EyeClose';
 import axios from 'axios';
 
 const ResetPassword = () => {
@@ -88,75 +89,50 @@ const ResetPassword = () => {
                     <form onSubmit={handleSubmit}>
                         <div className="space-y-4 mt-8">
                             <div>
-                                <label htmlFor="password" className="text-base font-medium text-gray-700">
-                                    Password
-                                </label>
-                                <div className="relative">
-
-                                    <input
+                                <label htmlFor="password" className="text-base font-medium text-gray-700">Password</label>
+                                <InputGroup inside className={`${message.password ? 'border border-red-500 rounded-md' : ''} my-2`}>
+                                    <Input
+                                        id='password'
                                         placeholder='Password'
-                                        type={showPassword ? "text" : "password"}
-                                        id="password"
+                                        type={showPassword ? 'text' : 'password'}
                                         value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        className={`mt-1 block w-full px-3 py-2 border ${message.password ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm my-2`}
+                                        autoComplete='new-password'
+                                        onChange={value => setPassword(value)}
                                     />
-                                    <button
-                                        type="button"
-                                        className="absolute right-3 top-3"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                    >
-                                        {showPassword ? (
-                                            <EyeOffIcon className="h-5 w-5 text-gray-400" />
-                                        ) : (
-                                            <EyeIcon className="h-5 w-5 text-gray-400" />
-                                        )}
-                                    </button>
-                                </div>
-                                {message.password && (
-                                    <p className="text-red-500 text-sm">{message.password}</p>
-                                )}
+                                    <InputGroup.Button onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
+                                        {showPassword ? <VisibleIcon /> : <EyeCloseIcon />}
+                                    </InputGroup.Button>
+                                </InputGroup>
+                                {message.password && <p className="text-red-500 text-sm">{message.password}</p>}
                             </div>
 
                             <div>
-                                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Confirm Password
-                                </label>
-                                <div className="relative">
-                                    <input
+                                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                                <InputGroup inside className={`${message.password_confirmation ? 'border border-red-500 rounded-md' : ''} my-2`}>
+                                    <Input
+                                        id='confirmPassword'
                                         placeholder='Confirm Password'
-                                        type={showConfirmPassword ? "text" : "password"}
-                                        id="confirmPassword"
+                                        type={showConfirmPassword ? 'text' : 'password'}
                                         value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className={`mt-1 block w-full px-3 py-2 border ${message.password_confirmation ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm my-2`}
+                                        autoComplete='new-password'
+                                        onChange={value => setConfirmPassword(value)}
                                     />
-                                    <button
-                                        type="button"
-                                        className="absolute right-3 top-3"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                    >
-                                        {showConfirmPassword ? (
-                                            <EyeOffIcon className="h-5 w-5 text-gray-400" />
-                                        ) : (
-                                            <EyeIcon className="h-5 w-5 text-gray-400" />
-                                        )}
-                                    </button>
-                                    {message.password_confirmation && (
-                                        <p className="text-red-500 text-sm">{message.password_confirmation}</p>
-                                    )}
-                                </div>
+                                    <InputGroup.Button onClick={() => setShowConfirmPassword(!showConfirmPassword)} aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}>
+                                        {showConfirmPassword ? <VisibleIcon /> : <EyeCloseIcon />}
+                                    </InputGroup.Button>
+                                </InputGroup>
+                                {message.password_confirmation && <p className="text-red-500 text-sm">{message.password_confirmation}</p>}
                             </div>
 
-                            <button
-                                disabled={loading}
-                                type="submit"
-                                className="w-full py-2 px-4 bg-blue-500 text-white font-medium rounded-md shadow-sm hover:bg-hover-blue-500 transition duration-200">
-                                {loading ? (
-                                    <Loader content='Resetting Password...' />
-                                ) : (
-                                    'Reset Password')}
-                            </button>
+                            <Button
+                                appearance='primary'
+                                type='submit'
+                                loading={loading}
+                                className='w-full !bg-blue-500 hover:!bg-hover-blue-500'
+                                block
+                            >
+                                {loading ? 'Resetting Password...' : 'Reset Password'}
+                            </Button>
                         </div>
                     </form>
                 </div>

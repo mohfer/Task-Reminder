@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Loader, useToaster, Message } from 'rsuite';
+import { useToaster, Message, Button } from 'rsuite';
 import axios from 'axios';
 
 const VerifyEmailSent = () => {
@@ -81,12 +81,15 @@ const VerifyEmailSent = () => {
 
                 <form onSubmit={handleSubmit}>
                     <div className="space-y-4 mt-8">
-                        <button
-                            disabled={loading}
-                            type="submit"
-                            className="w-full py-2 px-4 bg-blue-500 text-white font-medium rounded-md shadow-sm hover:bg-hover-blue-500 transition duration-200">
-                            {loading ? <Loader content="Resending..." /> : 'Resend Email'}
-                        </button>
+                        <Button
+                            appearance='primary'
+                            type='submit'
+                            loading={loading}
+                            className='w-full !bg-blue-500 hover:!bg-hover-blue-500'
+                            block
+                        >
+                            {loading ? 'Resending...' : 'Resend Email'}
+                        </Button>
                     </div>
                 </form>
                 <p className="mt-6 text-sm text-center">

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Loader, useToaster, Message } from 'rsuite';
+import { useToaster, Message, Input, Button } from 'rsuite';
 import axios from 'axios';
 
 const ForgotPassword = () => {
@@ -62,29 +62,29 @@ const ForgotPassword = () => {
                             <label htmlFor="email" className="text-base font-medium text-gray-700">
                                 Email
                             </label>
-                            <input
+                            <Input
+                                id='email'
+                                type='email'
                                 placeholder='Email'
-                                type="email"
-                                id="email"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className={`mt-1 block w-full px-3 py-2 border ${message.email ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm my-2`}
+                                onChange={value => setEmail(value)}
+                                className={`${message.email ? 'border border-red-500' : ''} my-2`}
+                                autoComplete='email'
                             />
                             {message.email && (
                                 <p className="text-red-500 text-sm">{message.email}</p>
                             )}
                         </div>
 
-                        <button
-                            disabled={loading}
-                            type="submit"
-                            className="w-full py-2 px-4 bg-blue-500 text-white font-medium rounded-md shadow-sm hover:bg-hover-blue-500 transition duration-200">
-                            {loading ? (
-                                <Loader content="Sending Email..." />
-                            ) : (
-                                'Reset Password'
-                            )}
-                        </button>
+                        <Button
+                            appearance='primary'
+                            type='submit'
+                            loading={loading}
+                            className='w-full !bg-blue-500 hover:!bg-hover-blue-500'
+                            block
+                        >
+                            {loading ? 'Sending Email...' : 'Reset Password'}
+                        </Button>
                     </div>
                 </form>
 
