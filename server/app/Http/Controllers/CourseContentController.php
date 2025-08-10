@@ -147,7 +147,7 @@ class CourseContentController
 
     public function downloadTemplate()
     {
-        $filePath = public_path('storage/templates/course_content_template.xlsx');
+        $filePath = public_path('templates/course_content_template.xlsx');
 
         if (!file_exists($filePath)) {
             return $this->sendError('Template file not found', 404);
