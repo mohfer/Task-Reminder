@@ -37,7 +37,7 @@ const Header = ({ title }) => {
                         <Dropdown
                             title={semesterLabel}
                             trigger="click"
-                            toggleClassName='bg-white rounded-full p-2 px-8 text-gray-500 shadow hover:bg-gray-50 transition-colors'
+                            toggleClassName='bg-white rounded-full p-2 px-8 text-gray-500 shadow hover:bg-gray-[229, 229, 234] transition-colors'
                         >
                             {semesters.map((semester) => (
                                 <Dropdown.Item

@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\CourseContent;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\CourseContentsImport;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class CourseContentController
 {
@@ -159,66 +161,126 @@ class CourseContentController
         $user = $request->user()->id;
 
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv',
+            'file' => 'required|mimes:xlsx,xls,csv|max:5120',
         ]);
 
         $file = $request->file('file');
 
-        $data = Excel::toArray(new CourseContentsImport, $file);
+        try {
+            $sheets = Excel::toArray(new CourseContentsImport, $file);
+        } catch (\Throwable $e) {
+            return $this->sendError('Failed to read the Excel file. Ensure the file is not corrupted.', 422);
+        }
 
+        if (empty($sheets) || empty($sheets[0])) {
+            return $this->sendError('Uploaded file is empty.', 422);
+        }
+
+        $rows = $sheets[0];
+
+        $expectedHeadings = ['semester', 'code', 'course_content', 'scu', 'lecturer', 'day', 'hour_start', 'hour_end'];
+        $firstRowKeys = array_keys($rows[0]);
+        $missingHeadings = array_diff($expectedHeadings, $firstRowKeys);
+        if (!empty($missingHeadings)) {
+            return response()->json([
+                'code' => 422,
+                'message' => 'Template column format is incorrect.',
+                'errors' => [
+                    'headings' => 'Missing columns: ' . implode(', ', $missingHeadings)
+                ]
+            ], 422);
+        }
+
+        $rowErrors = [];
         $duplicateRows = [];
+        $validRows = [];
         $importedCount = 0;
 
-        foreach ($data[0] as $row) {
-            $code = $row['code'];
-            $courseContent = $row['course_content'];
-            $semester = $row['semester'];
+        $rules = [
+            'semester' => 'required',
+            'code' => 'required',
+            'course_content' => 'required',
+            'scu' => 'required|integer|min:1',
+            'lecturer' => 'required',
+            'day' => 'required',
+            'hour_start' => 'required',
+            'hour_end' => 'required',
+        ];
 
-            $isDuplicate = CourseContent::where('code', $code)
-                ->where('user_id', $user)
-                ->where('semester', $semester)
-                ->exists();
-
-            $isDuplicateCourseContent = CourseContent::where('course_content', $courseContent)
-                ->where('user_id', $user)
-                ->where('semester', $semester)
-                ->exists();
-
-            if ($isDuplicate || $isDuplicateCourseContent) {
-                $duplicateRows[] = $row;
-            } else {
-                CourseContent::create([
-                    'semester' => $semester,
-                    'code' => $code,
-                    'course_content' => $courseContent,
-                    'scu' => $row['scu'],
-                    'lecturer' => $row['lecturer'],
-                    'day' => $row['day'],
-                    'hour_start' => $row['hour_start'],
-                    'hour_end' => $row['hour_end'],
-                    'user_id' => $user,
-                ]);
-                $importedCount++;
+        foreach ($rows as $index => $row) {
+            if (collect($row)->filter(fn($v) => trim((string)$v) !== '')->isEmpty()) {
+                continue;
             }
+
+            $lineNumber = $index + 2;
+
+            $prepared = [];
+            foreach ($expectedHeadings as $h) {
+                $prepared[$h] = is_string($row[$h] ?? null) ? trim($row[$h]) : ($row[$h] ?? null);
+            }
+
+            $validator = Validator::make($prepared, $rules);
+
+            if ($validator->fails()) {
+                $rowErrors[] = [
+                    'line' => $lineNumber,
+                    'errors' => $validator->errors()->toArray(),
+                ];
+                continue;
+            }
+
+            $isDuplicateCode = CourseContent::where('code', $prepared['code'])
+                ->where('user_id', $user)
+                ->where('semester', $prepared['semester'])
+                ->exists();
+            $isDuplicateContent = CourseContent::where('course_content', $prepared['course_content'])
+                ->where('user_id', $user)
+                ->where('semester', $prepared['semester'])
+                ->exists();
+
+            if ($isDuplicateCode || $isDuplicateContent) {
+                $duplicateRows[] = array_merge($prepared, [
+                    '_line' => $lineNumber,
+                    '_duplicate_message' => $isDuplicateCode
+                        ? 'Code already used for that semester'
+                        : 'Course content already added'
+                ]);
+                continue;
+            }
+
+            $validRows[] = array_merge($prepared, [
+                'scu' => (int)$prepared['scu'],
+                'user_id' => $user,
+            ]);
         }
 
-        if (count($duplicateRows) > 0) {
+        if (!empty($rowErrors)) {
             return response()->json([
-                'code' => 200,
-                'message' => 'Import completed with some duplicates.',
+                'code' => 422,
+                'message' => 'Validation errors occurred in the uploaded file.',
                 'data' => [
-                    'imported_count' => $importedCount,
-                    'duplicate_rows' => $duplicateRows
+                    'row_errors' => $rowErrors,
                 ]
-            ], 200);
+            ], 422);
         }
+
+        DB::transaction(function () use (&$importedCount, $validRows) {
+            if (!empty($validRows)) {
+                CourseContent::insert($validRows);
+                $importedCount = count($validRows);
+            }
+        });
+
+        $status = empty($duplicateRows) ? 201 : 200;
+        $message = empty($duplicateRows) ? 'Import successful.' : 'Import finished with some duplicate rows.';
 
         return response()->json([
-            'code' => 201,
-            'message' => 'Import completed successfully.',
+            'code' => $status,
+            'message' => $message,
             'data' => [
-                'imported_count' => $importedCount
+                'imported_count' => $importedCount,
+                'duplicate_rows' => $duplicateRows,
             ]
-        ], 201);
+        ], $status);
     }
 }
