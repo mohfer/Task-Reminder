@@ -11,6 +11,9 @@
 **/node_modules
 **/vendor
 
+# Exception: Include customized Laravel mail views
+!**/resources/views/vendor/
+
 # Environment files
 **/.env
 **/.env.backup

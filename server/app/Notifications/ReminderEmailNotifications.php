@@ -50,11 +50,14 @@ class ReminderEmailNotifications extends Notification implements ShouldQueue
 
         foreach ($this->notifications as $index => $notification) {
             $mailMessage->line('---')
-                ->line('Task ' . $index + 1 . ':')
+                ->line('Task ' . ($index + 1) . ':')
                 ->line('Course Content: **' . $notification['course_content'] . '**')
-                ->line('Task: **' . $notification['task'] . '**')
-                ->line('Description: **' . $notification['description'] . '**')
-                ->line('Deadline: **' . DateHelper::formatIndonesianDate($notification['deadline']) . '**');
+                ->line('Task: **' . $notification['task'] . '**');
+
+            $mailMessage->line('Description:');
+            $this->addDescriptionLines($mailMessage, $notification['description']);
+
+            $mailMessage->line('Deadline: **' . DateHelper::formatIndonesianDate($notification['deadline']) . '**');
         }
 
         $mailMessage->action('View Dashboard', env('FRONTEND_URL') . '/dashboard');
@@ -63,6 +66,25 @@ class ReminderEmailNotifications extends Notification implements ShouldQueue
         return $mailMessage;
     }
 
+
+    /**
+     * Add description lines with proper formatting
+     */
+    private function addDescriptionLines($mailMessage, $description)
+    {
+        $lines = preg_split('/\r\n|\r|\n/', $description);
+
+        foreach ($lines as $line) {
+            $trimmed = trim($line);
+            if ($trimmed !== '') {
+                if (str_starts_with($trimmed, '-')) {
+                    $mailMessage->line('**' . $trimmed . '**');
+                } else {
+                    $mailMessage->line($trimmed);
+                }
+            }
+        }
+    }
 
     /**
      * Get the array representation of the notification.
