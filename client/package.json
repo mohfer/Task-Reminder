@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && cp public/.htaccess dist/.htaccess",
     "lint": "eslint .",
     "preview": "vite preview"
   },
