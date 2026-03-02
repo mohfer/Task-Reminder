@@ -6,7 +6,9 @@ const useSemesterStore = create(
         (set) => ({
             semester: "Semester 1",
             semesterLabel: "Semester 1",
+            userName: '',
             setSemester: (semester, label) => set({ semester, semesterLabel: label }),
+            setUserName: (name) => set({ userName: name }),
         }),
         {
             name: "semester-storage",

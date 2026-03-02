@@ -27,8 +27,7 @@ import {
 } from '@/components/ui/tooltip';
 import { FormField } from '@/components/shared/FormField';
 import useSemesterStore from '@/store/useSemesterStore';
-
-const SEMESTERS = Array.from({ length: 8 }, (_, i) => `Semester ${i + 1}`);
+import { SEMESTERS } from '@/lib/constants';
 
 export const TaskFormDialog = ({
     open,
@@ -40,7 +39,7 @@ export const TaskFormDialog = ({
     onSubmit,
     isLoading,
 }) => {
-    const { semesterLabel } = useSemesterStore();
+    const semesterLabel = useSemesterStore((state) => state.semesterLabel);
     const [semester, setSemester] = useState('');
     const [course, setCourse] = useState('');
     const [task, setTask] = useState('');

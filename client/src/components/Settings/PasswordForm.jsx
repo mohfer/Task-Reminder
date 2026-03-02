@@ -4,11 +4,7 @@ import { FormField } from '@/components/shared/FormField';
 import { PasswordInput } from '@/components/shared/PasswordInput';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-
-const getFieldError = (errors, key) => {
-    const value = errors?.[key];
-    return Array.isArray(value) ? value[0] : value;
-};
+import { getFieldError } from '@/lib/formUtils';
 
 export const PasswordForm = ({ isLoading, isMutating, onSubmit }) => {
     const [currentPassword, setCurrentPassword] = useState('');

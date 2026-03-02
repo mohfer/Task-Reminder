@@ -7,7 +7,7 @@ import { IpsSummary } from '@/components/Assessment/IpsSummary';
 import { ScoreUpdateDialog } from '@/components/Assessment/ScoreUpdateDialog';
 
 export const AssessmentView = () => {
-    const { semester: selectedSemester } = useSemesterStore();
+    const selectedSemester = useSemesterStore((state) => state.semester);
     const { courseContents, totalIps, totalIpk, isLoading, isMutating, updateScore } = useAssessments(selectedSemester);
 
     const updateDialog = useModal();

@@ -45,11 +45,10 @@ const ResetPassword = () => {
     };
 
     useEffect(() => {
-        const isPasswordReset = localStorage.getItem('isPasswordReset');
-        if (!isPasswordReset) {
+        if (!token || !email) {
             navigate('/auth/login');
         }
-    }, [navigate]);
+    }, [token, email, navigate]);
 
     useEffect(() => {
         document.title = 'Reset Password - Task Reminder';

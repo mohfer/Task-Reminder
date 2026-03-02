@@ -148,12 +148,12 @@ export const TaskMonthCalendar = ({ tasks = [], selectedDate, onDateSelect, onMo
                                                     variant={task.status === 1 ? 'default' : 'secondary'}
                                                     className={cn(
                                                         'cursor-pointer truncate px-1 py-0 text-[10px] font-normal leading-4',
-                                                        task.priority
-                                                            ? 'border border-destructive/70 bg-destructive text-destructive-foreground hover:bg-destructive/80'
-                                                            : isOverdue
-                                                                ? 'bg-warning text-warning-foreground hover:bg-warning/80'
-                                                                : task.status === 1
-                                                                    ? 'bg-success text-success-foreground hover:bg-success/80'
+                                                        task.status === 1
+                                                            ? 'bg-success text-success-foreground hover:bg-success/80'
+                                                            : task.priority
+                                                                ? 'border border-destructive/70 bg-destructive text-destructive-foreground hover:bg-destructive/80'
+                                                                : isOverdue
+                                                                    ? 'bg-warning text-warning-foreground hover:bg-warning/80'
                                                                     : 'bg-primary text-primary-foreground hover:bg-primary/80'
                                                     )}
                                                 >

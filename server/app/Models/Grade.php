@@ -2,20 +2,23 @@
 
 namespace App\Models;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Grade extends Model
 {
-    protected $guarded = [
-        'id'
+    protected $fillable = [
+        'grade',
+        'quality_number',
+        'minimal_score',
+        'maximal_score',
+        'user_id',
     ];
 
     public $timestamps = false;
 
-    public function user(): HasOne
+    public function user(): BelongsTo
     {
-        return $this->hasOne(User::class, 'id', 'user_id');
+        return $this->belongsTo(User::class);
     }
 }

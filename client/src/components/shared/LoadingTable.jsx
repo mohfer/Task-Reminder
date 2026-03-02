@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export const LoadingTable = ({ rows = 5, columns = 5 }) => {
+export const LoadingTable = memo(({ rows = 5, columns = 5 }) => {
     return (
         <tr>
             <td colSpan={columns} className="p-4">
@@ -12,4 +13,6 @@ export const LoadingTable = ({ rows = 5, columns = 5 }) => {
             </td>
         </tr>
     );
-};
+});
+
+LoadingTable.displayName = 'LoadingTable';

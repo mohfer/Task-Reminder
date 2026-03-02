@@ -21,11 +21,19 @@ export function ThemeProvider({
         root.classList.remove('light', 'dark');
 
         if (theme === 'system') {
-            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            const systemTheme = mediaQuery.matches
                 ? 'dark'
                 : 'light';
             root.classList.add(systemTheme);
-            return;
+
+            const handler = (event) => {
+                root.classList.remove('light', 'dark');
+                root.classList.add(event.matches ? 'dark' : 'light');
+            };
+
+            mediaQuery.addEventListener('change', handler);
+            return () => mediaQuery.removeEventListener('change', handler);
         }
 
         root.classList.add(theme);

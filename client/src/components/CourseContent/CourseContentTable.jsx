@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/table';
 import { LoadingTable } from '@/components/shared/LoadingTable';
 import { Card, CardContent } from '@/components/ui/card';
+import { compareValues } from '@/lib/tableUtils';
 
 const getSortValue = (content, key) => {
     switch (key) {
@@ -37,14 +38,7 @@ const getSortValue = (content, key) => {
     }
 };
 
-const compareValues = (a, b) => {
-    if (typeof a === 'number' && typeof b === 'number') {
-        return a - b;
-    }
-    return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' });
-};
-
-export const CourseContentTable = ({ rows, totalScu, isLoading, onEdit, onDelete }) => {
+export const CourseContentTable = ({ rows, isLoading, onEdit, onDelete }) => {
     const [sortConfig, setSortConfig] = useState({ key: 'code', direction: 'asc' });
 
     const sortedRows = useMemo(() => {
@@ -146,14 +140,6 @@ export const CourseContentTable = ({ rows, totalScu, isLoading, onEdit, onDelete
                                 </TableRow>
                             ))
                             : null}
-
-                        {!isLoading ? (
-                            <TableRow>
-                                <TableCell colSpan={8} className="font-bold">
-                                    Total Semester Credit Units : {totalScu}
-                                </TableCell>
-                            </TableRow>
-                        ) : null}
                     </TableBody>
                 </Table>
             </CardContent>

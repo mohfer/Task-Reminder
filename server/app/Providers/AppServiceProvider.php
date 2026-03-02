@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,10 +23,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (app()->isProduction()) {
+            URL::forceScheme('https');
+        }
+
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
             $customUrl = str_replace(
-                env('APP_URL') . '/api',
-                env('FRONTEND_URL') . '/auth',
+                config('app.url') . '/api',
+                config('app.frontend_url') . '/auth',
                 $url
             );
 
@@ -36,7 +41,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         ResetPassword::toMailUsing(function (object $notifiable, string $token) {
-            $customUrl = env('FRONTEND_URL') . '/auth/forgot-password/reset?token=' . $token . '&email=' . urlencode($notifiable->email);
+            $customUrl = config('app.frontend_url') . '/auth/forgot-password/reset?token=' . $token . '&email=' . urlencode($notifiable->email);
 
             return (new MailMessage)
                 ->subject('Reset Password')

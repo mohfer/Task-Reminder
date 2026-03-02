@@ -11,7 +11,7 @@ use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\PasswordResetController;
 
-Route::prefix('auth')->group(function () {
+Route::prefix('auth')->middleware('throttle:10,1')->group(function () {
     // Auth
     Route::post('login', [AuthController::class, 'login']);
     Route::post('register', [AuthController::class, 'register']);
@@ -41,7 +41,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::post('/course-contents', [CourseContentController::class, 'store']);
     Route::put('/course-contents/{id}', [CourseContentController::class, 'update']);
     Route::delete('/course-contents/{id}', [CourseContentController::class, 'destroy']);
-    Route::post('/course-contents/filter', [CourseContentController::class, 'filter']);
+    Route::get('/course-contents/filter', [CourseContentController::class, 'filter']);
     Route::get('/course-contents/download-template', [CourseContentController::class, 'downloadTemplate']);
     Route::post('/course-contents/import-from-excel', [CourseContentController::class, 'importFromExcel']);
 
@@ -50,7 +50,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::patch('/assessments/{id}', [AssessmentController::class, 'update']);
 
     // Task
-    Route::resource('tasks', TaskController::class);
+    Route::resource('tasks', TaskController::class)->only(['store', 'update', 'destroy']);
     Route::patch('/tasks/{id}/status', [TaskController::class, 'statusChanged']);
 
     // Settings
@@ -60,7 +60,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::patch('/settings/task-completed-notification', [SettingsController::class, 'taskCompletedNotification']);
     Route::put('/settings/profile', [UserController::class, 'updateProfile']);
     Route::put('/settings/password', [UserController::class, 'changePassword']);
-    Route::resource('/settings/grades', GradeController::class);
+    Route::resource('/settings/grades', GradeController::class)->only(['index', 'store', 'update', 'destroy']);
 
     // Logout
     Route::post('/auth/logout', [AuthController::class, 'logout']);

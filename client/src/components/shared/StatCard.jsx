@@ -1,7 +1,8 @@
+import { memo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 
-export const StatCard = ({ title, value, subtitle, icon: Icon, iconColor, isLoading }) => {
+export const StatCard = memo(({ title, value, subtitle, icon: Icon, iconColor, isLoading }) => {
     return (
         <Card className="flex-1">
             <CardContent className="flex items-center justify-between gap-4 p-4">
@@ -20,4 +21,6 @@ export const StatCard = ({ title, value, subtitle, icon: Icon, iconColor, isLoad
             </CardContent>
         </Card>
     );
-};
+});
+
+StatCard.displayName = 'StatCard';

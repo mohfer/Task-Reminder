@@ -11,7 +11,6 @@ export const useChartData = (selectedSemester) => {
     const fetchChartData = useCallback(async (semester) => {
         try {
             setIsLoading(true);
-            setCourseContents([]);
             const response = await dashboardApi.getChart(semester);
             setCourseContents(response.data.data.course_contents);
             setCompletedTask(response.data.data.completed_task);

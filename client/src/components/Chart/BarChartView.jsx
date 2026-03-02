@@ -28,7 +28,7 @@ const flattenTasks = (courseContents) => {
 };
 
 export const BarChartView = () => {
-    const { semester: selectedSemester } = useSemesterStore();
+    const selectedSemester = useSemesterStore((state) => state.semester);
     const { courseContents, completedTask, uncompletedTask, totalTask, isLoading } = useChartData(selectedSemester);
     const [selectedCourse, setSelectedCourse] = useState(null);
 
@@ -59,16 +59,57 @@ export const BarChartView = () => {
         [courseContents]
     );
 
-    const options = {
+    const options = useMemo(() => ({
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
             legend: {
                 position: 'bottom',
+                labels: {
+                    boxWidth: 12,
+                    padding: 16,
+                    font: {
+                        size: window.innerWidth < 640 ? 11 : 13,
+                    },
+                },
             },
             title: {
                 display: true,
                 text: `Data ${selectedSemester}`,
+                font: {
+                    size: window.innerWidth < 640 ? 13 : 16,
+                },
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false,
+            },
+        },
+        scales: {
+            x: {
+                ticks: {
+                    maxRotation: 45,
+                    minRotation: 0,
+                    font: {
+                        size: window.innerWidth < 640 ? 10 : 12,
+                    },
+                    callback: function (value) {
+                        const label = this.getLabelForValue(value);
+                        if (window.innerWidth < 640 && label.length > 12) {
+                            return label.substring(0, 12) + '...';
+                        }
+                        return label;
+                    },
+                },
+            },
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1,
+                    font: {
+                        size: window.innerWidth < 640 ? 10 : 12,
+                    },
+                },
             },
         },
         onClick: (_, elements) => {
@@ -78,7 +119,7 @@ export const BarChartView = () => {
                 setSelectedCourse(selected);
             }
         },
-    };
+    }), [selectedSemester, courseContents]);
 
     const tableRows = selectedCourse
         ? selectedCourse.tasks.map((task) => ({ ...task, course_content: selectedCourse.course_content }))
@@ -95,8 +136,8 @@ export const BarChartView = () => {
             />
 
             <Card className="my-4">
-                <CardContent className="p-4 px-8">
-                    <div className="h-[420px] w-full min-w-[320px] overflow-x-auto">
+                <CardContent className="p-3 sm:p-4 sm:px-8">
+                    <div className="h-[300px] w-full sm:h-[420px]">
                         <Bar data={data} options={options} />
                     </div>
                 </CardContent>

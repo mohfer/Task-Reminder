@@ -4,14 +4,20 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Task extends Model
 {
     protected $appends = ['deadline_label'];
 
-    protected $guarded = [
-        'id'
+    protected $fillable = [
+        'task',
+        'description',
+        'deadline',
+        'status',
+        'priority',
+        'user_id',
+        'course_content_id',
     ];
 
     public function getDeadlineLabelAttribute()
@@ -38,23 +44,13 @@ class Task extends Model
         }
     }
 
-    public function getCreatedAtAttribute($value)
+    public function user(): BelongsTo
     {
-        return Carbon::parse($value)->locale('id')->translatedFormat('j F Y');
+        return $this->belongsTo(User::class);
     }
 
-    public function getUpdatedAtAttribute($value)
+    public function course_content(): BelongsTo
     {
-        return Carbon::parse($value)->locale('id')->translatedFormat('j F Y');
-    }
-
-    public function user(): HasOne
-    {
-        return $this->hasOne(User::class, 'id', 'user_id');
-    }
-
-    public function course_content(): HasOne
-    {
-        return $this->hasOne(CourseContent::class, 'id', 'course_content_id');
+        return $this->belongsTo(CourseContent::class);
     }
 }

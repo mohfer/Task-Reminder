@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { settingsApi } from '@/api/settingsApi';
 import { userApi } from '@/api/userApi';
+import useSemesterStore from '@/store/useSemesterStore';
 
 export const useSettings = () => {
     const [userData, setUserData] = useState(null);
@@ -78,6 +79,7 @@ export const useSettings = () => {
                 const response = await userApi.updateProfile(data);
                 toast.success(response.data.message);
                 localStorage.setItem('name', data.name);
+                useSemesterStore.getState().setUserName(data.name);
                 await fetchUserData(false);
                 return { success: true };
             } catch (error) {

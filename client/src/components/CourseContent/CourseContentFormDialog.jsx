@@ -17,14 +17,10 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { FormField } from '@/components/shared/FormField';
+import { SEMESTERS } from '@/lib/constants';
+import { getFieldError } from '@/lib/formUtils';
 
-const SEMESTERS = Array.from({ length: 8 }, (_, index) => `Semester ${index + 1}`);
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-const getFieldError = (errors, key) => {
-    const value = errors?.[key];
-    return Array.isArray(value) ? value[0] : value;
-};
 
 export const CourseContentFormDialog = ({
     open,

@@ -28,6 +28,10 @@ class AuthController
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $request->remember_me)) {
             $user = Auth::user();
 
+            if (!$user instanceof User) {
+                return $this->sendError('User not found', 404);
+            }
+
             if ($request['remember_me'] == true) {
                 $token = $user->createToken('Task Reminder', ['*'], now()->addDays(7))->plainTextToken;
             } else if ($request['remember_me'] == false) {
@@ -55,81 +59,88 @@ class AuthController
             'password_confirmation' => 'required|same:password',
         ]);
 
-        $request['password'] = bcrypt($request['password']);
-        $user = User::create($request->all());
+        $user = DB::transaction(function () use ($request) {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => $request->password,
+            ]);
 
-        Setting::create([
-            'deadline_notification' => "5 days left",
-            'task_created_notification' => 1,
-            'task_completed_notification' => 1,
-            'user_id' => $user->id
-        ]);
+            Setting::create([
+                'deadline_notification' => '5 days left',
+                'task_created_notification' => 1,
+                'task_completed_notification' => 1,
+                'user_id' => $user->id,
+            ]);
 
-        Grade::insert([
-            [
-                'grade' => 'A',
-                'quality_number' => 4.00,
-                'minimal_score' => 85.00,
-                'maximal_score' => 100.00,
-                'user_id' => $user->id,
-            ],
-            [
-                'grade' => 'A-',
-                'quality_number' => 3.75,
-                'minimal_score' => 80.00,
-                'maximal_score' => 84.99,
-                'user_id' => $user->id,
-            ],
-            [
-                'grade' => 'B+',
-                'quality_number' => 3.50,
-                'minimal_score' => 75.00,
-                'maximal_score' => 79.99,
-                'user_id' => $user->id,
-            ],
-            [
-                'grade' => 'B',
-                'quality_number' => 3.00,
-                'minimal_score' => 70.00,
-                'maximal_score' => 74.99,
-                'user_id' => $user->id,
-            ],
-            [
-                'grade' => 'B-',
-                'quality_number' => 2.75,
-                'minimal_score' => 65.00,
-                'maximal_score' => 69.99,
-                'user_id' => $user->id,
-            ],
-            [
-                'grade' => 'C+',
-                'quality_number' => 2.50,
-                'minimal_score' => 60.00,
-                'maximal_score' => 64.99,
-                'user_id' => $user->id,
-            ],
-            [
-                'grade' => 'C',
-                'quality_number' => 2.00,
-                'minimal_score' => 56.00,
-                'maximal_score' => 59.99,
-                'user_id' => $user->id,
-            ],
-            [
-                'grade' => 'D',
-                'quality_number' => 1.00,
-                'minimal_score' => 50.00,
-                'maximal_score' => 55.99,
-                'user_id' => $user->id,
-            ],
-            [
-                'grade' => 'E',
-                'quality_number' => 0.00,
-                'minimal_score' => 0.00,
-                'maximal_score' => 49.99,
-                'user_id' => $user->id,
-            ],
-        ]);
+            Grade::insert([
+                [
+                    'grade' => 'A',
+                    'quality_number' => 4.00,
+                    'minimal_score' => 85.00,
+                    'maximal_score' => 100.00,
+                    'user_id' => $user->id,
+                ],
+                [
+                    'grade' => 'A-',
+                    'quality_number' => 3.75,
+                    'minimal_score' => 80.00,
+                    'maximal_score' => 84.99,
+                    'user_id' => $user->id,
+                ],
+                [
+                    'grade' => 'B+',
+                    'quality_number' => 3.50,
+                    'minimal_score' => 75.00,
+                    'maximal_score' => 79.99,
+                    'user_id' => $user->id,
+                ],
+                [
+                    'grade' => 'B',
+                    'quality_number' => 3.00,
+                    'minimal_score' => 70.00,
+                    'maximal_score' => 74.99,
+                    'user_id' => $user->id,
+                ],
+                [
+                    'grade' => 'B-',
+                    'quality_number' => 2.75,
+                    'minimal_score' => 65.00,
+                    'maximal_score' => 69.99,
+                    'user_id' => $user->id,
+                ],
+                [
+                    'grade' => 'C+',
+                    'quality_number' => 2.50,
+                    'minimal_score' => 60.00,
+                    'maximal_score' => 64.99,
+                    'user_id' => $user->id,
+                ],
+                [
+                    'grade' => 'C',
+                    'quality_number' => 2.00,
+                    'minimal_score' => 56.00,
+                    'maximal_score' => 59.99,
+                    'user_id' => $user->id,
+                ],
+                [
+                    'grade' => 'D',
+                    'quality_number' => 1.00,
+                    'minimal_score' => 50.00,
+                    'maximal_score' => 55.99,
+                    'user_id' => $user->id,
+                ],
+                [
+                    'grade' => 'E',
+                    'quality_number' => 0.00,
+                    'minimal_score' => 0.00,
+                    'maximal_score' => 49.99,
+                    'user_id' => $user->id,
+                ],
+            ]);
+
+            return $user;
+        });
 
 
         event(new Registered($user));

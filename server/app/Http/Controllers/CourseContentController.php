@@ -35,8 +35,17 @@ class CourseContentController
             'hour_end' => 'required',
         ]);
 
-        $request['user_id'] = $user;
-        $courseContent = CourseContent::create($request->all());
+        $courseContent = CourseContent::create([
+            'semester' => $request->semester,
+            'code' => $request->code,
+            'course_content' => $request->course_content,
+            'scu' => $request->scu,
+            'lecturer' => $request->lecturer,
+            'day' => $request->day,
+            'hour_start' => $request->hour_start,
+            'hour_end' => $request->hour_end,
+            'user_id' => $user,
+        ]);
         return $this->sendResponse($courseContent, 'Course Content created successfully', 201);
     }
 
@@ -83,9 +92,16 @@ class CourseContentController
             return $this->sendError('Course Content already exists for this user', 409);
         }
 
-        $request['user_id'] = $user;
-
-        $courseContent->update($request->all());
+        $courseContent->update([
+            'semester' => $request->semester,
+            'code' => $request->code,
+            'course_content' => $request->course_content,
+            'scu' => $request->scu,
+            'lecturer' => $request->lecturer,
+            'day' => $request->day,
+            'hour_start' => $request->hour_start,
+            'hour_end' => $request->hour_end,
+        ]);
 
         return $this->sendResponse($courseContent, 'Course Content updated successfully');
     }
@@ -124,25 +140,15 @@ class CourseContentController
                     'day' => $courseContent->day,
                     'hour_start' => date('H:i', strtotime($courseContent->hour_start)),
                     'hour_end' => date('H:i', strtotime($courseContent->hour_end)),
-                    'scu_total' => $courseContent->scu
                 ];
             });
 
-        $totalScu = $courseContents->sum('scu_total');
+        $totalScu = $courseContents->sum('scu');
 
-        if (!$courseContents) {
-            return $this->sendError('Course Content not found', 404);
-        }
-
-        $data = [
+        return $this->sendResponse([
             'total_scu' => $totalScu,
             'course_contents' => $courseContents,
-        ];
-
-        return response()->json([
-            'message' => 'Course Contents retrieved successfully',
-            'data' => $data
-        ], 200);
+        ], 'Course Contents retrieved successfully');
     }
 
     public function downloadTemplate()
@@ -207,6 +213,20 @@ class CourseContentController
             'hour_end' => 'required',
         ];
 
+        $existingCodes = CourseContent::where('user_id', $user)
+            ->select('code', 'semester')
+            ->get()
+            ->groupBy('semester')
+            ->map(fn($items) => $items->pluck('code')->toArray())
+            ->toArray();
+
+        $existingContents = CourseContent::where('user_id', $user)
+            ->select('course_content', 'semester')
+            ->get()
+            ->groupBy('semester')
+            ->map(fn($items) => $items->pluck('course_content')->toArray())
+            ->toArray();
+
         foreach ($rows as $index => $row) {
             if (collect($row)->filter(fn($v) => trim((string)$v) !== '')->isEmpty()) {
                 continue;
@@ -229,14 +249,8 @@ class CourseContentController
                 continue;
             }
 
-            $isDuplicateCode = CourseContent::where('code', $prepared['code'])
-                ->where('user_id', $user)
-                ->where('semester', $prepared['semester'])
-                ->exists();
-            $isDuplicateContent = CourseContent::where('course_content', $prepared['course_content'])
-                ->where('user_id', $user)
-                ->where('semester', $prepared['semester'])
-                ->exists();
+            $isDuplicateCode = in_array($prepared['code'], $existingCodes[$prepared['semester']] ?? []);
+            $isDuplicateContent = in_array($prepared['course_content'], $existingContents[$prepared['semester']] ?? []);
 
             if ($isDuplicateCode || $isDuplicateContent) {
                 $duplicateRows[] = array_merge($prepared, [

@@ -8,6 +8,7 @@ import { FormField } from '@/components/shared/FormField';
 import { PasswordInput } from '@/components/shared/PasswordInput';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { authApi } from '@/api/authApi';
+import useSemesterStore from '@/store/useSemesterStore';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -37,6 +38,7 @@ const Login = () => {
             localStorage.setItem('token', response.data.data.token);
             localStorage.setItem('email', response.data.data.user.email);
             localStorage.setItem('name', response.data.data.user.name);
+            useSemesterStore.getState().setUserName(response.data.data.user.name);
 
             const isEmailVerified = await authApi.checkEmail();
             localStorage.setItem('isEmailVerified', isEmailVerified.data.status);

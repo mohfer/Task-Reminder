@@ -18,11 +18,6 @@ const App = () => {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
       <Routes>
-        <Route
-          path='*'
-          element={<Navigate to="/dashboard" replace />}
-        />
-
         {/* Auth */}
         <Route
           path="/auth/login"
@@ -69,6 +64,11 @@ const App = () => {
         <Route
           path="/settings"
           element={<ProtectedRoute><Settings /></ProtectedRoute>}
+        />
+
+        <Route
+          path='*'
+          element={<Navigate to="/dashboard" replace />}
         />
       </Routes>
     </Suspense>

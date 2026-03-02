@@ -1,7 +1,7 @@
 import axiosInstance from './axiosInstance';
 
 export const courseContentApi = {
-    filter: (semester) => axiosInstance.post('/course-contents/filter', { semester }),
+    filter: (semester) => axiosInstance.get('/course-contents/filter', { params: { semester } }),
 
     create: (data) =>
         axiosInstance.post('/course-contents', data, {

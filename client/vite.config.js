@@ -16,8 +16,21 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-  },
-  server: {
-    historyApiFallback: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-chart': ['chart.js', 'react-chartjs-2'],
+          'vendor-date': ['date-fns'],
+          'vendor-radix': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-select',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-popover',
+          ],
+        },
+      },
+    },
   },
 })

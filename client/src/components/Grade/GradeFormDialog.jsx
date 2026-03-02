@@ -10,11 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FormField } from '@/components/shared/FormField';
-
-const getFieldError = (errors, key) => {
-    const value = errors?.[key];
-    return Array.isArray(value) ? value[0] : value;
-};
+import { getFieldError } from '@/lib/formUtils';
 
 export const GradeFormDialog = ({
     open,

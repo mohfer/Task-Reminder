@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Task;
-use App\Helpers\DateHelper;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Models\CourseContent;
@@ -58,17 +58,6 @@ class DashboardController
         $user = $request->user()->id;
         $semester = $request->semester;
 
-        $tasks = Task::whereHas('course_content', function ($query) use ($user, $semester) {
-            $query->where('user_id', $user)
-                ->where('semester', $semester);
-        })
-            ->selectRaw('count(*) as total, sum(status = 1) as completed, sum(status = 0) as uncompleted')
-            ->first();
-
-        $completedTask = $tasks->completed;
-        $uncompletedTask = $tasks->uncompleted;
-        $totalTask = $tasks->total;
-
         $courseContents = CourseContent::where('user_id', $user)
             ->where('semester', $semester)
             ->with(['tasks' => function ($query) {
@@ -77,11 +66,11 @@ class DashboardController
             ->select(['id', 'course_content'])
             ->get();
 
+        $totalCompleted = 0;
+        $totalUncompleted = 0;
+
         $data = [
             'semester' => $semester,
-            'completed_task' => (int) $completedTask,
-            'uncompleted_task' => (int) $uncompletedTask,
-            'total_task' => $totalTask,
             'course_contents' => []
         ];
 
@@ -89,6 +78,8 @@ class DashboardController
             $completedTask = $content->tasks->where('status', 1)->count();
             $uncompletedTask = $content->tasks->where('status', 0)->count();
             $totalTask = $completedTask + $uncompletedTask;
+            $totalCompleted += $completedTask;
+            $totalUncompleted += $uncompletedTask;
 
             $formattedTasks = $content->tasks->map(function ($task) {
                 return [
@@ -96,9 +87,9 @@ class DashboardController
                     'course_content_id' => $task->course_content_id,
                     'task' => $task->task,
                     'status' => $task->status,
-                    'deadline' => DateHelper::formatIndonesianDate($task->deadline),
-                    'created_at' => $task->created_at,
-                    'updated_at' => $task->updated_at,
+                    'deadline' => Carbon::parse($task->deadline)->locale('id')->translatedFormat('j F Y'),
+                    'created_at' => Carbon::parse($task->created_at)->locale('id')->translatedFormat('j F Y'),
+                    'updated_at' => Carbon::parse($task->updated_at)->locale('id')->translatedFormat('j F Y'),
                     'deadline_label' => $task->deadline_label
                 ];
             });
@@ -112,6 +103,10 @@ class DashboardController
                 'tasks' => $formattedTasks
             ];
         }
+
+        $data['completed_task'] = $totalCompleted;
+        $data['uncompleted_task'] = $totalUncompleted;
+        $data['total_task'] = $totalCompleted + $totalUncompleted;
 
         return $this->sendResponse($data, 'Chart retrieved successfully');
     }

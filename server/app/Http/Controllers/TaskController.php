@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
 use App\Models\Task;
 use App\Models\Setting;
 use App\Traits\ApiResponse;
@@ -18,31 +17,43 @@ class TaskController
     public function store(Request $request)
     {
         $user = $request->user();
-        $courseContent = CourseContent::where('id', $request->course_content_id)->where('user_id', $user->id)->first();
-        $settings = Setting::where('user_id', $user->id)->first();
-        $deadline = Carbon::parse($request->deadline)->format('j F Y');
 
         $request->validate([
             'task' => 'required',
+            'description' => 'nullable|string',
             'deadline' => 'required|date',
             'priority' => 'boolean',
-            'course_content_id' => 'required'
+            'course_content_id' => 'required|exists:course_contents,id'
         ]);
 
-        $request['priority'] == true ? 1 : 0;
-        $request['status'] = 0;
-        $request['user_id'] = $user->id;
+        $courseContent = CourseContent::where('id', $request->course_content_id)
+            ->where('user_id', $user->id)
+            ->first();
+
 
         if (!$courseContent) {
             return $this->sendError('Course Content not found', 404);
         }
 
+        $task = Task::create([
+            'task' => $request->task,
+            'description' => $request->description,
+            'deadline' => $request->deadline,
+            'priority' => $request->boolean('priority') ? 1 : 0,
+            'status' => 0,
+            'user_id' => $user->id,
+            'course_content_id' => $request->course_content_id,
+        ]);
 
-        if ($settings->task_created_notification === 1) {
-            $user->notify(new TaskCreatedNotification($courseContent->course_content, $request['task'], $request['description'], $deadline));
+        $settings = Setting::where('user_id', $user->id)->first();
+        if ($settings && $settings->task_created_notification === 1) {
+            $user->notify(new TaskCreatedNotification(
+                $courseContent->course_content,
+                $request->task,
+                $request->description,
+                $request->deadline
+            ));
         }
-
-        $task = Task::create($request->all());
 
         return $this->sendResponse($task, 'Task created successfully', 201);
     }
@@ -63,9 +74,13 @@ class TaskController
             'course_content_id' => 'required'
         ]);
 
-        $request['user_id'] = $user;
-
-        $task->update($request->all());
+        $task->update([
+            'task' => $request->task,
+            'description' => $request->description,
+            'deadline' => $request->deadline,
+            'priority' => $request->boolean('priority') ? 1 : 0,
+            'course_content_id' => $request->course_content_id,
+        ]);
 
         return $this->sendResponse($task, 'Task updated successfully');
     }
@@ -95,13 +110,13 @@ class TaskController
             return $this->sendError('Task not found', 404);
         }
 
-        $request['status'] = $task->status == 1 ? 0 : 1;
+        $newStatus = $task->status == 1 ? 0 : 1;
 
-        if ($task->status == 0 && $request['status'] == 1 && $settings->task_completed_notification === 1) {
+        if ($task->status == 0 && $newStatus == 1 && $settings->task_completed_notification === 1) {
             $user->notify(new TaskCompletedNotification($task));
         }
 
-        $task->update($request->all());
+        $task->update(['status' => $newStatus]);
         return $this->sendResponse($task, 'Task status changed successfully');
     }
 }

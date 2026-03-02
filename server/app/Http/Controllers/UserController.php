@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Setting;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -21,7 +20,7 @@ class UserController
             'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
         ]);
 
-        $user->update($request->all());
+        $user->update($request->only(['name', 'email']));
 
         return $this->sendResponse($user, 'User updated successfully');
     }
@@ -48,23 +47,16 @@ class UserController
 
     public function getAuthenticatedUser(Request $request)
     {
-        $settings = Setting::where('user_id', $request->user()->id)->first();
+        $user = $request->user();
+        $user->load('setting');
 
-        $user = [
-            'id' => $request->user()->id,
-            'name' => $request->user()->name,
-            'email' => $request->user()->email,
-        ];
-
-        $data = [
-            'user' => $user,
-            'settings' => $settings
-        ];
-
-        if ($data) {
-            return $this->sendResponse($data, 'User retrieved successfully');
-        }
-
-        return $this->sendError('User not found', 404);
+        return $this->sendResponse([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
+            'settings' => $user->setting,
+        ], 'User retrieved successfully');
     }
 }

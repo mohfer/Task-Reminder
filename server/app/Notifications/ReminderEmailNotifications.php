@@ -2,7 +2,8 @@
 
 namespace App\Notifications;
 
-use App\Helpers\DateHelper;
+use Carbon\Carbon;
+use App\Traits\FormatsNotificationDescription;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -10,7 +11,7 @@ use Illuminate\Notifications\Notification;
 
 class ReminderEmailNotifications extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, FormatsNotificationDescription;
 
     public $notifications = [];
     /**
@@ -57,33 +58,13 @@ class ReminderEmailNotifications extends Notification implements ShouldQueue
             $mailMessage->line('Description:');
             $this->addDescriptionLines($mailMessage, $notification['description']);
 
-            $mailMessage->line('Deadline: **' . DateHelper::formatIndonesianDate($notification['deadline']) . '**');
+            $mailMessage->line('Deadline: **' . Carbon::parse($notification['deadline'])->locale('id')->translatedFormat('j F Y') . '**');
         }
 
-        $mailMessage->action('View Dashboard', env('FRONTEND_URL') . '/dashboard');
+        $mailMessage->action('View Dashboard', config('app.frontend_url') . '/dashboard');
         $mailMessage->line('Thank you for using our application! Don\'t forget to complete your tasks!');
 
         return $mailMessage;
-    }
-
-
-    /**
-     * Add description lines with proper formatting
-     */
-    private function addDescriptionLines($mailMessage, $description)
-    {
-        $lines = preg_split('/\r\n|\r|\n/', $description);
-
-        foreach ($lines as $line) {
-            $trimmed = trim($line);
-            if ($trimmed !== '') {
-                if (str_starts_with($trimmed, '-')) {
-                    $mailMessage->line('**' . $trimmed . '**');
-                } else {
-                    $mailMessage->line($trimmed);
-                }
-            }
-        }
     }
 
     /**

@@ -9,6 +9,7 @@ use App\Models\CourseContent;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -23,8 +24,10 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @var array<int, string>
      */
-    protected $guarded = [
-        'id'
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
     ];
 
     /**
@@ -58,6 +61,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function setting(): HasOne
+    {
+        return $this->hasOne(Setting::class);
     }
 
     public function settings(): HasMany

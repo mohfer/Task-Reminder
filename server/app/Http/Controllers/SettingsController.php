@@ -14,16 +14,21 @@ class SettingsController
     {
         $user = $request->user()->id;
 
-        $settings = Setting::where('user_id', $user)->get();
+        $settings = Setting::where('user_id', $user)->first();
 
         return $this->sendResponse($settings, 'Settings retrieved successfully');
     }
 
     public function deadlineNotification(Request $request)
     {
+        $request->validate([
+            'deadline_notification' => 'required|string',
+        ]);
+
         $setting = Setting::where('user_id', $request->user()->id)->first();
-        $setting->deadline_notification = $request->deadline_notification;
-        $setting->save();
+        $setting->update([
+            'deadline_notification' => $request->deadline_notification,
+        ]);
         return $this->sendResponse($setting, 'Deadline notification updated successfully');
     }
 
@@ -31,13 +36,9 @@ class SettingsController
     {
         $setting = Setting::where('user_id', $request->user()->id)->first();
 
-        if ($setting->task_created_notification == 1) {
-            $request['task_created_notification'] = 0;
-        } else if ($setting->task_created_notification == 0) {
-            $request['task_created_notification'] = 1;
-        }
-
-        $setting->update($request->all());
+        $setting->update([
+            'task_created_notification' => $setting->task_created_notification == 1 ? 0 : 1,
+        ]);
 
         return $this->sendResponse($setting, 'Task created notification updated successfully');
     }
@@ -45,13 +46,9 @@ class SettingsController
     public function taskCompletedNotification(Request $request)
     {
         $setting = Setting::where('user_id', $request->user()->id)->first();
-        if ($setting->task_completed_notification == 1) {
-            $request['task_completed_notification'] = 0;
-        } else if ($setting->task_completed_notification == 0) {
-            $request['task_completed_notification'] = 1;
-        }
-
-        $setting->update($request->all());
+        $setting->update([
+            'task_completed_notification' => $setting->task_completed_notification == 1 ? 0 : 1,
+        ]);
 
         return $this->sendResponse($setting, 'Task completed notification updated successfully');
     }

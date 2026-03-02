@@ -1,7 +1,8 @@
+import { memo } from 'react';
 import { ListChecks, CheckCircle2, Clock } from 'lucide-react';
 import { StatCard } from '@/components/shared/StatCard';
 
-export const ChartStatsCards = ({ totalTask, completedTask, uncompletedTask, selectedSemester, isLoading }) => {
+export const ChartStatsCards = memo(({ totalTask, completedTask, uncompletedTask, selectedSemester, isLoading }) => {
     return (
         <div className="my-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <StatCard
@@ -30,4 +31,6 @@ export const ChartStatsCards = ({ totalTask, completedTask, uncompletedTask, sel
             />
         </div>
     );
-};
+});
+
+ChartStatsCards.displayName = 'ChartStatsCards';

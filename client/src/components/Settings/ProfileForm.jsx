@@ -4,11 +4,7 @@ import { Input } from '@/components/ui/input';
 import { FormField } from '@/components/shared/FormField';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-
-const getFieldError = (errors, key) => {
-    const value = errors?.[key];
-    return Array.isArray(value) ? value[0] : value;
-};
+import { getFieldError } from '@/lib/formUtils';
 
 export const ProfileForm = ({ userData, isLoading, isMutating, onSubmit }) => {
     const [name, setName] = useState('');

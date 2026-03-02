@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import useSemesterStore from '@/store/useSemesterStore';
+import { SEMESTERS } from '@/lib/constants';
 import {
     Select,
     SelectContent,
@@ -12,14 +13,14 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { Separator } from '@/components/ui/separator';
 
-const SEMESTERS = Array.from({ length: 8 }, (_, i) => `Semester ${i + 1}`);
-
 const Header = ({ title }) => {
-    const storedName = localStorage.getItem('name');
     const navigate = useNavigate();
     const location = useLocation();
     const { pathname } = location;
-    const { semesterLabel, setSemester } = useSemesterStore();
+    const semesterLabel = useSemesterStore((state) => state.semesterLabel);
+    const setSemester = useSemesterStore((state) => state.setSemester);
+    const userName = useSemesterStore((state) => state.userName);
+    const displayName = userName || localStorage.getItem('name') || 'User';
 
     useEffect(() => {
         localStorage.removeItem('isPasswordReset');
@@ -59,10 +60,10 @@ const Header = ({ title }) => {
                     <Separator orientation="vertical" className="hidden h-6 lg:block" />
 
                     <div className="hidden items-center gap-3 lg:flex">
-                        <span className="text-sm font-medium text-foreground">Hi, {storedName}</span>
+                        <span className="text-sm font-medium text-foreground">Hi, {displayName}</span>
                         <Avatar className="h-8 w-8">
                             <AvatarFallback className="bg-primary text-sm text-primary-foreground">
-                                {storedName?.charAt(0)?.toUpperCase() || 'U'}
+                                {displayName?.charAt(0)?.toUpperCase() || 'U'}
                             </AvatarFallback>
                         </Avatar>
                     </div>

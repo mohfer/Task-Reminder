@@ -1,21 +1,16 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import { authApi } from '@/api/authApi';
+import { Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
-    const navigate = useNavigate();
+    const token = localStorage.getItem('token');
+    const emailVerified = localStorage.getItem('isEmailVerified');
 
-    useEffect(() => {
-        authApi.checkToken().catch((error) => {
-            if (error.response?.status === 401) {
-                localStorage.clear();
-                sessionStorage.clear();
-                toast.error('Session expired, please login again');
-                navigate('/auth/login');
-            }
-        });
-    }, [navigate]);
+    if (!token) {
+        return <Navigate to="/auth/login" replace />;
+    }
+
+    if (emailVerified === 'false') {
+        return <Navigate to="/auth/verify-email" replace />;
+    }
 
     return children;
 };

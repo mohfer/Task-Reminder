@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/table';
 import { LoadingTable } from '@/components/shared/LoadingTable';
 import { Card, CardContent } from '@/components/ui/card';
+import { compareValues } from '@/lib/tableUtils';
 
 const getSortValue = (row, key) => {
     switch (key) {
@@ -33,13 +34,6 @@ const getSortValue = (row, key) => {
         default:
             return '';
     }
-};
-
-const compareValues = (a, b) => {
-    if (typeof a === 'number' && typeof b === 'number') {
-        return a - b;
-    }
-    return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' });
 };
 
 export const AssessmentTable = ({ rows, isLoading, onEdit }) => {

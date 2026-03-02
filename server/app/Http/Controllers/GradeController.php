@@ -53,21 +53,20 @@ class GradeController
     {
         $user = $request->user()->id;
 
-        $gradeExist = Grade::where('grade', $request->grade)->where('user_id', $user)->exists();
-
-        if ($gradeExist) {
-            return $this->sendError('Grade Already Added', 409);
-        }
-
         $request->validate([
-            'grade' => ['required', Rule::unique('grades')->where(fn($query) => $query->where('user_id', $user))->ignore($request->id),],
+            'grade' => ['required', Rule::unique('grades')->where(fn($query) => $query->where('user_id', $user))],
             'quality_number' => 'required|numeric',
             'minimal_score' => 'required|numeric|min:0|max:100',
             'maximal_score' => 'required|numeric|min:0|max:100',
         ]);
 
-        $request['user_id'] = $user;
-        $grade = Grade::create($request->all());
+        $grade = Grade::create([
+            'grade' => $request->grade,
+            'quality_number' => $request->quality_number,
+            'minimal_score' => $request->minimal_score,
+            'maximal_score' => $request->maximal_score,
+            'user_id' => $user,
+        ]);
         return $this->sendResponse($grade, 'Grade created successfully', 201);
     }
 
@@ -90,9 +89,13 @@ class GradeController
             'maximal_score' => 'required|numeric',
         ]);
 
-        $request['user_id'] = $user;
-        $grade->update($request->all());
-        return $this->sendResponse($grade, 'Grade updated successfully', 201);
+        $grade->update([
+            'grade' => $request->grade,
+            'quality_number' => $request->quality_number,
+            'minimal_score' => $request->minimal_score,
+            'maximal_score' => $request->maximal_score,
+        ]);
+        return $this->sendResponse($grade, 'Grade updated successfully', 200);
     }
 
     public function destroy(Request $request, $id)

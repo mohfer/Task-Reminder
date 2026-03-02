@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -8,7 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
-export const DeleteConfirmDialog = ({
+export const DeleteConfirmDialog = memo(({
     open,
     onOpenChange,
     title = 'Delete Confirmation',
@@ -34,4 +35,6 @@ export const DeleteConfirmDialog = ({
             </DialogContent>
         </Dialog>
     );
-};
+});
+
+DeleteConfirmDialog.displayName = 'DeleteConfirmDialog';

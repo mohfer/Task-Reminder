@@ -9,6 +9,8 @@ const axiosInstance = axios.create({
     },
 });
 
+let isRedirecting = false;
+
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
@@ -23,7 +25,8 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401 && !isRedirecting) {
+            isRedirecting = true;
             localStorage.clear();
             sessionStorage.clear();
             window.location.href = '/auth/login';
