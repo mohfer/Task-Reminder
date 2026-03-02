@@ -2,12 +2,12 @@ import { useMemo, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TaskStatsCards } from '@/components/dashboard/TaskStatsCards';
-import { TaskMonthCalendar } from '@/components/dashboard/TaskMonthCalendar';
-import { TaskDateTable } from '@/components/dashboard/TaskDateTable';
-import { TaskFormDialog } from '@/components/dashboard/TaskFormDialog';
+import { TaskStatsCards } from '@/components/Dashboard/TaskStatsCards';
+import { TaskMonthCalendar } from '@/components/Dashboard/TaskMonthCalendar';
+import { TaskDateTable } from '@/components/Dashboard/TaskDateTable';
+import { TaskFormDialog } from '@/components/Dashboard/TaskFormDialog';
 import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog';
-import { BarChartView } from '@/components/chart/BarChartView';
+import { BarChartView } from '@/components/Chart/BarChartView';
 import { useDashboard } from '@/hooks/useDashboard';
 import { useModal } from '@/hooks/useModal';
 

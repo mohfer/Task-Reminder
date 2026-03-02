@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { DashboardView } from '@/components/dashboard/DashboardView';
+import { DashboardView } from '@/components/Dashboard/DashboardView';
 
 const Dashboard = () => {
     useEffect(() => {

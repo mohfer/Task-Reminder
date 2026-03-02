@@ -3,8 +3,8 @@ import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useGrades } from '@/hooks/useGrades';
 import { useModal } from '@/hooks/useModal';
-import { GradeTable } from '@/components/grade/GradeTable';
-import { GradeFormDialog } from '@/components/grade/GradeFormDialog';
+import { GradeTable } from '@/components/Grade/GradeTable';
+import { GradeFormDialog } from '@/components/Grade/GradeFormDialog';
 import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog';
 
 export const GradeView = () => {

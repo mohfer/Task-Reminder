@@ -1,5 +1,5 @@
 import { AppLayout } from '@/components/layout/AppLayout';
-import { SettingsView } from '@/components/settings/SettingsView';
+import { SettingsView } from '@/components/Settings/SettingsView';
 
 const Settings = () => {
     return (

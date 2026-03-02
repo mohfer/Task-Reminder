@@ -2,11 +2,11 @@ import { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSettings } from '@/hooks/useSettings';
 import { useAuth } from '@/hooks/useAuth';
-import { NotificationSettings } from '@/components/settings/NotificationSettings';
-import { ProfileForm } from '@/components/settings/ProfileForm';
-import { PasswordForm } from '@/components/settings/PasswordForm';
-import { LogoutButton } from '@/components/settings/LogoutButton';
-import { GradeView } from '@/components/grade/GradeView';
+import { NotificationSettings } from '@/components/Settings/NotificationSettings';
+import { ProfileForm } from '@/components/Settings/ProfileForm';
+import { PasswordForm } from '@/components/Settings/PasswordForm';
+import { LogoutButton } from '@/components/Settings/LogoutButton';
+import { GradeView } from '@/components/Grade/GradeView';
 
 export const SettingsView = () => {
     const {

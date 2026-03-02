@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { useModal } from '@/hooks/useModal';
 import useSemesterStore from '@/store/useSemesterStore';
 import { useAssessments } from '@/hooks/useAssessments';
-import { AssessmentTable } from '@/components/assessment/AssessmentTable';
-import { IpsSummary } from '@/components/assessment/IpsSummary';
-import { ScoreUpdateDialog } from '@/components/assessment/ScoreUpdateDialog';
+import { AssessmentTable } from '@/components/Assessment/AssessmentTable';
+import { IpsSummary } from '@/components/Assessment/IpsSummary';
+import { ScoreUpdateDialog } from '@/components/Assessment/ScoreUpdateDialog';
 
 export const AssessmentView = () => {
     const { semester: selectedSemester } = useSemesterStore();

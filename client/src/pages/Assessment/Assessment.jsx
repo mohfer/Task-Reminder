@@ -1,5 +1,5 @@
 import { AppLayout } from '@/components/layout/AppLayout';
-import { AssessmentView } from '@/components/assessment/AssessmentView';
+import { AssessmentView } from '@/components/Assessment/AssessmentView';
 
 const Assessment = () => {
     return (

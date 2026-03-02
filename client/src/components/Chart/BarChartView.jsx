@@ -11,8 +11,8 @@ import {
 } from 'chart.js';
 import useSemesterStore from '@/store/useSemesterStore';
 import { useChartData } from '@/hooks/useChartData';
-import { ChartStatsCards } from '@/components/chart/ChartStatsCards';
-import { ChartTaskTable } from '@/components/chart/ChartTaskTable';
+import { ChartStatsCards } from '@/components/Chart/ChartStatsCards';
+import { ChartTaskTable } from '@/components/Chart/ChartTaskTable';
 import { Card, CardContent } from '@/components/ui/card';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
