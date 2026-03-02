@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
+import { authApi } from '@/api/authApi';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const VerifiedEmail = () => {
-    const apiUrl = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
     const { id, hash } = useParams();
     const [searchParams] = useSearchParams();
@@ -11,7 +11,7 @@ const VerifiedEmail = () => {
     const [loading, setLoading] = useState(false);
     const [description, setDescription] = useState('');
 
-    const verifyEmail = async () => {
+    const verifyEmail = useCallback(async () => {
         try {
             setLoading(true);
 
@@ -21,15 +21,12 @@ const VerifiedEmail = () => {
                 throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
             }
 
-            const expires = searchParams.get('expires');
-            const signature = searchParams.get('signature');
+            const expires = searchParams.get('expires') || '';
+            const signature = searchParams.get('signature') || '';
 
-            const url = `${apiUrl}/email/verify/${id}/${hash}?expires=${expires}&signature=${signature}`;
-
-            await axios.get(url, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
+            await authApi.verifyEmail(id, hash, {
+                expires,
+                signature,
             });
 
             localStorage.setItem('isEmailVerified', true);
@@ -52,7 +49,7 @@ const VerifiedEmail = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id, hash, navigate, searchParams]);
 
     useEffect(() => {
         localStorage.removeItem('isPasswordReset')
@@ -66,26 +63,27 @@ const VerifiedEmail = () => {
         }
 
         verifyEmail();
-    }, [id, hash, navigate, apiUrl]);
+    }, [navigate, verifyEmail]);
 
     useEffect(() => {
         document.title = 'Email Verified - Task Reminder';
     }, []);
 
     return (
-        <>
-            <div className='min-h-screen flex flex-col justify-center items-center p-4'>
-                <img src="/logo.webp" className='w-32 mb-8 mt-4' alt="logo" />
-                <div className="xl:w-1/3 border p-4 rounded-lg shadow-lg">
-                    <h1 className="text-[2.25rem] font-bold">
+        <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
+            <img src="/logo.webp" className='mb-8 mt-4 w-32' alt="logo" />
+            <Card className="w-full max-w-md">
+                <CardHeader>
+                    <CardTitle className="text-2xl">
                         {loading ? 'Verifying...' : (message || 'Email Verified')}
-                    </h1>
-                    <p className="text-base text-gray-500">
+                    </CardTitle>
+                    <CardDescription>
                         {loading ? '' : (description || 'Your email address has been successfully verified. You will be redirected shortly.')}
-                    </p>
-                </div>
-            </div>
-        </>
+                    </CardDescription>
+                </CardHeader>
+                <CardContent />
+            </Card>
+        </div>
     );
 };
 

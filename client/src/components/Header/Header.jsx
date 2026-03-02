@@ -1,8 +1,18 @@
-import { Avatar } from 'rsuite'
-import { useEffect } from 'react'
+import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Dropdown } from 'rsuite';
-import useSemesterStore from "../../store/useSemesterStore";
+import useSemesterStore from '@/store/useSemesterStore';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
+import { Separator } from '@/components/ui/separator';
+
+const SEMESTERS = Array.from({ length: 8 }, (_, i) => `Semester ${i + 1}`);
 
 const Header = ({ title }) => {
     const storedName = localStorage.getItem('name');
@@ -10,10 +20,6 @@ const Header = ({ title }) => {
     const location = useLocation();
     const { pathname } = location;
     const { semesterLabel, setSemester } = useSemesterStore();
-
-    const semesters = ['Semester 1', 'Semester 2', 'Semester 3', 'Semester 4', 'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8'].map(
-        (semester) => ({ label: semester, value: semester })
-    );
 
     useEffect(() => {
         localStorage.removeItem('isPasswordReset');
@@ -29,44 +35,41 @@ const Header = ({ title }) => {
     }, [navigate]);
 
     return (
-        <>
-            <div className="flex justify-between w-full px-4 pb-2 bg-gray-100">
-                <h1 className="text-3xl pt-8 font-bold">{title}</h1>
-                <div className='flex items-center gap-4 pt-8'>
-                    {pathname != "/settings" &&
-                        <Dropdown
-                            title={semesterLabel}
-                            trigger="click"
-                            toggleClassName='bg-white rounded-full p-2 px-8 text-gray-500 shadow hover:bg-gray-[229, 229, 234] transition-colors'
-                        >
-                            {semesters.map((semester) => (
-                                <Dropdown.Item
-                                    key={semester.value}
-                                    eventKey={semester.value}
-                                    onClick={() => {
-                                        setSemester(semester.value, semester.label);
-                                    }}
-                                    className='hover:bg-gray-100 transition-colors'
-                                >
-                                    {semester.label}
-                                </Dropdown.Item>
-                            ))}
-                        </Dropdown>
-                    }
+        <header className="border-b bg-card">
+            <div className="flex h-16 items-center justify-between px-4 lg:px-6">
+                <h1 className="text-xl font-bold text-foreground lg:text-2xl">{title}</h1>
+                <div className="flex items-center gap-3">
+                    {pathname !== '/settings' ? (
+                        <Select value={semesterLabel} onValueChange={(value) => setSemester(value, value)}>
+                            <SelectTrigger className="w-[160px] bg-background">
+                                <SelectValue placeholder="Select semester" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {SEMESTERS.map((semester) => (
+                                    <SelectItem key={semester} value={semester}>
+                                        {semester}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    ) : null}
 
-                    <p className="hidden lg:block text-3xl">Hi, {storedName}</p>
-                    <div className='hidden lg:block'>
-                        <Avatar
-                            circle
-                            style={{ background: '#000' }}
-                        >
-                            ;
+                    <ThemeToggle />
+
+                    <Separator orientation="vertical" className="hidden h-6 lg:block" />
+
+                    <div className="hidden items-center gap-3 lg:flex">
+                        <span className="text-sm font-medium text-foreground">Hi, {storedName}</span>
+                        <Avatar className="h-8 w-8">
+                            <AvatarFallback className="bg-primary text-sm text-primary-foreground">
+                                {storedName?.charAt(0)?.toUpperCase() || 'U'}
+                            </AvatarFallback>
                         </Avatar>
                     </div>
                 </div>
             </div>
-        </>
-    )
-}
+        </header>
+    );
+};
 
-export default Header
+export default Header;

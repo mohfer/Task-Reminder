@@ -1,71 +1,45 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useToaster, Message, Button } from 'rsuite';
-import axios from 'axios';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { authApi } from '@/api/authApi';
 
 const VerifyEmailSent = () => {
-    const apiUrl = import.meta.env.VITE_API_URL;
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
-    const [token, setToken] = useState(null);
 
-    const toaster = useToaster();
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async (event) => {
+        event.preventDefault();
 
         try {
             setLoading(true);
-
-            if (!token) {
-                throw new Error('Token not found');
-            }
-
-            const response = await axios.post(`${apiUrl}/email/resend`, { email }, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            })
-
-            setLoading(false);
-
-            toaster.push(
-                <Message showIcon type="success" closable >
-                    {response.data.message}
-                </Message>,
-                { placement: 'topEnd', duration: 3000 }
-            )
+            const response = await authApi.resendVerificationEmail({ email });
+            toast.success(response.data.message);
         } catch (error) {
-            toaster.push(
-                <Message showIcon type="error" closable >
-                    {!token ? 'Token not found' : error.response.data.message}
-                </Message>,
-                { placement: 'topEnd', duration: 3000 }
-            )
-            console.error(error);
+            toast.error(error.response?.data?.message || 'Failed to resend email');
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        localStorage.removeItem('isPasswordReset')
+        localStorage.removeItem('isPasswordReset');
 
         const storedEmail = localStorage.getItem('email');
         const storedToken = localStorage.getItem('token');
         const isEmailVerified = localStorage.getItem('isEmailVerified');
 
-        setEmail(storedEmail);
-        setToken(storedToken);
+        setEmail(storedEmail || '');
 
         if (!storedToken) {
             navigate('/auth/login');
-        } else if (storedToken && isEmailVerified == 'true') {
+        } else if (isEmailVerified === 'true') {
             navigate('/dashboard');
         }
-
     }, [navigate]);
 
     useEffect(() => {
@@ -73,32 +47,29 @@ const VerifyEmailSent = () => {
     }, []);
 
     return (
-        <div className='min-h-screen flex flex-col justify-center items-center p-4'>
-            <img src="/logo.webp" className='w-32 mb-8 mt-4' alt="logo" />
-            <div className="xl:w-1/3 border p-4 rounded-lg shadow-lg">
-                <h1 className="text-[2.25rem] font-bold">Email Sent</h1>
-                <p className="text-base text-gray-500">We’ve sent a confirmation email to <span className='font-bold'>{email}.</span> Please check your inbox and click the link to verify your email address. If you didn’t receive the email, check your spam folder or try resending the request.</p>
-
-                <form onSubmit={handleSubmit}>
-                    <div className="space-y-4 mt-8">
-                        <Button
-                            appearance='primary'
-                            type='submit'
-                            loading={loading}
-                            className='w-full !bg-blue-500 hover:!bg-hover-blue-500'
-                            block
-                        >
+        <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
+            <img src='/logo.webp' className='mb-8 mt-4 w-32' alt='logo' />
+            <Card className="w-full max-w-md">
+                <CardHeader>
+                    <CardTitle className='text-2xl'>Email Sent</CardTitle>
+                    <CardDescription>
+                        We’ve sent a confirmation email to <span className='font-semibold text-foreground'>{email}.</span> Please check your inbox and click the link to verify your email.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSubmit} className='space-y-4'>
+                        <Button type='submit' className='w-full'>
                             {loading ? 'Resending...' : 'Resend Email'}
                         </Button>
-                    </div>
-                </form>
-                <p className="mt-6 text-sm text-center">
-                    <Link to="/auth/login" className="text-gray-500 hover:text-gray-500">
-                        <ArrowLeft className="w-3 inline-block align-middle mr-2" />
-                        Back to login
-                    </Link>
-                </p>
-            </div>
+                    </form>
+                    <p className='mt-6 text-center text-sm'>
+                        <Link to='/auth/login' className='text-muted-foreground hover:text-foreground'>
+                            <ArrowLeft className='w-3 inline-block align-middle mr-2' />
+                            Back to login
+                        </Link>
+                    </p>
+                </CardContent>
+            </Card>
         </div>
     );
 };

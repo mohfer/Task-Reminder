@@ -1,45 +1,34 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useToaster, Message, Input, Button } from 'rsuite';
-import axios from 'axios';
+import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { FormField } from '@/components/shared/FormField';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { passwordApi } from '@/api/passwordApi';
 
 const ForgotPassword = () => {
-    const apiUrl = import.meta.env.VITE_API_URL;
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState({});
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
-    const toaster = useToaster();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        const formData = new FormData();
-
-        formData.append('email', email);
+    const handleSubmit = async (event) => {
+        event.preventDefault();
 
         try {
             setLoading(true);
-            await axios.post(`${apiUrl}/password/email`, formData,);
-
-            navigate('/auth/forgot-password/email-sent');
+            await passwordApi.sendResetLink({ email });
 
             localStorage.setItem('email', email);
             localStorage.setItem('isPasswordReset', true);
-
-            setLoading(false);
+            navigate('/auth/forgot-password/email-sent');
         } catch (error) {
             const errors = error.response?.data?.errors || {};
             setMessage(errors);
-
-            toaster.push(
-                <Message showIcon type="error" closable >
-                    {error.response?.data?.message}
-                </Message>,
-                { placement: 'topEnd', duration: 3000 }
-            )
+            toast.error(error.response?.data?.message || 'Failed to send reset email');
         } finally {
             setLoading(false);
         }
@@ -50,51 +39,38 @@ const ForgotPassword = () => {
     }, []);
 
     return (
-        <div className='min-h-screen flex flex-col justify-center items-center p-4'>
-            <img src="/logo.webp" className='w-32 mb-8 mt-4' alt="logo" />
-            <div className="xl:w-1/3 border p-4 rounded-lg shadow-lg">
-                <h1 className="text-[2.25rem] font-bold">Oh, You Lost Your Password?</h1>
-                <p className="text-base text-gray-500">No worries, we’ll send you reset instructions.</p>
-
-                <form onSubmit={handleSubmit}>
-                    <div className="space-y-4 mt-8">
-                        <div>
-                            <label htmlFor="email" className="text-base font-medium text-gray-700">
-                                Email
-                            </label>
+        <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
+            <img src='/logo.webp' className='mb-8 mt-4 w-32' alt='logo' />
+            <Card className="w-full max-w-md">
+                <CardHeader>
+                    <CardTitle className='text-2xl'>Oh, You Lost Your Password?</CardTitle>
+                    <CardDescription>No worries, we’ll send you reset instructions.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSubmit} className='space-y-4'>
+                        <FormField label='Email' error={message.email}>
                             <Input
-                                id='email'
                                 type='email'
                                 placeholder='Email'
                                 value={email}
-                                onChange={value => setEmail(value)}
-                                className={`${message.email ? 'border border-red-500' : ''} my-2`}
+                                onChange={(event) => setEmail(event.target.value)}
                                 autoComplete='email'
                             />
-                            {message.email && (
-                                <p className="text-red-500 text-sm">{message.email}</p>
-                            )}
-                        </div>
+                        </FormField>
 
-                        <Button
-                            appearance='primary'
-                            type='submit'
-                            loading={loading}
-                            className='w-full !bg-blue-500 hover:!bg-hover-blue-500'
-                            block
-                        >
+                        <Button type='submit' className='w-full'>
                             {loading ? 'Sending Email...' : 'Reset Password'}
                         </Button>
-                    </div>
-                </form>
+                    </form>
 
-                <p className="mt-6 text-sm text-center">
-                    <Link to="/auth/login" className="text-gray-500 hover:text-gray-500">
-                        <ArrowLeft className="w-3 inline-block align-middle mr-2" />
-                        Back to login
-                    </Link>
-                </p>
-            </div>
+                    <p className='mt-6 text-sm text-center'>
+                        <Link to='/auth/login' className='text-muted-foreground hover:text-foreground'>
+                            <ArrowLeft className='w-3 inline-block align-middle mr-2' />
+                            Back to login
+                        </Link>
+                    </p>
+                </CardContent>
+            </Card>
         </div>
     );
 };

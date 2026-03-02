@@ -1,112 +1,65 @@
-import { LayoutDashboard, Settings, Book, Trophy, LogOut } from 'lucide-react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { useToaster, Message } from 'rsuite';
-import axios from 'axios';
+import { LayoutDashboard, Settings, Book, Trophy, LogOut } from 'lucide-react';
+import { Link, NavLink } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+
+const NAV_ITEMS = [
+    { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/course-contents', icon: Book, label: 'Course Content' },
+    { to: '/assessments', icon: Trophy, label: 'Assessment' },
+    { to: '/settings', icon: Settings, label: 'Settings' },
+];
 
 const Sidebar = () => {
-    const apiUrl = import.meta.env.VITE_API_URL;
-    const navigate = useNavigate();
-    const toaster = useToaster();
-    const token = localStorage.getItem('token');
-
-    const handleLogout = async () => {
-        try {
-            const response = await axios.post(`${apiUrl}/auth/logout`, {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-            );
-
-            toaster.push(
-                <Message showIcon type="success" closable>
-                    {response.data.message}
-                </Message>,
-                { placement: 'topEnd', duration: 3000 }
-            );
-        } catch (error) {
-            toaster.push(
-                <Message showIcon type="error" closable>
-                    {error.response?.data?.message || 'Failed to logout. Please try again.'}
-                </Message>,
-                { placement: 'topEnd', duration: 3000 }
-            );
-            console.error(error);
-        } finally {
-            localStorage.clear();
-            sessionStorage.clear();
-
-            navigate('/auth/login');
-        }
-    };
+    const { logout } = useAuth();
 
     return (
-        <>
-            <nav className="hidden lg:flex w-1/6 flex-col justify-between">
-                <div>
-                    <Link to={'/dashboard'} className="flex justify-center gap-4 items-center px-4 py-8 hover:no-underline hover:text-black">
-                        <img src="/logo.webp" className="w-8" alt="logo" />
-                        <h1 className="text-2xl font-bold">Task Reminder</h1>
-                    </Link>
+        <aside className="hidden w-64 flex-col border-r bg-card lg:flex">
+            <div className="flex h-16 items-center gap-3 px-6">
+                <Link to="/dashboard" className="flex items-center gap-3 transition-opacity hover:opacity-80">
+                    <img src="/logo.webp" className="h-8 w-8" alt="logo" />
+                    <span className="text-lg font-bold text-foreground">Task Reminder</span>
+                </Link>
+            </div>
 
-                    <div className="flex justify-center">
-                        <ul className="w-4/5">
-                            <li className="p-2 rounded-lg">
-                                <NavLink
-                                    to="/dashboard"
-                                    className={({ isActive }) =>
-                                        `flex items-center gap-2 hover:text-blue-500 ${isActive ? 'bg-blue-100 rounded-lg p-2 text-blue-500' : 'text-gray-500'}`
-                                    }
-                                >
-                                    <LayoutDashboard className="w-5 h-5" />
-                                    Dashboard
-                                </NavLink>
-                            </li>
-                            <li className="p-2 rounded-lg">
-                                <NavLink
-                                    to="/course-contents"
-                                    className={({ isActive }) =>
-                                        `flex items-center gap-2 hover:text-blue-500 ${isActive ? 'bg-blue-100 rounded-lg p-2 text-blue-500' : 'text-gray-500'}`
-                                    }
-                                >
-                                    <Book className="w-5 h-5" />
-                                    Course Content
-                                </NavLink>
-                            </li>
-                            <li className="p-2 rounded-lg">
-                                <NavLink
-                                    to="/assessments"
-                                    className={({ isActive }) =>
-                                        `flex items-center gap-2 hover:text-blue-500 ${isActive ? 'bg-blue-100 rounded-lg p-2 text-blue-500' : 'text-gray-500'}`
-                                    }
-                                >
-                                    <Trophy className="w-5 h-5" />
-                                    Assessment
-                                </NavLink>
-                            </li>
-                            <li className="p-2 rounded-lg">
-                                <NavLink
-                                    to="/settings"
-                                    className={({ isActive }) =>
-                                        `flex items-center gap-2 hover:text-blue-500 ${isActive ? 'bg-blue-100 rounded-lg p-2 text-blue-500' : 'text-gray-500'}`
-                                    }
-                                >
-                                    <Settings className="w-5 h-5" />
-                                    Settings
-                                </NavLink>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+            <Separator />
 
-                <div className='flex justify-center'>
-                    <div className="p-4 w-4/5">
-                        <button onClick={handleLogout} className="flex items-center gap-2 text-red-500 hover:text-red-500 my-8"><LogOut className="w-5 h-5 text-red-500" />Logout</button>
-                    </div>
-                </div>
+            <nav className="flex-1 space-y-1 px-3 py-4">
+                {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+                    <NavLink
+                        key={to}
+                        to={to}
+                        className={({ isActive }) =>
+                            cn(
+                                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                                isActive
+                                    ? 'bg-primary/10 text-primary'
+                                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                            )
+                        }
+                    >
+                        <Icon className="h-5 w-5" />
+                        {label}
+                    </NavLink>
+                ))}
             </nav>
-        </>
-    )
-}
 
-export default Sidebar
+            <Separator />
+
+            <div className="p-3">
+                <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-3 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={logout}
+                >
+                    <LogOut className="h-5 w-5" />
+                    Logout
+                </Button>
+            </div>
+        </aside>
+    );
+};
+
+export default Sidebar;
