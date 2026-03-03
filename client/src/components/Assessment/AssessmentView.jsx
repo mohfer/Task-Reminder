@@ -3,12 +3,12 @@ import { useModal } from '@/hooks/useModal';
 import useSemesterStore from '@/store/useSemesterStore';
 import { useAssessments } from '@/hooks/useAssessments';
 import { AssessmentTable } from '@/components/Assessment/AssessmentTable';
-import { IpsSummary } from '@/components/Assessment/IpsSummary';
+import { GpaSummary } from '@/components/Assessment/GpaSummary';
 import { ScoreUpdateDialog } from '@/components/Assessment/ScoreUpdateDialog';
 
 export const AssessmentView = () => {
     const selectedSemester = useSemesterStore((state) => state.semester);
-    const { courseContents, totalIps, totalIpk, isLoading, isMutating, updateScore } = useAssessments(selectedSemester);
+    const { courseContents, totalSemesterGpa, totalCumulativeGpa, isLoading, isMutating, updateScore } = useAssessments(selectedSemester);
 
     const updateDialog = useModal();
     const [selectedContent, setSelectedContent] = useState(null);
@@ -28,7 +28,7 @@ export const AssessmentView = () => {
                 }}
             />
 
-            {!isLoading ? <IpsSummary ips={totalIps} ipk={totalIpk} /> : null}
+            {!isLoading ? <GpaSummary semesterGpa={totalSemesterGpa} cumulativeGpa={totalCumulativeGpa} /> : null}
 
             <ScoreUpdateDialog
                 open={updateDialog.isOpen}

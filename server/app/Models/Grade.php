@@ -9,7 +9,7 @@ class Grade extends Model
 {
     protected $fillable = [
         'grade',
-        'quality_number',
+        'grade_point',
         'minimal_score',
         'maximal_score',
         'user_id',

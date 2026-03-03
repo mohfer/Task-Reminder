@@ -27,8 +27,8 @@ const getSortValue = (content, key) => {
             return content.course_content || '';
         case 'lecturer':
             return content.lecturer || '';
-        case 'scu':
-            return Number(content.scu || 0);
+        case 'credits':
+            return Number(content.credits || 0);
         case 'day':
             return content.day || '';
         case 'time':
@@ -84,8 +84,8 @@ export const CourseContentTable = ({ rows, isLoading, onEdit, onDelete }) => {
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('scu')}>
-                                    SCU <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('credits')}>
+                                    Credits <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
@@ -119,7 +119,7 @@ export const CourseContentTable = ({ rows, isLoading, onEdit, onDelete }) => {
                                     <TableCell className="text-center">{content.code}</TableCell>
                                     <TableCell>{content.course_content}</TableCell>
                                     <TableCell>{content.lecturer}</TableCell>
-                                    <TableCell className="text-center">{content.scu}</TableCell>
+                                    <TableCell className="text-center">{content.credits}</TableCell>
                                     <TableCell className="text-center">{content.day}</TableCell>
                                     <TableCell className="text-center">
                                         {content.hour_start} - {content.hour_end}

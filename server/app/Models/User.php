@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Task;
 use App\Models\Grade;
 use App\Models\Setting;
+use App\Notifications\ResetPasswordNotification;
 use App\Models\CourseContent;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
@@ -76,5 +77,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function grades(): HasMany
     {
         return $this->hasMany(Grade::class);
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }

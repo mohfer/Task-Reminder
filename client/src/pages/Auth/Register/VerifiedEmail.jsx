@@ -18,7 +18,7 @@ const VerifiedEmail = () => {
             const token = localStorage.getItem('token');
 
             if (!token) {
-                throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+                throw new Error('Token not found. Please log in first.');
             }
 
             const expires = searchParams.get('expires') || '';

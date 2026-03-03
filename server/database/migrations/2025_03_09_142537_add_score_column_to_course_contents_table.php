@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('course_contents', function (Blueprint $table) {
-            $table->decimal('score')->after('scu')->nullable();
+            $table->decimal('score')->after('credits')->nullable();
         });
     }
 

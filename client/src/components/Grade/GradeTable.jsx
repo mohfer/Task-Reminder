@@ -23,8 +23,8 @@ const getSortValue = (grade, key) => {
     switch (key) {
         case 'grade':
             return grade.grade || '';
-        case 'quality_number':
-            return Number(grade.quality_number || 0);
+        case 'grade_point':
+            return Number(grade.grade_point || 0);
         case 'minimal_score':
             return Number(grade.minimal_score || 0);
         case 'maximal_score':
@@ -70,8 +70,8 @@ export const GradeTable = ({ rows, isLoading, onEdit, onDelete }) => {
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('quality_number')}>
-                                    Quality Number <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('grade_point')}>
+                                    Grade Points <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
@@ -98,7 +98,7 @@ export const GradeTable = ({ rows, isLoading, onEdit, onDelete }) => {
                                 <TableRow key={grade.id}>
                                     <TableCell className="text-center font-bold">{index + 1}</TableCell>
                                     <TableCell className="text-center">{grade.grade}</TableCell>
-                                    <TableCell className="text-center">{grade.quality_number}</TableCell>
+                                    <TableCell className="text-center">{grade.grade_point}</TableCell>
                                     <TableCell className="text-center">
                                         {grade.minimal_score} - {grade.maximal_score}
                                     </TableCell>

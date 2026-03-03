@@ -4,8 +4,8 @@ import { assessmentApi } from '@/api/assessmentApi';
 
 export const useAssessments = (selectedSemester) => {
     const [courseContents, setCourseContents] = useState([]);
-    const [totalIps, setTotalIps] = useState(0);
-    const [totalIpk, setTotalIpk] = useState(0);
+    const [totalSemesterGpa, setTotalSemesterGpa] = useState(0);
+    const [totalCumulativeGpa, setTotalCumulativeGpa] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [isMutating, setIsMutating] = useState(false);
 
@@ -16,8 +16,8 @@ export const useAssessments = (selectedSemester) => {
             }
             const response = await assessmentApi.calculate(semester);
             setCourseContents(response.data.data.course_contents);
-            setTotalIps(response.data.data.ips);
-            setTotalIpk(response.data.data.ipk);
+            setTotalSemesterGpa(response.data.data.semester_gpa);
+            setTotalCumulativeGpa(response.data.data.cumulative_gpa);
         } catch (error) {
             console.error(error);
         } finally {
@@ -51,8 +51,8 @@ export const useAssessments = (selectedSemester) => {
 
     return {
         courseContents,
-        totalIps,
-        totalIpk,
+        totalSemesterGpa,
+        totalCumulativeGpa,
         isLoading,
         isMutating,
         updateScore,

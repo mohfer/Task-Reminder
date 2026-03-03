@@ -36,6 +36,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/dashboard/chart', [DashboardController::class, 'chart']);
+    Route::get('/dashboard/semester-overview', [DashboardController::class, 'semesterOverview']);
 
     // Course Content
     Route::post('/course-contents', [CourseContentController::class, 'store']);
@@ -46,7 +47,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::post('/course-contents/import-from-excel', [CourseContentController::class, 'importFromExcel']);
 
     // Assessment
-    Route::get('/assessments/calculate', [AssessmentController::class, 'calculateIp']);
+    Route::get('/assessments/calculate', [AssessmentController::class, 'calculateGpa']);
     Route::patch('/assessments/{id}', [AssessmentController::class, 'update']);
 
     // Task

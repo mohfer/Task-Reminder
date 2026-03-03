@@ -11,7 +11,7 @@ class AssessmentController
 {
     use ApiResponse;
 
-    public function calculateIp(Request $request)
+    public function calculateGpa(Request $request)
     {
         $user = $request->user()->id;
         $selectedSemester = $request->semester;
@@ -37,55 +37,55 @@ class AssessmentController
                 'id' => $courseContent->id,
                 'course_content' => $courseContent->course_content,
                 'score' => $courseContent->score !== null ? number_format($courseContent->score, 2) : null,
-                'scu' => $courseContent->scu,
+                'credits' => $courseContent->credits,
                 'grade' => $grade?->grade,
-                'quality_number' => $grade?->quality_number ?? 0,
+                'grade_point' => $grade?->grade_point ?? 0,
             ];
         };
 
         $groupedBySemester = $allCourseContents->groupBy('semester');
 
-        $totalQualityTimesSCUAll = 0;
-        $totalSCUAll = 0;
-        $ipsPerSemester = [];
+        $totalWeightedGradePointsAll = 0;
+        $totalCreditsAll = 0;
+        $gpaPerSemester = [];
 
         foreach ($groupedBySemester as $semester => $contents) {
             $mapped = $contents->map($mapGrade);
             $hasEmpty = $mapped->contains(fn($c) => $c['score'] === null);
 
             if (!$hasEmpty) {
-                $qualityTimesSCU = $mapped->sum(fn($c) => $c['quality_number'] * $c['scu']);
-                $totalSCU = $mapped->sum('scu');
-                $ips = $totalSCU > 0 ? $qualityTimesSCU / $totalSCU : 0;
+                $weightedGradePoints = $mapped->sum(fn($c) => $c['grade_point'] * $c['credits']);
+                $totalCredits = $mapped->sum('credits');
+                $semesterGpa = $totalCredits > 0 ? $weightedGradePoints / $totalCredits : 0;
 
-                $ipsPerSemester[$semester] = number_format($ips, 2);
-                $totalQualityTimesSCUAll += $qualityTimesSCU;
-                $totalSCUAll += $totalSCU;
+                $gpaPerSemester[$semester] = number_format($semesterGpa, 2);
+                $totalWeightedGradePointsAll += $weightedGradePoints;
+                $totalCreditsAll += $totalCredits;
             } else {
-                $ipsPerSemester[$semester] = '0.00';
+                $gpaPerSemester[$semester] = '0.00';
             }
         }
 
-        $ipk = $totalSCUAll > 0 ? $totalQualityTimesSCUAll / $totalSCUAll : 0;
+        $cumulativeGpa = $totalCreditsAll > 0 ? $totalWeightedGradePointsAll / $totalCreditsAll : 0;
 
         $selectedSemester = $selectedSemester ?? $semesters->last();
         $selectedContents = ($groupedBySemester[$selectedSemester] ?? collect())->map($mapGrade);
 
         $hasEmptySelected = $selectedContents->contains(fn($c) => $c['score'] === null);
         if (!$hasEmptySelected && $selectedContents->isNotEmpty()) {
-            $qualityTimesSCU = $selectedContents->sum(fn($c) => $c['quality_number'] * $c['scu']);
-            $totalSCU = $selectedContents->sum('scu');
-            $ipsSelected = $totalSCU > 0 ? number_format($qualityTimesSCU / $totalSCU, 2) : '0.00';
+            $weightedGradePoints = $selectedContents->sum(fn($c) => $c['grade_point'] * $c['credits']);
+            $totalCredits = $selectedContents->sum('credits');
+            $selectedGpa = $totalCredits > 0 ? number_format($weightedGradePoints / $totalCredits, 2) : '0.00';
         } else {
-            $ipsSelected = '0.00';
+            $selectedGpa = '0.00';
         }
 
         return $this->sendResponse([
-            'ips' => $ipsSelected,
-            'ipk' => number_format($ipk, 2),
-            'ips_per_semester' => $ipsPerSemester,
+            'semester_gpa' => $selectedGpa,
+            'cumulative_gpa' => number_format($cumulativeGpa, 2),
+            'gpa_per_semester' => $gpaPerSemester,
             'course_contents' => $selectedContents->values(),
-        ], 'Course contents, IPS, and IPK retrieved successfully');
+        ], 'Course contents, semester GPA, and cumulative GPA retrieved successfully');
     }
 
     public function update(Request $request, $id)

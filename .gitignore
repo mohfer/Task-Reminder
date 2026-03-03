@@ -21,6 +21,7 @@
 **/.env.local
 
 # Build and distribution
+**/dev-dist
 **/dist
 **/dist-ssr
 **/public/build
@@ -44,11 +45,13 @@
 
 # Editor directories and files
 .vscode/*
+.agents
 !.vscode/extensions.json
 .idea
 .fleet
 .zed
 .DS_Store
+skills-lock.json
 **/*.suo
 **/*.ntvs*
 **/*.njsproj

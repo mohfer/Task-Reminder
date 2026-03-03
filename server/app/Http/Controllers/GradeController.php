@@ -40,7 +40,7 @@ class GradeController
                 return [
                     'id' => $grade->id,
                     'grade' => $grade->grade,
-                    'quality_number' => number_format($grade->quality_number, 2),
+                    'grade_point' => number_format($grade->grade_point, 2),
                     'minimal_score' => number_format($grade->minimal_score, 2),
                     'maximal_score' => number_format($grade->maximal_score, 2),
                 ];
@@ -55,14 +55,14 @@ class GradeController
 
         $request->validate([
             'grade' => ['required', Rule::unique('grades')->where(fn($query) => $query->where('user_id', $user))],
-            'quality_number' => 'required|numeric',
+            'grade_point' => 'required|numeric',
             'minimal_score' => 'required|numeric|min:0|max:100',
             'maximal_score' => 'required|numeric|min:0|max:100',
         ]);
 
         $grade = Grade::create([
             'grade' => $request->grade,
-            'quality_number' => $request->quality_number,
+            'grade_point' => $request->grade_point,
             'minimal_score' => $request->minimal_score,
             'maximal_score' => $request->maximal_score,
             'user_id' => $user,
@@ -84,14 +84,14 @@ class GradeController
 
         $request->validate([
             'grade' => ['required', Rule::unique('grades')->where(fn($query) => $query->where('user_id', $user))->ignore($id),],
-            'quality_number' => 'required|numeric',
+            'grade_point' => 'required|numeric',
             'minimal_score' => 'required|numeric',
             'maximal_score' => 'required|numeric',
         ]);
 
         $grade->update([
             'grade' => $request->grade,
-            'quality_number' => $request->quality_number,
+            'grade_point' => $request->grade_point,
             'minimal_score' => $request->minimal_score,
             'maximal_score' => $request->maximal_score,
         ]);

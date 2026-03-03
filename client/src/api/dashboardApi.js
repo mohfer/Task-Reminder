@@ -5,4 +5,7 @@ export const dashboardApi = {
 
     getChart: (semester) =>
         axiosInstance.get('/dashboard/chart', { params: { semester } }),
+
+    getSemesterOverview: () =>
+        axiosInstance.get('/dashboard/semester-overview'),
 };

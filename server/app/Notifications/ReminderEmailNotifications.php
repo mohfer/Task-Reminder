@@ -3,7 +3,6 @@
 namespace App\Notifications;
 
 use Carbon\Carbon;
-use App\Traits\FormatsNotificationDescription;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -11,7 +10,7 @@ use Illuminate\Notifications\Notification;
 
 class ReminderEmailNotifications extends Notification implements ShouldQueue
 {
-    use Queueable, FormatsNotificationDescription;
+    use Queueable;
 
     public $notifications = [];
     /**
@@ -41,30 +40,28 @@ class ReminderEmailNotifications extends Notification implements ShouldQueue
             return strtotime($a['deadline']) <=> strtotime($b['deadline']);
         });
 
-        $mailMessage = (new MailMessage)
-            ->subject('Task Reminder Notification');
+        $formattedNotifications = array_map(function ($notification) {
+            return [
+                'course_content' => $notification['course_content'],
+                'task' => $notification['task'],
+                'description' => $notification['description'] ?? null,
+                'deadline' => Carbon::parse($notification['deadline'])->format('j F Y'),
+            ];
+        }, $this->notifications);
 
         $count = count($this->notifications);
         $taskWord = $count === 1 ? 'task' : 'tasks';
 
-        $mailMessage->line("You have $count $taskWord to complete. Here are the details:");
-
-        foreach ($this->notifications as $index => $notification) {
-            $mailMessage->line('---')
-                ->line('Task ' . ($index + 1) . ':')
-                ->line('Course Content: **' . $notification['course_content'] . '**')
-                ->line('Task: **' . $notification['task'] . '**');
-
-            $mailMessage->line('Description:');
-            $this->addDescriptionLines($mailMessage, $notification['description']);
-
-            $mailMessage->line('Deadline: **' . Carbon::parse($notification['deadline'])->locale('id')->translatedFormat('j F Y') . '**');
-        }
-
-        $mailMessage->action('View Dashboard', config('app.frontend_url') . '/dashboard');
-        $mailMessage->line('Thank you for using our application! Don\'t forget to complete your tasks!');
-
-        return $mailMessage;
+        return (new MailMessage)
+            ->subject('Task Reminder Notification')
+            ->view('emails.task-reminder', [
+                'subject' => 'Task Reminder Notification',
+                'userName' => $notifiable->name,
+                'count' => $count,
+                'taskWord' => $taskWord,
+                'notifications' => $formattedNotifications,
+                'dashboardUrl' => config('app.frontend_url') . '/dashboard',
+            ]);
     }
 
     /**

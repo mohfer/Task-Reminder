@@ -21,7 +21,7 @@ export const GradeFormDialog = ({
     onSubmit,
 }) => {
     const [grade, setGrade] = useState('');
-    const [qualityNumber, setQualityNumber] = useState('');
+    const [gradePoints, setGradePoints] = useState('');
     const [minimalScore, setMinimalScore] = useState('');
     const [maximalScore, setMaximalScore] = useState('');
     const [errors, setErrors] = useState({});
@@ -33,7 +33,7 @@ export const GradeFormDialog = ({
 
         if (mode === 'edit' && initialData) {
             setGrade(initialData.grade || '');
-            setQualityNumber(String(initialData.quality_number || ''));
+            setGradePoints(String(initialData.grade_point || ''));
             setMinimalScore(String(initialData.minimal_score || ''));
             setMaximalScore(String(initialData.maximal_score || ''));
             setErrors({});
@@ -41,7 +41,7 @@ export const GradeFormDialog = ({
         }
 
         setGrade('');
-        setQualityNumber('');
+        setGradePoints('');
         setMinimalScore('');
         setMaximalScore('');
         setErrors({});
@@ -52,7 +52,7 @@ export const GradeFormDialog = ({
 
         const payload = {
             grade,
-            quality_number: Number(qualityNumber),
+            grade_point: Number(gradePoints),
             minimal_score: Number(minimalScore),
             maximal_score: Number(maximalScore),
         };
@@ -79,13 +79,13 @@ export const GradeFormDialog = ({
                         <Input value={grade} onChange={(event) => setGrade(event.target.value)} placeholder="Enter grade" />
                     </FormField>
 
-                    <FormField label="Quality Number" error={getFieldError(errors, 'quality_number')}>
+                    <FormField label="Grade Points" error={getFieldError(errors, 'grade_point')}>
                         <Input
                             type="number"
                             min={0}
-                            value={qualityNumber}
-                            onChange={(event) => setQualityNumber(event.target.value)}
-                            placeholder="Enter quality number"
+                            value={gradePoints}
+                            onChange={(event) => setGradePoints(event.target.value)}
+                            placeholder="Enter grade points"
                         />
                     </FormField>
 

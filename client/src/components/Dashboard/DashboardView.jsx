@@ -8,6 +8,7 @@ import { TaskDateTable } from '@/components/Dashboard/TaskDateTable';
 import { TaskFormDialog } from '@/components/Dashboard/TaskFormDialog';
 import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog';
 import { BarChartView } from '@/components/Chart/BarChartView';
+import { SemesterOverviewView } from '@/components/Chart/SemesterOverviewView';
 import { useDashboard } from '@/hooks/useDashboard';
 import { useModal } from '@/hooks/useModal';
 
@@ -75,6 +76,7 @@ export const DashboardView = () => {
                 <TabsList>
                     <TabsTrigger value="tasks">Task Lists</TabsTrigger>
                     <TabsTrigger value="chart">Bar Chart</TabsTrigger>
+                    <TabsTrigger value="semester-overview">Semester Overview</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="tasks">
@@ -121,6 +123,10 @@ export const DashboardView = () => {
 
                 <TabsContent value="chart">
                     <BarChartView />
+                </TabsContent>
+
+                <TabsContent value="semester-overview">
+                    <SemesterOverviewView />
                 </TabsContent>
             </Tabs>
 

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('grades', function (Blueprint $table) {
             $table->id();
             $table->string('grade');
-            $table->decimal('quality_number');
+            $table->decimal('grade_point');
             $table->decimal('minimal_score');
             $table->decimal('maximal_score');
             $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');

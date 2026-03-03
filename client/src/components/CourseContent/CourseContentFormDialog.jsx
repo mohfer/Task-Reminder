@@ -33,7 +33,7 @@ export const CourseContentFormDialog = ({
     const [semester, setSemester] = useState('');
     const [code, setCode] = useState('');
     const [courseContent, setCourseContent] = useState('');
-    const [scu, setScu] = useState('');
+    const [credits, setCredits] = useState('');
     const [lecturer, setLecturer] = useState('');
     const [day, setDay] = useState('');
     const [hourStart, setHourStart] = useState('');
@@ -49,7 +49,7 @@ export const CourseContentFormDialog = ({
             setSemester(initialData.semester || '');
             setCode(initialData.code || '');
             setCourseContent(initialData.course_content || '');
-            setScu(String(initialData.scu || ''));
+            setCredits(String(initialData.credits || ''));
             setLecturer(initialData.lecturer || '');
             setDay(initialData.day || '');
             setHourStart(initialData.hour_start || '');
@@ -61,7 +61,7 @@ export const CourseContentFormDialog = ({
         setSemester('');
         setCode('');
         setCourseContent('');
-        setScu('');
+        setCredits('');
         setLecturer('');
         setDay('');
         setHourStart('');
@@ -76,7 +76,7 @@ export const CourseContentFormDialog = ({
             semester,
             code,
             course_content: courseContent,
-            scu: Number(scu),
+            credits: Number(credits),
             lecturer,
             day,
             hour_start: hourStart,
@@ -132,13 +132,13 @@ export const CourseContentFormDialog = ({
                         />
                     </FormField>
 
-                    <FormField label="SCU" error={getFieldError(errors, 'scu')}>
+                    <FormField label="Credits" error={getFieldError(errors, 'credits')}>
                         <Input
                             type="number"
                             min={1}
-                            value={scu}
-                            onChange={(event) => setScu(event.target.value)}
-                            placeholder="Enter SCU"
+                            value={credits}
+                            onChange={(event) => setCredits(event.target.value)}
+                            placeholder="Enter credits"
                         />
                     </FormField>
 

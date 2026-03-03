@@ -12,7 +12,7 @@ class CourseContent extends Model
         'semester',
         'code',
         'course_content',
-        'scu',
+        'credits',
         'lecturer',
         'day',
         'hour_start',

@@ -5,16 +5,17 @@ import { useModal } from '@/hooks/useModal';
 import useSemesterStore from '@/store/useSemesterStore';
 import { useCourseContents } from '@/hooks/useCourseContents';
 import { CourseContentTable } from '@/components/CourseContent/CourseContentTable';
-import { ScuSummary } from '@/components/CourseContent/ScuSummary';
+import { CreditsSummary } from '@/components/CourseContent/CreditsSummary';
 import { CourseContentFormDialog } from '@/components/CourseContent/CourseContentFormDialog';
 import { ExcelImportDialog } from '@/components/CourseContent/ExcelImportDialog';
 import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog';
+import { WeeklySchedule } from '@/components/Schedule/WeeklySchedule';
 
 export const CourseContentView = () => {
     const selectedSemester = useSemesterStore((state) => state.semester);
     const {
         courseContents,
-        totalScu,
+        totalCredits,
         isLoading,
         isMutating,
         createCourseContent,
@@ -61,7 +62,9 @@ export const CourseContentView = () => {
                 }}
             />
 
-            {!isLoading ? <ScuSummary totalScu={totalScu} /> : null}
+            {!isLoading ? <WeeklySchedule courseContents={courseContents} /> : null}
+
+            {!isLoading ? <CreditsSummary totalCredits={totalCredits} /> : null}
 
             <CourseContentFormDialog
                 open={createDialog.isOpen}

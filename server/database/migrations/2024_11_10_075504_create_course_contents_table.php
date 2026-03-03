@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('semester');
             $table->string('code');
             $table->string('course_content');
-            $table->integer('scu');
+            $table->integer('credits');
             $table->string('lecturer');
             $table->string('day');
             $table->time('hour_start');

@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Traits\FormatsNotificationDescription;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -10,7 +9,7 @@ use Illuminate\Notifications\Notification;
 
 class TaskCompletedNotification extends Notification implements ShouldQueue
 {
-    use Queueable, FormatsNotificationDescription;
+    use Queueable;
 
     public $task;
     /**
@@ -36,19 +35,16 @@ class TaskCompletedNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $mailMessage = (new MailMessage)
+        return (new MailMessage)
             ->subject('Task Completed Notification')
-            ->line('You just completed a task. Here are the details:')
-            ->line('---')
-            ->line('Course Content: **' . $this->task->course_content->course_content . '**.')
-            ->line('Task: **' . $this->task->task . '**.');
-
-        $mailMessage->line('Description:');
-        $this->addDescriptionLines($mailMessage, $this->task->description);
-
-        return $mailMessage
-            ->action('View Dashboard', config('app.frontend_url') . '/dashboard')
-            ->line('Thank you for using our application! Don\'t forget to complete your other tasks!');
+            ->view('emails.task-completed', [
+                'subject' => 'Task Completed Notification',
+                'userName' => $notifiable->name,
+                'courseContent' => $this->task->course_content->course_content,
+                'task' => $this->task->task,
+                'description' => $this->task->description,
+                'dashboardUrl' => config('app.frontend_url') . '/dashboard',
+            ]);
     }
 
     /**

@@ -3,7 +3,6 @@
 namespace App\Notifications;
 
 use Carbon\Carbon;
-use App\Traits\FormatsNotificationDescription;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -11,7 +10,7 @@ use Illuminate\Notifications\Notification;
 
 class TaskCreatedNotification extends Notification implements ShouldQueue
 {
-    use Queueable, FormatsNotificationDescription;
+    use Queueable;
 
     public $courseContent;
     public $task;
@@ -43,20 +42,17 @@ class TaskCreatedNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $mailMessage = (new MailMessage)
+        return (new MailMessage)
             ->subject('Task Created Notification')
-            ->line('You just created a new task. Here are the details:')
-            ->line('---')
-            ->line('Course Content: **' . $this->courseContent . '**.')
-            ->line('Task: **' . $this->task . '**.');
-
-        $mailMessage->line('Description:');
-        $this->addDescriptionLines($mailMessage, $this->description);
-
-        return $mailMessage
-            ->line('Deadline: **' . Carbon::parse($this->deadline)->locale('id')->translatedFormat('j F Y') . '**.')
-            ->action('View Dashboard', config('app.frontend_url') . '/dashboard')
-            ->line('Thank you for using our application! Don\'t forget to complete your tasks!');
+            ->view('emails.task-created', [
+                'subject' => 'Task Created Notification',
+                'userName' => $notifiable->name,
+                'courseContent' => $this->courseContent,
+                'task' => $this->task,
+                'description' => $this->description,
+                'deadline' => Carbon::parse($this->deadline)->format('j F Y'),
+                'dashboardUrl' => config('app.frontend_url') . '/dashboard',
+            ]);
     }
 
     /**

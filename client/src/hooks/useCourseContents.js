@@ -4,7 +4,7 @@ import { courseContentApi } from '@/api/courseContentApi';
 
 export const useCourseContents = (selectedSemester) => {
     const [courseContents, setCourseContents] = useState([]);
-    const [totalScu, setTotalScu] = useState(0);
+    const [totalCredits, setTotalCredits] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [isMutating, setIsMutating] = useState(false);
 
@@ -15,7 +15,7 @@ export const useCourseContents = (selectedSemester) => {
             }
             const response = await courseContentApi.filter(semester);
             setCourseContents(response.data.data.course_contents);
-            setTotalScu(response.data.data.total_scu);
+            setTotalCredits(response.data.data.total_credits);
         } catch (error) {
             console.error(error);
         } finally {
@@ -122,7 +122,7 @@ export const useCourseContents = (selectedSemester) => {
 
     return {
         courseContents,
-        totalScu,
+        totalCredits,
         isLoading,
         isMutating,
         createCourseContent,

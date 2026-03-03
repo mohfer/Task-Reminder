@@ -28,7 +28,7 @@ class CourseContentController
             'semester' => 'required',
             'code' => 'required',
             'course_content' => 'required',
-            'scu' => 'required|integer|min:1',
+            'credits' => 'required|integer|min:1',
             'lecturer' => 'required',
             'day' => 'required',
             'hour_start' => 'required',
@@ -39,7 +39,7 @@ class CourseContentController
             'semester' => $request->semester,
             'code' => $request->code,
             'course_content' => $request->course_content,
-            'scu' => $request->scu,
+            'credits' => $request->credits,
             'lecturer' => $request->lecturer,
             'day' => $request->day,
             'hour_start' => $request->hour_start,
@@ -65,7 +65,7 @@ class CourseContentController
             'semester' => 'required',
             'code' => 'required',
             'course_content' => 'required',
-            'scu' => 'required|integer|min:1',
+            'credits' => 'required|integer|min:1',
             'lecturer' => 'required',
             'day' => 'required',
             'hour_start' => 'required',
@@ -96,7 +96,7 @@ class CourseContentController
             'semester' => $request->semester,
             'code' => $request->code,
             'course_content' => $request->course_content,
-            'scu' => $request->scu,
+            'credits' => $request->credits,
             'lecturer' => $request->lecturer,
             'day' => $request->day,
             'hour_start' => $request->hour_start,
@@ -135,7 +135,7 @@ class CourseContentController
                     'semester' => $courseContent->semester,
                     'code' => $courseContent->code,
                     'course_content' => $courseContent->course_content,
-                    'scu' => $courseContent->scu,
+                    'credits' => $courseContent->credits,
                     'lecturer' => $courseContent->lecturer,
                     'day' => $courseContent->day,
                     'hour_start' => date('H:i', strtotime($courseContent->hour_start)),
@@ -143,10 +143,10 @@ class CourseContentController
                 ];
             });
 
-        $totalScu = $courseContents->sum('scu');
+        $totalCredits = $courseContents->sum('credits');
 
         return $this->sendResponse([
-            'total_scu' => $totalScu,
+            'total_credits' => $totalCredits,
             'course_contents' => $courseContents,
         ], 'Course Contents retrieved successfully');
     }
@@ -184,7 +184,7 @@ class CourseContentController
 
         $rows = $sheets[0];
 
-        $expectedHeadings = ['semester', 'code', 'course_content', 'scu', 'lecturer', 'day', 'hour_start', 'hour_end'];
+        $expectedHeadings = ['semester', 'code', 'course_content', 'credits', 'lecturer', 'day', 'hour_start', 'hour_end'];
         $firstRowKeys = array_keys($rows[0]);
         $missingHeadings = array_diff($expectedHeadings, $firstRowKeys);
         if (!empty($missingHeadings)) {
@@ -206,7 +206,7 @@ class CourseContentController
             'semester' => 'required',
             'code' => 'required',
             'course_content' => 'required',
-            'scu' => 'required|integer|min:1',
+            'credits' => 'required|integer|min:1',
             'lecturer' => 'required',
             'day' => 'required',
             'hour_start' => 'required',
@@ -263,7 +263,7 @@ class CourseContentController
             }
 
             $validRows[] = array_merge($prepared, [
-                'scu' => (int)$prepared['scu'],
+                'credits' => (int)$prepared['credits'],
                 'user_id' => $user,
             ]);
         }
