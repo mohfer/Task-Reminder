@@ -39,9 +39,13 @@ const getSortValue = (content, key) => {
 };
 
 export const CourseContentTable = ({ rows, isLoading, onEdit, onDelete }) => {
-    const [sortConfig, setSortConfig] = useState({ key: 'code', direction: 'asc' });
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
     const sortedRows = useMemo(() => {
+        if (!sortConfig.key) {
+            return rows;
+        }
+
         const list = [...rows];
         list.sort((left, right) => {
             const leftValue = getSortValue(left, sortConfig.key);
@@ -55,8 +59,13 @@ export const CourseContentTable = ({ rows, isLoading, onEdit, onDelete }) => {
     const handleSort = (key) => {
         setSortConfig((current) => {
             if (current.key === key) {
-                return { key, direction: current.direction === 'asc' ? 'desc' : 'asc' };
+                if (current.direction === 'asc') {
+                    return { key, direction: 'desc' };
+                }
+
+                return { key: null, direction: 'asc' };
             }
+
             return { key, direction: 'asc' };
         });
     };

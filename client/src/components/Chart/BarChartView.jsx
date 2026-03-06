@@ -27,7 +27,7 @@ const flattenTasks = (courseContents) => {
     return rows;
 };
 
-export const BarChartView = () => {
+export const BarChartView = ({ onNavigateToTaskDate }) => {
     const selectedSemester = useSemesterStore((state) => state.semester);
     const { courseContents, completedTask, uncompletedTask, totalTask, isLoading } = useChartData(selectedSemester);
     const [selectedCourse, setSelectedCourse] = useState(null);
@@ -143,7 +143,7 @@ export const BarChartView = () => {
                 </CardContent>
             </Card>
 
-            <ChartTaskTable rows={tableRows} />
+            <ChartTaskTable rows={tableRows} onRowClick={onNavigateToTaskDate} />
         </>
     );
 };

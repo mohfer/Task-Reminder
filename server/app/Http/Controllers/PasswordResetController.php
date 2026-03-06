@@ -2,21 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\PasswordResetService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 
 class PasswordResetController
 {
+    public function __construct(
+        private readonly PasswordResetService $passwordResetService
+    ) {}
+
     public function sendResetLink(Request $request)
     {
         $request->validate([
             'email' => 'required|email|exists:users,email',
         ]);
 
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        $status = $this->passwordResetService->sendResetLink($request->email);
 
         return $status === Password::RESET_LINK_SENT
             ? response()->json(['message' => __($status)], 200)
@@ -32,14 +34,7 @@ class PasswordResetController
             'password_confirmation' => 'required|same:password',
         ]);
 
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user, $password) {
-                $user->forceFill([
-                    'password' => Hash::make($password)
-                ])->save();
-            }
-        );
+        $status = $this->passwordResetService->resetPassword($request->only('email', 'password', 'password_confirmation', 'token'));
 
         return $status === Password::PASSWORD_RESET
             ? response()->json(['message' => __($status)], 200)

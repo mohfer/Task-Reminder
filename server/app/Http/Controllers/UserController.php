@@ -2,25 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\UserService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Hash;
 
 class UserController
 {
     use ApiResponse;
 
+    public function __construct(
+        private readonly UserService $userService
+    ) {}
+
     public function updateProfile(Request $request)
     {
-        $user = $request->user();
-
         $request->validate([
             'name' => 'required',
-            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
+            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($request->user()->id)],
         ]);
 
-        $user->update($request->only(['name', 'email']));
+        $user = $this->userService->updateProfile($request->user(), $request->only(['name', 'email']));
 
         return $this->sendResponse($user, 'User updated successfully');
     }
@@ -33,30 +35,19 @@ class UserController
             'password_confirmation' => 'required|same:password'
         ]);
 
-        $user = $request->user();
-
-        if (!Hash::check($request->old_password, $user->password)) {
-            return $this->sendError('Current password is incorrect', 401);
+        try {
+            $this->userService->changePassword($request->user(), $request->old_password, $request->password);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 401);
         }
-
-        $user->password = Hash::make($request->password);
-        $user->save();
 
         return $this->sendResponse(null, 'Password updated successfully');
     }
 
     public function getAuthenticatedUser(Request $request)
     {
-        $user = $request->user();
-        $user->load('setting');
+        $data = $this->userService->getAuthenticatedUser($request->user());
 
-        return $this->sendResponse([
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-            ],
-            'settings' => $user->setting,
-        ], 'User retrieved successfully');
+        return $this->sendResponse($data, 'User retrieved successfully');
     }
 }

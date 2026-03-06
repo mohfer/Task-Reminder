@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
     addMonths,
@@ -24,6 +24,12 @@ const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 export const TaskMonthCalendar = ({ tasks = [], selectedDate, onDateSelect, onMonthChange }) => {
     const [currentMonth, setCurrentMonth] = useState(() => new Date());
     const todayStart = startOfDay(new Date());
+
+    useEffect(() => {
+        if (selectedDate) {
+            setCurrentMonth(selectedDate);
+        }
+    }, [selectedDate]);
 
     const tasksByDate = useMemo(() => {
         const map = {};

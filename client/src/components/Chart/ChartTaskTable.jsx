@@ -35,7 +35,7 @@ const getSortValue = (item, key) => {
     }
 };
 
-export const ChartTaskTable = ({ rows }) => {
+export const ChartTaskTable = ({ rows, onRowClick }) => {
     const [sortConfig, setSortConfig] = useState({ key: 'deadline', direction: 'asc' });
 
     const sortedRows = useMemo(() => {
@@ -111,7 +111,11 @@ export const ChartTaskTable = ({ rows }) => {
                             </TableRow>
                         ) : (
                             sortedRows.map((item, index) => (
-                                <TableRow key={item.id}>
+                                <TableRow
+                                    key={item.id}
+                                    className="cursor-pointer hover:bg-muted/50"
+                                    onClick={() => onRowClick?.(item.deadline)}
+                                >
                                     <TableCell className="text-center font-bold">{index + 1}</TableCell>
                                     <TableCell>{item.course_content}</TableCell>
                                     <TableCell>{item.task}</TableCell>

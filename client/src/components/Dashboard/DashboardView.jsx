@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -28,6 +28,7 @@ export const DashboardView = () => {
     const editModal = useModal();
     const deleteModal = useModal();
 
+    const [activeTab, setActiveTab] = useState('tasks');
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedMonth, setSelectedMonth] = useState(() => new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear());
@@ -70,9 +71,21 @@ export const DashboardView = () => {
         editModal.open();
     };
 
+    const handleNavigateToTaskDate = useCallback((deadlineStr) => {
+        const date = new Date(deadlineStr);
+        if (Number.isNaN(date.getTime())) {
+            return;
+        }
+
+        setSelectedDate(date);
+        setSelectedMonth(date.getMonth());
+        setSelectedYear(date.getFullYear());
+        setActiveTab('tasks');
+    }, []);
+
     return (
         <div className="space-y-6">
-            <Tabs defaultValue="tasks">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList>
                     <TabsTrigger value="tasks">Task Lists</TabsTrigger>
                     <TabsTrigger value="chart">Bar Chart</TabsTrigger>
@@ -122,7 +135,7 @@ export const DashboardView = () => {
                 </TabsContent>
 
                 <TabsContent value="chart">
-                    <BarChartView />
+                    <BarChartView onNavigateToTaskDate={handleNavigateToTaskDate} />
                 </TabsContent>
 
                 <TabsContent value="semester-overview">

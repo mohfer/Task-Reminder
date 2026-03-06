@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Task;
 use App\Models\Grade;
 use App\Models\Setting;
+use App\Notifications\VerifyEmailNotification;
 use App\Notifications\ResetPasswordNotification;
 use App\Models\CourseContent;
 use Laravel\Sanctum\HasApiTokens;
@@ -82,5 +83,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendPasswordResetNotification($token): void
     {
         $this->notify(new ResetPasswordNotification($token));
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmailNotification());
     }
 }

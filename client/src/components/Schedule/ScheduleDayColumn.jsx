@@ -1,5 +1,6 @@
-import { format } from 'date-fns';
+import { format, isToday } from 'date-fns';
 import { ScheduleCourseBlock } from '@/components/Schedule/ScheduleCourseBlock';
+import { cn } from '@/lib/utils';
 import {
     calculateHeight,
     calculateTopPosition,
@@ -20,6 +21,7 @@ export const ScheduleDayColumn = ({
 }) => {
     const totalHeight = (slots.length - 1) * rowHeight;
     const dateLocale = getDateLocale(language);
+    const isTodayColumn = isToday(date);
 
     const positionedCourses = detectOverlaps(
         courses
@@ -55,10 +57,22 @@ export const ScheduleDayColumn = ({
     );
 
     return (
-        <div className="min-w-[150px] flex-1 border-r border-border last:border-r-0">
-            <div className="flex h-12 flex-col justify-center border-b border-border px-2">
-                <p className="truncate text-center text-xs font-semibold text-foreground">{day}</p>
-                <p className="truncate text-center text-[11px] text-muted-foreground">
+        <div className={cn(
+            'min-w-[150px] flex-1 border-r border-border last:border-r-0',
+            isTodayColumn && 'bg-primary/5'
+        )}>
+            <div className={cn(
+                'flex h-12 flex-col justify-center border-b border-border px-2',
+                isTodayColumn && 'bg-primary/10'
+            )}>
+                <p className={cn(
+                    'truncate text-center text-xs font-semibold',
+                    isTodayColumn ? 'text-primary' : 'text-foreground'
+                )}>{day}</p>
+                <p className={cn(
+                    'truncate text-center text-[11px]',
+                    isTodayColumn ? 'text-primary/70' : 'text-muted-foreground'
+                )}>
                     {format(date, 'd MMM yyyy', { locale: dateLocale })}
                 </p>
             </div>

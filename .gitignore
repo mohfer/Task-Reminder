@@ -57,3 +57,41 @@ skills-lock.json
 **/*.njsproj
 **/*.sln
 **/*.sw?
+
+# OS generated files
+Thumbs.db
+Desktop.ini
+._*
+.Spotlight-V100
+.Trashes
+
+# Composer
+**/composer.lock
+
+# Coverage reports
+**/coverage
+**/.coverage
+
+# IDE specific (tambahan)
+*.iml
+.project
+.classpath
+.settings/
+
+# Laravel additional
+**/storage/debugbar
+**/storage/logs/*.log
+
+# Temp files
+**/*.tmp
+**/*.bak
+**/*.swp
+**/*~
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+# Test output
+**/test-results
+**/.nyc_output
