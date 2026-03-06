@@ -8,22 +8,22 @@ Task Reminder is a college assignment reminder application designed to help stud
 
 ## Features
 
-- **Automatic Reminders**: Sends email notifications for upcoming deadlines based on configurable intervals (e.g., 5 days before, 1 day before, due today, priority tasks).
-- **Task Management**: Create, update, delete, and mark tasks as completed with deadline tracking and priority flags.
-- **Course Content Management**: Manage course data per semester including code, lecturer, credits, schedule, with Excel import support.
-- **Weekly Schedule**: Visual weekly schedule grid showing course timetable with overlap detection and day indicator for current day.
-- **Task Calendar**: Interactive monthly calendar view showing tasks on their deadline dates with color-coded status badges.
-- **Bar Chart Analytics**: Visual bar chart showing task distribution per course content with drill-down to individual tasks.
-- **Semester Overview**: Cumulative and per-semester GPA trends with task distribution line charts across all semesters.
-- **Grading System**: Customizable grading scale with automatic GPA calculation (semester and cumulative) based on course scores.
-- **Assessment Scores**: Record and update scores for each course content with automatic grade mapping and GPA computation.
-- **Email Notifications**: Consistent custom-designed email templates for task creation, task completion, deadline reminders, password reset, and email verification.
-- **User Settings**: Configurable notification preferences (deadline reminder interval, task created/completed toggles), profile editing, and password management.
-- **Dark Mode & Light Mode**: Full theme support with system preference detection and consistent scrollbar styling.
-- **PWA Support**: Progressive Web App with service worker, offline capability, and installable on mobile devices.
-- **Responsive Design**: Optimized for mobile, tablet, and desktop with horizontal scrolling tabs and touch-friendly interface.
-- **Authentication**: Secure login/register with email verification, token-based authentication (Sanctum), and password reset flow.
-- **Excel Import**: Bulk import course contents from Excel files with validation, duplicate detection, and error reporting.
+- **Automatic Reminders**: Sends deadline reminder emails based on user-defined intervals.
+- **Task Management**: Create, update, delete, and complete tasks with priority and due-date tracking.
+- **Course Content Management**: Manage semester course data and import it from Excel.
+- **Weekly Schedule**: Displays a weekly timetable with overlap detection.
+- **Task Calendar**: Shows tasks on a monthly calendar with status badges.
+- **Bar Chart Analytics**: Visualizes task distribution by course content.
+- **Semester Overview**: Tracks semester and cumulative GPA trends.
+- **Grading System**: Supports customizable grading scales and automatic GPA calculation.
+- **Assessment Scores**: Records course scores with automatic grade mapping.
+- **Email Notifications**: Uses consistent templates for key account and task events.
+- **User Settings**: Manage notification preferences, profile, and password.
+- **Dark Mode & Light Mode**: Supports theme switching with consistent UI styling.
+- **PWA Support**: Installable app with offline capability via service worker.
+- **Responsive Design**: Optimized for mobile, tablet, and desktop.
+- **Authentication**: Secure auth flow with email verification and password reset.
+- **Excel Import**: Imports course contents with validation and duplicate checks.
 
 ## Tech Stack
 
