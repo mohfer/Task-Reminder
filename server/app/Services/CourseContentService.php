@@ -93,6 +93,26 @@ class CourseContentService
     {
         $courseContents = CourseContent::where('user_id', $userId)
             ->where('semester', $semester)
+            ->orderByRaw(
+                "CASE LOWER(day)
+                    WHEN 'monday' THEN 1
+                    WHEN 'senin' THEN 1
+                    WHEN 'tuesday' THEN 2
+                    WHEN 'selasa' THEN 2
+                    WHEN 'wednesday' THEN 3
+                    WHEN 'rabu' THEN 3
+                    WHEN 'thursday' THEN 4
+                    WHEN 'kamis' THEN 4
+                    WHEN 'friday' THEN 5
+                    WHEN 'jumat' THEN 5
+                    WHEN 'saturday' THEN 6
+                    WHEN 'sabtu' THEN 6
+                    WHEN 'sunday' THEN 7
+                    WHEN 'minggu' THEN 7
+                    ELSE 99
+                END ASC"
+            )
+            ->orderBy('hour_start', 'ASC')
             ->orderBy('course_content', 'ASC')
             ->get()
             ->map(function ($courseContent) {

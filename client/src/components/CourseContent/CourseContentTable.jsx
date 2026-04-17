@@ -19,6 +19,47 @@ import { LoadingTable } from '@/components/shared/LoadingTable';
 import { Card, CardContent } from '@/components/ui/card';
 import { compareValues } from '@/lib/tableUtils';
 
+const DAY_ORDER = {
+    monday: 1,
+    senin: 1,
+    tuesday: 2,
+    selasa: 2,
+    wednesday: 3,
+    rabu: 3,
+    thursday: 4,
+    kamis: 4,
+    friday: 5,
+    jumat: 5,
+    saturday: 6,
+    sabtu: 6,
+    sunday: 7,
+    minggu: 7,
+};
+
+const getDayOrder = (day) => {
+    if (!day) {
+        return Number.MAX_SAFE_INTEGER;
+    }
+
+    return DAY_ORDER[String(day).trim().toLowerCase()] ?? Number.MAX_SAFE_INTEGER;
+};
+
+const parseTimeToMinutes = (time) => {
+    if (!time || typeof time !== 'string') {
+        return Number.MAX_SAFE_INTEGER;
+    }
+
+    const [hour, minute] = time.split(':');
+    const parsedHour = Number(hour);
+    const parsedMinute = Number(minute ?? 0);
+
+    if (Number.isNaN(parsedHour) || Number.isNaN(parsedMinute)) {
+        return Number.MAX_SAFE_INTEGER;
+    }
+
+    return parsedHour * 60 + parsedMinute;
+};
+
 const getSortValue = (content, key) => {
     switch (key) {
         case 'code':
@@ -30,16 +71,16 @@ const getSortValue = (content, key) => {
         case 'credits':
             return Number(content.credits || 0);
         case 'day':
-            return content.day || '';
+            return getDayOrder(content.day);
         case 'time':
-            return `${content.hour_start || ''}-${content.hour_end || ''}`;
+            return parseTimeToMinutes(content.hour_start);
         default:
             return '';
     }
 };
 
 export const CourseContentTable = ({ rows, isLoading, onEdit, onDelete }) => {
-    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+    const [sortConfig, setSortConfig] = useState({ key: 'day', direction: 'asc' });
 
     const sortedRows = useMemo(() => {
         if (!sortConfig.key) {
@@ -50,7 +91,12 @@ export const CourseContentTable = ({ rows, isLoading, onEdit, onDelete }) => {
         list.sort((left, right) => {
             const leftValue = getSortValue(left, sortConfig.key);
             const rightValue = getSortValue(right, sortConfig.key);
-            const result = compareValues(leftValue, rightValue);
+
+            let result = compareValues(leftValue, rightValue);
+            if (result === 0 && sortConfig.key === 'day') {
+                result = compareValues(parseTimeToMinutes(left.hour_start), parseTimeToMinutes(right.hour_start));
+            }
+
             return sortConfig.direction === 'asc' ? result : -result;
         });
         return list;
@@ -61,6 +107,10 @@ export const CourseContentTable = ({ rows, isLoading, onEdit, onDelete }) => {
             if (current.key === key) {
                 if (current.direction === 'asc') {
                     return { key, direction: 'desc' };
+                }
+
+                if (key === 'day') {
+                    return { key, direction: 'asc' };
                 }
 
                 return { key: null, direction: 'asc' };
