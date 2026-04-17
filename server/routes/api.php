@@ -57,6 +57,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Settings
     Route::get('/settings', [SettingsController::class, 'index']);
     Route::put('/settings/deadline-notification', [SettingsController::class, 'deadlineNotification']);
+    Route::put('/settings/notification-channel', [SettingsController::class, 'notificationChannel']);
+    Route::put('/settings/telegram-chat-id', [SettingsController::class, 'telegramChatId']);
+    Route::post('/settings/test-notification', [SettingsController::class, 'testNotification']);
     Route::patch('/settings/task-created-notification', [SettingsController::class, 'taskCreatedNotification']);
     Route::patch('/settings/task-completed-notification', [SettingsController::class, 'taskCompletedNotification']);
     Route::put('/settings/profile', [UserController::class, 'updateProfile']);

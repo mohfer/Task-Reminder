@@ -15,6 +15,9 @@ export const SettingsView = () => {
         isLoading,
         isMutating,
         updateDeadlineNotification,
+        updateNotificationChannel,
+        updateTelegramChatId,
+        testNotification,
         toggleTaskCreatedNotification,
         toggleTaskCompletedNotification,
         updateProfile,
@@ -39,10 +42,16 @@ export const SettingsView = () => {
                 <TabsContent value="notifications">
                     <NotificationSettings
                         isLoading={isLoading}
+                        isMutating={isMutating}
                         notify={settings?.deadline_notification || '5 days left'}
+                        notificationChannel={settings?.notification_channel || 'email'}
+                        telegramChatId={settings?.telegram_chat_id || ''}
                         taskCreated={Number(settings?.task_created_notification || 0)}
                         taskCompleted={Number(settings?.task_completed_notification || 0)}
                         onNotifyChange={updateDeadlineNotification}
+                        onNotificationChannelChange={updateNotificationChannel}
+                        onTelegramChatIdSave={updateTelegramChatId}
+                        onTestNotification={testNotification}
                         onTaskCreatedToggle={() =>
                             toggleTaskCreatedNotification(Number(settings?.task_created_notification || 0) === 1 ? 0 : 1)
                         }

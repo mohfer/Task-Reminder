@@ -3,7 +3,7 @@ import { AssessmentView } from '@/components/Assessment/AssessmentView';
 
 const Assessment = () => {
     return (
-        <AppLayout title="Assessment">
+        <AppLayout title="Assessments">
             <AssessmentView />
         </AppLayout>
     );

@@ -48,6 +48,8 @@ class AuthService
                 'deadline_notification' => '5 days left',
                 'task_created_notification' => 1,
                 'task_completed_notification' => 1,
+                'notification_channel' => Setting::CHANNEL_EMAIL,
+                'telegram_chat_id' => null,
                 'user_id' => $user->id,
             ]);
 
@@ -119,11 +121,11 @@ class AuthService
         return [
             ['grade' => 'A', 'grade_point' => 4.00, 'minimal_score' => 85.00, 'maximal_score' => 100.00, 'user_id' => $userId],
             ['grade' => 'A-', 'grade_point' => 3.75, 'minimal_score' => 80.00, 'maximal_score' => 84.99, 'user_id' => $userId],
-            ['grade' => 'B+', 'grade_point' => 3.50, 'minimal_score' => 75.00, 'maximal_score' => 79.99, 'user_id' => $userId],
             ['grade' => 'B', 'grade_point' => 3.00, 'minimal_score' => 70.00, 'maximal_score' => 74.99, 'user_id' => $userId],
             ['grade' => 'B-', 'grade_point' => 2.75, 'minimal_score' => 65.00, 'maximal_score' => 69.99, 'user_id' => $userId],
-            ['grade' => 'C+', 'grade_point' => 2.50, 'minimal_score' => 60.00, 'maximal_score' => 64.99, 'user_id' => $userId],
+            ['grade' => 'B+', 'grade_point' => 3.50, 'minimal_score' => 75.00, 'maximal_score' => 79.99, 'user_id' => $userId],
             ['grade' => 'C', 'grade_point' => 2.00, 'minimal_score' => 56.00, 'maximal_score' => 59.99, 'user_id' => $userId],
+            ['grade' => 'C+', 'grade_point' => 2.50, 'minimal_score' => 60.00, 'maximal_score' => 64.99, 'user_id' => $userId],
             ['grade' => 'D', 'grade_point' => 1.00, 'minimal_score' => 50.00, 'maximal_score' => 55.99, 'user_id' => $userId],
             ['grade' => 'E', 'grade_point' => 0.00, 'minimal_score' => 0.00, 'maximal_score' => 49.99, 'user_id' => $userId],
         ];

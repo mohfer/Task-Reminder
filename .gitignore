@@ -46,6 +46,7 @@
 # Editor directories and files
 .vscode/*
 .agents
+.omc
 !.vscode/extensions.json
 .idea
 .fleet

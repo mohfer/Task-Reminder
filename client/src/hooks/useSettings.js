@@ -30,6 +30,7 @@ export const useSettings = () => {
     const updateDeadlineNotification = useCallback(
         async (deadline) => {
             try {
+                setIsMutating(true);
                 const response = await settingsApi.updateDeadlineNotification({
                     deadline_notification: deadline,
                 });
@@ -37,14 +38,74 @@ export const useSettings = () => {
                 await fetchUserData(false);
             } catch (error) {
                 toast.error(error.response?.data?.message || 'Failed to update deadline notification.');
+            } finally {
+                setIsMutating(false);
             }
         },
         [fetchUserData]
     );
 
+    const updateNotificationChannel = useCallback(
+        async (channel) => {
+            try {
+                setIsMutating(true);
+                const response = await settingsApi.updateNotificationChannel({
+                    notification_channel: channel,
+                });
+                toast.success(response.data.message);
+                await fetchUserData(false);
+                return { success: true };
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Failed to update notification channel.');
+                return { success: false };
+            } finally {
+                setIsMutating(false);
+            }
+        },
+        [fetchUserData]
+    );
+
+    const updateTelegramChatId = useCallback(
+        async (chatId) => {
+            try {
+                setIsMutating(true);
+                const response = await settingsApi.updateTelegramChatId({
+                    telegram_chat_id: chatId?.trim() || null,
+                });
+                toast.success(response.data.message);
+                await fetchUserData(false);
+                return { success: true };
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Failed to update Telegram chat ID.');
+                return { success: false };
+            } finally {
+                setIsMutating(false);
+            }
+        },
+        [fetchUserData]
+    );
+
+    const testNotification = useCallback(
+        async () => {
+            try {
+                setIsMutating(true);
+                const response = await settingsApi.testNotification();
+                toast.success(response.data.message);
+                return { success: true };
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Failed to send test notification.');
+                return { success: false };
+            } finally {
+                setIsMutating(false);
+            }
+        },
+        []
+    );
+
     const toggleTaskCreatedNotification = useCallback(
         async (value) => {
             try {
+                setIsMutating(true);
                 const response = await settingsApi.updateTaskCreatedNotification({
                     task_created_notification: value,
                 });
@@ -52,6 +113,8 @@ export const useSettings = () => {
                 await fetchUserData(false);
             } catch (error) {
                 toast.error(error.response?.data?.message || 'Failed to update task-created notification.');
+            } finally {
+                setIsMutating(false);
             }
         },
         [fetchUserData]
@@ -60,6 +123,7 @@ export const useSettings = () => {
     const toggleTaskCompletedNotification = useCallback(
         async (value) => {
             try {
+                setIsMutating(true);
                 const response = await settingsApi.updateTaskCompletedNotification({
                     task_completed_notification: value,
                 });
@@ -67,6 +131,8 @@ export const useSettings = () => {
                 await fetchUserData(false);
             } catch (error) {
                 toast.error(error.response?.data?.message || 'Failed to update task-completed notification.');
+            } finally {
+                setIsMutating(false);
             }
         },
         [fetchUserData]
@@ -127,6 +193,9 @@ export const useSettings = () => {
         isLoading,
         isMutating,
         updateDeadlineNotification,
+        updateNotificationChannel,
+        updateTelegramChatId,
+        testNotification,
         toggleTaskCreatedNotification,
         toggleTaskCompletedNotification,
         updateProfile,

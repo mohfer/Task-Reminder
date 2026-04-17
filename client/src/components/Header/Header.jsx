@@ -38,11 +38,11 @@ const Header = ({ title }) => {
     return (
         <header className="border-b bg-card">
             <div className="flex h-16 items-center justify-between px-4 lg:px-6">
-                <h1 className="text-xl font-bold text-foreground lg:text-2xl">{title}</h1>
-                <div className="flex items-center gap-3">
+                <h1 className="max-w-[120px] truncate text-base font-bold text-foreground sm:max-w-[220px] sm:text-xl lg:max-w-none lg:text-2xl">{title}</h1>
+                <div className="flex items-center gap-2 sm:gap-3">
                     {pathname !== '/settings' ? (
                         <Select value={semesterLabel} onValueChange={(value) => setSemester(value, value)}>
-                            <SelectTrigger className="w-[160px] bg-background">
+                            <SelectTrigger className="w-[118px] bg-background px-2 text-xs sm:w-[160px] sm:text-sm [&>span]:truncate">
                                 <SelectValue placeholder="Select semester" />
                             </SelectTrigger>
                             <SelectContent>

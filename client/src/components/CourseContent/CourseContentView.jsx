@@ -9,7 +9,6 @@ import { CreditsSummary } from '@/components/CourseContent/CreditsSummary';
 import { CourseContentFormDialog } from '@/components/CourseContent/CourseContentFormDialog';
 import { ExcelImportDialog } from '@/components/CourseContent/ExcelImportDialog';
 import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog';
-import { WeeklySchedule } from '@/components/Schedule/WeeklySchedule';
 
 export const CourseContentView = () => {
     const selectedSemester = useSemesterStore((state) => state.semester);
@@ -61,8 +60,6 @@ export const CourseContentView = () => {
                     deleteDialog.open();
                 }}
             />
-
-            {!isLoading ? <WeeklySchedule courseContents={courseContents} /> : null}
 
             {!isLoading ? <CreditsSummary totalCredits={totalCredits} /> : null}
 

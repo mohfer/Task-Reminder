@@ -11,6 +11,7 @@ const PasswordEmailSent = lazy(() => import('./pages/Auth/ResetPassword/Password
 const ResetPassword = lazy(() => import('./pages/Auth/ResetPassword/ResetPassword'));
 const Dashboard = lazy(() => import('./pages/Dashboard/Dashboard'));
 const CourseContent = lazy(() => import('./pages/CourseContent/CourseContent'));
+const Schedule = lazy(() => import('./pages/Schedule/Schedule'));
 const Assessment = lazy(() => import('./pages/Assessment/Assessment'));
 const Settings = lazy(() => import('./pages/Settings/Settings'));
 
@@ -56,6 +57,10 @@ const App = () => {
         <Route
           path="/course-contents"
           element={<ProtectedRoute><CourseContent /></ProtectedRoute>}
+        />
+        <Route
+          path="/schedule"
+          element={<ProtectedRoute><Schedule /></ProtectedRoute>}
         />
         <Route
           path="/assessments"

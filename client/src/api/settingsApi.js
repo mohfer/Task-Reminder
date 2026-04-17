@@ -6,6 +6,15 @@ export const settingsApi = {
     updateDeadlineNotification: (data) =>
         axiosInstance.put('/settings/deadline-notification', data),
 
+    updateNotificationChannel: (data) =>
+        axiosInstance.put('/settings/notification-channel', data),
+
+    updateTelegramChatId: (data) =>
+        axiosInstance.put('/settings/telegram-chat-id', data),
+
+    testNotification: () =>
+        axiosInstance.post('/settings/test-notification'),
+
     updateTaskCreatedNotification: (data) =>
         axiosInstance.patch('/settings/task-created-notification', data),
 

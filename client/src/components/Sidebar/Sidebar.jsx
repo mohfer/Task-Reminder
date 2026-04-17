@@ -1,4 +1,4 @@
-import { LayoutDashboard, Settings, Book, Trophy, LogOut } from 'lucide-react';
+import { LayoutDashboard, Settings, Book, Trophy, LogOut, CalendarDays } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Separator } from '@/components/ui/separator';
@@ -7,8 +7,9 @@ import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/course-contents', icon: Book, label: 'Course Content' },
-    { to: '/assessments', icon: Trophy, label: 'Assessment' },
+    { to: '/course-contents', icon: Book, label: 'Courses' },
+    { to: '/schedule', icon: CalendarDays, label: 'Schedule' },
+    { to: '/assessments', icon: Trophy, label: 'Assessments' },
     { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 
