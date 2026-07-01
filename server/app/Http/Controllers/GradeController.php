@@ -41,8 +41,8 @@ class GradeController
         $request->validate([
             'grade' => ['required', Rule::unique('grades')->where(fn($query) => $query->where('user_id', $request->user()->id))->ignore($id)],
             'grade_point' => 'required|numeric',
-            'minimal_score' => 'required|numeric',
-            'maximal_score' => 'required|numeric',
+            'minimal_score' => 'required|numeric|min:0|max:100',
+            'maximal_score' => 'required|numeric|min:0|max:100',
         ]);
 
         try {

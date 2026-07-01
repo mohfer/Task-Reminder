@@ -18,8 +18,8 @@ Route::prefix('auth')->middleware('throttle:10,1')->group(function () {
 });
 
 // Password Reset
-Route::post('/password/email', [PasswordResetController::class, 'sendResetLink']);
-Route::post('/password/reset', [PasswordResetController::class, 'resetPassword'])->name('password.reset');
+Route::post('/password/email', [PasswordResetController::class, 'sendResetLink'])->middleware('throttle:5,1');
+Route::post('/password/reset', [PasswordResetController::class, 'resetPassword'])->middleware('throttle:5,1')->name('password.reset');
 
 // Verify Email
 Route::middleware(['auth:sanctum'])->group(function () {
