@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Services\PasswordResetService;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 
 class PasswordResetController
 {
+    use ApiResponse;
+
     public function __construct(
         private readonly PasswordResetService $passwordResetService
     ) {}
@@ -18,13 +21,9 @@ class PasswordResetController
             'email' => 'required|email',
         ]);
 
-        $status = $this->passwordResetService->sendResetLink($request->email);
+        $this->passwordResetService->sendResetLink($request->email);
 
-        $message = $status === Password::RESET_LINK_SENT
-            ? 'If that email is registered, we have sent a password reset link.'
-            : 'If that email is registered, we have sent a password reset link.';
-
-        return response()->json(['message' => $message], 200);
+        return $this->sendResponse(null, 'If that email is registered, we have sent a password reset link.');
     }
 
     public function resetPassword(Request $request)
@@ -38,10 +37,10 @@ class PasswordResetController
 
         $status = $this->passwordResetService->resetPassword($request->only('email', 'password', 'password_confirmation', 'token'));
 
-        $message = $status === Password::PASSWORD_RESET
-            ? 'Password has been reset successfully.'
-            : 'Unable to reset password. The token may be invalid or expired.';
+        if ($status === Password::PASSWORD_RESET) {
+            return $this->sendResponse(null, 'Password has been reset successfully.');
+        }
 
-        return response()->json(['message' => $message], $status === Password::PASSWORD_RESET ? 200 : 400);
+        return $this->sendError('Unable to reset password. The token may be invalid or expired.', 400);
     }
 }

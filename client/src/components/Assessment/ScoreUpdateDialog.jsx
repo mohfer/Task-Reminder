@@ -29,7 +29,7 @@ export const ScoreUpdateDialog = ({ open, onOpenChange, initialData, isLoading, 
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const result = await onSubmit(initialData?.id, Number(score));
+        const result = await onSubmit(initialData?.id, Number(String(score).replace(',', '.')));
         if (result.success) {
             onOpenChange(false);
             return;
@@ -51,7 +51,7 @@ export const ScoreUpdateDialog = ({ open, onOpenChange, initialData, isLoading, 
                     </FormField>
 
                     <FormField label="Score" error={getFieldError(errors, 'score')}>
-                        <Input type="number" min={0} value={score} onChange={(event) => setScore(event.target.value)} />
+                        <Input type="text" inputMode="decimal" value={score} onChange={(event) => setScore(event.target.value)} />
                     </FormField>
 
                     <DialogFooter>

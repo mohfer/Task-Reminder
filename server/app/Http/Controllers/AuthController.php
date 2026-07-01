@@ -83,14 +83,14 @@ class AuthController
             return $this->sendError('Token expired', 401);
         }
 
-        return response()->json(['status' => true]);
+        return $this->sendResponse(['valid' => true], 'Token is valid');
     }
 
     public function checkEmail(Request $request)
     {
         $verified = $this->authService->checkEmailVerified($request->user());
 
-        return response()->json(['status' => $verified]);
+        return $this->sendResponse(['verified' => $verified], $verified ? 'Email is verified' : 'Email is not verified');
     }
 
     public function logout(Request $request)
