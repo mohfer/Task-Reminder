@@ -20,4 +20,7 @@ export const settingsApi = {
 
     updateTaskCompletedNotification: (data) =>
         axiosInstance.patch('/settings/task-completed-notification', data),
+
+    updateMonitoringUrl: (data) =>
+        axiosInstance.put('/settings/monitoring-url', data),
 };

@@ -5,4 +5,6 @@ export const assessmentApi = {
         axiosInstance.get('/assessments/calculate', { params: { semester } }),
 
     update: (id, data) => axiosInstance.patch(`/assessments/${id}`, data),
+
+    sync: (data) => axiosInstance.post('/assessments/sync', data),
 };

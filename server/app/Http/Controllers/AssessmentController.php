@@ -31,4 +31,24 @@ class AssessmentController
 
         return $this->sendResponse($courseContent, 'Score updated successfully');
     }
+
+    public function sync(Request $request)
+    {
+        $request->validate([
+            'source_url' => ['required', 'string', 'regex:/^https?:\/\/.+/i'],
+            'task_id' => 'required|integer|min:1',
+        ]);
+
+        try {
+            $result = $this->assessmentService->syncFromMonitoring(
+                $request->user()->id,
+                rtrim($request->source_url, '/'),
+                (int) $request->task_id
+            );
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 500);
+        }
+
+        return $this->sendResponse($result, "{$result['updated']} scores updated, " . count($result['skipped']) . " skipped");
+    }
 }

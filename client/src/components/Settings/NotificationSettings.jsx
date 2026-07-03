@@ -28,20 +28,27 @@ export const NotificationSettings = ({
     telegramChatId,
     taskCreated,
     taskCompleted,
+    monitoringUrl,
     onNotifyChange,
     onNotificationChannelChange,
     onTelegramChatIdSave,
     onTestNotification,
     onTaskCreatedToggle,
     onTaskCompletedToggle,
+    onMonitoringUrlSave,
 }) => {
     const [chatIdInput, setChatIdInput] = useState('');
+    const [monitoringUrlInput, setMonitoringUrlInput] = useState('');
     const needsTelegramChatId = notificationChannel === 'telegram' || notificationChannel === 'both';
     const isTestDisabled = isMutating || (needsTelegramChatId && chatIdInput.trim() === '');
 
     useEffect(() => {
         setChatIdInput(telegramChatId || '');
     }, [telegramChatId]);
+
+    useEffect(() => {
+        setMonitoringUrlInput(monitoringUrl || '');
+    }, [monitoringUrl]);
 
     return (
         <Card className="my-4">
@@ -163,6 +170,33 @@ export const NotificationSettings = ({
                             </div>
                             <div className="w-[108px] text-center">
                                 <Switch checked={taskCompleted === 1} onCheckedChange={onTaskCompletedToggle} disabled={isMutating} />
+                            </div>
+                        </div>
+
+                        <Separator className="my-4" />
+
+                        <div className="space-y-2">
+                            <div>
+                                <p className="text-lg">Monitoring URL</p>
+                                <span className="text-muted-foreground">
+                                    Default URL for monitoring-akademik-siakang sync.
+                                </span>
+                            </div>
+
+                            <div className="flex flex-col gap-2 sm:flex-row">
+                                <Input
+                                    placeholder="http://192.168.1.180:3003/api"
+                                    value={monitoringUrlInput}
+                                    onChange={(event) => setMonitoringUrlInput(event.target.value)}
+                                    disabled={isMutating}
+                                />
+                                <Button
+                                    type="button"
+                                    onClick={() => onMonitoringUrlSave(monitoringUrlInput)}
+                                    disabled={isMutating || monitoringUrlInput.trim() === (monitoringUrl || '').trim()}
+                                >
+                                    Save
+                                </Button>
                             </div>
                         </div>
                     </>

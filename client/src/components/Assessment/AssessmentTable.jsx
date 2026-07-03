@@ -36,7 +36,7 @@ const getSortValue = (row, key) => {
     }
 };
 
-export const AssessmentTable = ({ rows, isLoading, onEdit }) => {
+export const AssessmentTable = ({ rows, isLoading, onEdit, syncButton }) => {
     const [sortConfig, setSortConfig] = useState({ key: 'course_content', direction: 'asc' });
 
     const sortedRows = useMemo(() => {
@@ -61,7 +61,11 @@ export const AssessmentTable = ({ rows, isLoading, onEdit }) => {
 
     return (
         <Card className="mb-3">
-            <CardContent className="overflow-x-auto p-0">
+            <CardContent className="overflow-x-auto p-4">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold">Assessment Scores</h2>
+                    {syncButton}
+                </div>
                 <Table>
                     <TableHeader>
                         <TableRow>

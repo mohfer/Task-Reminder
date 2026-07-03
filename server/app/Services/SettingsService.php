@@ -122,6 +122,18 @@ class SettingsService
         return $setting;
     }
 
+    public function updateMonitoringUrl(int $userId, ?string $url): Setting
+    {
+        $setting = $this->getOrFail($userId);
+        $normalizedUrl = is_string($url) && trim($url) !== '' ? rtrim(trim($url), '/') : null;
+
+        $setting->update([
+            'monitoring_url' => $normalizedUrl,
+        ]);
+
+        return $setting;
+    }
+
     public function toggleTaskCompletedNotification(int $userId): Setting
     {
         $setting = $this->getOrFail($userId);

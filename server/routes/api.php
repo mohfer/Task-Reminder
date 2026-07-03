@@ -49,6 +49,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Assessment
     Route::get('/assessments/calculate', [AssessmentController::class, 'calculateGpa']);
     Route::patch('/assessments/{id}', [AssessmentController::class, 'update']);
+    Route::post('/assessments/sync', [AssessmentController::class, 'sync']);
 
     // Task
     Route::resource('tasks', TaskController::class)->only(['store', 'update', 'destroy']);
@@ -59,6 +60,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::put('/settings/deadline-notification', [SettingsController::class, 'deadlineNotification']);
     Route::put('/settings/notification-channel', [SettingsController::class, 'notificationChannel']);
     Route::put('/settings/telegram-chat-id', [SettingsController::class, 'telegramChatId']);
+    Route::put('/settings/monitoring-url', [SettingsController::class, 'monitoringUrl']);
     Route::post('/settings/test-notification', [SettingsController::class, 'testNotification']);
     Route::patch('/settings/task-created-notification', [SettingsController::class, 'taskCreatedNotification']);
     Route::patch('/settings/task-completed-notification', [SettingsController::class, 'taskCompletedNotification']);

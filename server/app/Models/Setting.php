@@ -17,6 +17,7 @@ class Setting extends Model
         'task_completed_notification',
         'notification_channel',
         'telegram_chat_id',
+        'monitoring_url',
         'user_id',
     ];
 

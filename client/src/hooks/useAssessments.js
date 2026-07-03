@@ -45,6 +45,24 @@ export const useAssessments = (selectedSemester) => {
         [selectedSemester, fetchAssessments]
     );
 
+    const syncScores = useCallback(
+        async (sourceUrl, taskId) => {
+            try {
+                setIsMutating(true);
+                const response = await assessmentApi.sync({ source_url: sourceUrl, task_id: taskId });
+                toast.success(response.data.message);
+                await fetchAssessments(selectedSemester, false);
+                return { success: true, data: response.data.data };
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Failed to sync scores.');
+                return { success: false };
+            } finally {
+                setIsMutating(false);
+            }
+        },
+        [selectedSemester, fetchAssessments]
+    );
+
     useEffect(() => {
         fetchAssessments(selectedSemester);
     }, [selectedSemester, fetchAssessments]);
@@ -56,5 +74,6 @@ export const useAssessments = (selectedSemester) => {
         isLoading,
         isMutating,
         updateScore,
+        syncScores,
     };
 };

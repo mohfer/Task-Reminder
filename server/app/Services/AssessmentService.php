@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\CourseContent;
 use App\Models\Grade;
+use Illuminate\Support\Facades\Http;
 
 class AssessmentService
 {
@@ -93,5 +94,84 @@ class AssessmentService
         ]);
 
         return $courseContent;
+    }
+
+    public function syncFromMonitoring(int $userId, string $sourceUrl, int $taskId): array
+    {
+        $response = Http::timeout(30)->get("{$sourceUrl}/tasks/{$taskId}/data");
+
+        if (!$response->successful()) {
+            throw new \Exception("Failed to fetch data from monitoring API: HTTP {$response->status()}", 502);
+        }
+
+        $body = $response->json();
+
+        // monitoring-akademik wraps responses in ApiResponse { code, message, data }
+        $data = $body['data'] ?? $body;
+
+        if (empty($data['nilai']) || !is_array($data['nilai'])) {
+            throw new \Exception('No grade data found in monitoring response', 422);
+        }
+
+        $grades = Grade::where('user_id', $userId)->get();
+        $userCourses = CourseContent::where('user_id', $userId)->get();
+
+        $updated = 0;
+        $skipped = [];
+
+        foreach ($data['nilai'] as $nilaiItem) {
+            $matkul = trim($nilaiItem['matkul'] ?? '');
+            $nilaiAngka = $nilaiItem['nilai'] ?? null;
+
+            // Only sync if the grade value is numeric
+            if ($matkul === '' || $nilaiAngka === null || $nilaiAngka === '---' || !is_numeric($nilaiAngka)) {
+                if ($matkul !== '') {
+                    $skipped[] = $matkul;
+                }
+                continue;
+            }
+
+            $numericScore = (float) $nilaiAngka;
+
+            // Try matching by extracting the course name (strip parenthetical codes)
+            // "Sistem Terdistribusi (INF622208)" → "Sistem Terdistribusi"
+            // "Sistem Terdistribusi (C)" → "Sistem Terdistribusi"
+            $matkulName = trim(preg_replace('/\s*\([^)]*\)\s*$/', '', $matkul));
+
+            // 1. Exact match first
+            $courseContent = $userCourses->first(function ($c) use ($matkul) {
+                return strcasecmp(trim($c->course_content), $matkul) === 0;
+            });
+
+            // 2. Match by extracted name (both sides stripped of parentheticals)
+            if (!$courseContent) {
+                $courseContent = $userCourses->first(function ($c) use ($matkulName) {
+                    $localName = trim(preg_replace('/\s*\([^)]*\)\s*$/', '', $c->course_content));
+                    return strcasecmp($localName, $matkulName) === 0;
+                });
+            }
+
+            // 3. Fuzzy: monitoring matkul name is contained in local course_content (or vice versa)
+            if (!$courseContent && $matkulName !== '') {
+                $courseContent = $userCourses->first(function ($c) use ($matkulName) {
+                    $localName = trim(preg_replace('/\s*\([^)]*\)\s*$/', '', $c->course_content));
+                    return stripos($c->course_content, $matkulName) !== false
+                        || stripos($matkulName, $localName) !== false;
+                });
+            }
+
+            if (!$courseContent) {
+                $skipped[] = $matkul;
+                continue;
+            }
+
+            $courseContent->update(['score' => $numericScore]);
+            $updated++;
+        }
+
+        return [
+            'updated' => $updated,
+            'skipped' => $skipped,
+        ];
     }
 }

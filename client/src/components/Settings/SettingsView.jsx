@@ -20,6 +20,7 @@ export const SettingsView = () => {
         testNotification,
         toggleTaskCreatedNotification,
         toggleTaskCompletedNotification,
+        updateMonitoringUrl,
         updateProfile,
         changePassword,
     } = useSettings();
@@ -48,6 +49,7 @@ export const SettingsView = () => {
                         telegramChatId={settings?.telegram_chat_id || ''}
                         taskCreated={Number(settings?.task_created_notification || 0)}
                         taskCompleted={Number(settings?.task_completed_notification || 0)}
+                        monitoringUrl={settings?.monitoring_url || ''}
                         onNotifyChange={updateDeadlineNotification}
                         onNotificationChannelChange={updateNotificationChannel}
                         onTelegramChatIdSave={updateTelegramChatId}
@@ -58,6 +60,7 @@ export const SettingsView = () => {
                         onTaskCompletedToggle={() =>
                             toggleTaskCompletedNotification(Number(settings?.task_completed_notification || 0) === 1 ? 0 : 1)
                         }
+                        onMonitoringUrlSave={updateMonitoringUrl}
                     />
                 </TabsContent>
 

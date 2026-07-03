@@ -138,6 +138,26 @@ export const useSettings = () => {
         [fetchUserData]
     );
 
+    const updateMonitoringUrl = useCallback(
+        async (url) => {
+            try {
+                setIsMutating(true);
+                const response = await settingsApi.updateMonitoringUrl({
+                    monitoring_url: url?.trim() || null,
+                });
+                toast.success(response.data.message);
+                await fetchUserData(false);
+                return { success: true };
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Failed to update monitoring URL.');
+                return { success: false };
+            } finally {
+                setIsMutating(false);
+            }
+        },
+        [fetchUserData]
+    );
+
     const updateProfile = useCallback(
         async (data) => {
             try {
@@ -198,6 +218,7 @@ export const useSettings = () => {
         testNotification,
         toggleTaskCreatedNotification,
         toggleTaskCompletedNotification,
+        updateMonitoringUrl,
         updateProfile,
         changePassword,
     };
