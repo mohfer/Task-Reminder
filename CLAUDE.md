@@ -7,6 +7,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `server/`: Laravel 12 API backend (Sanctum auth, email verification, notifications, queue worker, Pest tests).
 - `client/`: React 18 + Vite SPA (Tailwind + Radix/shadcn-style UI, Zustand state).
 
+## RTK (Rust Token Killer)
+
+Gunakan `rtk` sebagai prefix untuk semua perintah CLI agar token 60-90% lebih hemat.
+Contoh: `rtk git status`, `rtk composer install`, `rtk pnpm install`.
+
+Perintah meta RTK:
+- `rtk gain` — lihat penghematan token
+- `rtk discover` — analisis riwayat untuk peluang penghematan
+
 ## Common commands
 
 ### Backend (`server/`)
@@ -113,3 +122,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - Backend email templates use `config('app.frontend_url')` for dashboard links:
   - set `FRONTEND_URL` in `server/.env` when changing frontend host/port.
+
+## Graphify knowledge graph
+
+A pre-built knowledge graph of this codebase lives in `graphify-out/`. Use `/graphify query "<question>"` to explore architecture, data flow, or relationships without reading files manually. Outputs:
+
+- `graphify-out/graph.html` — interactive graph visualization (open in browser)
+- `graphify-out/graph.json` — raw graph data (852 nodes, 1230 edges, 135 communities)
+- `graphify-out/GRAPH_REPORT.md` — audit report with god nodes, surprising connections, and suggested questions
