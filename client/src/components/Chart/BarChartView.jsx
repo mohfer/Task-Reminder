@@ -14,6 +14,7 @@ import { useChartData } from '@/hooks/useChartData';
 import { ChartStatsCards } from '@/components/Chart/ChartStatsCards';
 import { ChartTaskTable } from '@/components/Chart/ChartTaskTable';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -135,15 +136,29 @@ export const BarChartView = ({ onNavigateToTaskDate }) => {
                 isLoading={isLoading}
             />
 
-            <Card className="my-4">
-                <CardContent className="p-3 sm:p-4 sm:px-8">
-                    <div className="h-[300px] w-full sm:h-[420px]">
-                        <Bar data={data} options={options} />
-                    </div>
-                </CardContent>
-            </Card>
+            {isLoading ? (
+                <Card className="my-4">
+                    <CardContent className="p-3 sm:p-4 sm:px-8">
+                        <div className="flex h-[300px] w-full items-end justify-around gap-2 sm:h-[420px]">
+                            <Skeleton className="h-3/5 w-8 sm:w-12" />
+                            <Skeleton className="h-4/5 w-8 sm:w-12" />
+                            <Skeleton className="h-2/5 w-8 sm:w-12" />
+                            <Skeleton className="h-3/4 w-8 sm:w-12" />
+                            <Skeleton className="h-1/2 w-8 sm:w-12" />
+                        </div>
+                    </CardContent>
+                </Card>
+            ) : (
+                <Card className="my-4">
+                    <CardContent className="p-3 sm:p-4 sm:px-8">
+                        <div className="h-[300px] w-full sm:h-[420px]">
+                            <Bar data={data} options={options} />
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
 
-            <ChartTaskTable rows={tableRows} onRowClick={onNavigateToTaskDate} />
+            <ChartTaskTable rows={tableRows} isLoading={isLoading} onRowClick={onNavigateToTaskDate} />
         </>
     );
 };

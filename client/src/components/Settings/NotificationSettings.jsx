@@ -28,17 +28,14 @@ export const NotificationSettings = ({
     telegramChatId,
     taskCreated,
     taskCompleted,
-    monitoringUrl,
     onNotifyChange,
     onNotificationChannelChange,
     onTelegramChatIdSave,
     onTestNotification,
     onTaskCreatedToggle,
     onTaskCompletedToggle,
-    onMonitoringUrlSave,
 }) => {
     const [chatIdInput, setChatIdInput] = useState('');
-    const [monitoringUrlInput, setMonitoringUrlInput] = useState('');
     const needsTelegramChatId = notificationChannel === 'telegram' || notificationChannel === 'both';
     const isTestDisabled = isMutating || (needsTelegramChatId && chatIdInput.trim() === '');
 
@@ -46,161 +43,135 @@ export const NotificationSettings = ({
         setChatIdInput(telegramChatId || '');
     }, [telegramChatId]);
 
-    useEffect(() => {
-        setMonitoringUrlInput(monitoringUrl || '');
-    }, [monitoringUrl]);
-
     return (
         <Card className="my-4">
             <CardContent className="p-6">
-                {isLoading ? (
-                    <div className="space-y-4">
-                        <Skeleton className="h-16 w-full" />
-                        <Skeleton className="h-20 w-full" />
-                        <Skeleton className="h-16 w-full" />
-                        <Skeleton className="h-16 w-full" />
-                        <Skeleton className="h-16 w-full" />
+                <div className="flex flex-col gap-3">
+                    <div>
+                        <p className="text-lg">Notification Channel</p>
+                        <span className="text-muted-foreground">
+                            Choose where reminders are sent.
+                        </span>
                     </div>
-                ) : (
-                    <>
-                        <div className="flex flex-col gap-3">
-                            <div>
-                                <p className="text-lg">Notification Channel</p>
-                                <span className="text-muted-foreground">
-                                    Choose where reminders are sent.
-                                </span>
-                            </div>
 
-                            <div className="grid grid-cols-3 gap-2 sm:max-w-sm">
-                                {CHANNEL_OPTIONS.map((option) => (
-                                    <Button
-                                        key={option.value}
-                                        type="button"
-                                        variant={notificationChannel === option.value ? 'default' : 'outline'}
-                                        onClick={() => onNotificationChannelChange(option.value)}
-                                        disabled={isMutating}
-                                    >
-                                        {option.label}
-                                    </Button>
-                                ))}
-                            </div>
+                    <div className="grid grid-cols-3 gap-2 sm:max-w-sm">
+                        {CHANNEL_OPTIONS.map((option) => (
+                            <Button
+                                key={option.value}
+                                type="button"
+                                variant={isLoading ? 'outline' : notificationChannel === option.value ? 'default' : 'outline'}
+                                onClick={() => onNotificationChannelChange(option.value)}
+                                disabled={isMutating || isLoading}
+                            >
+                                {option.label}
+                            </Button>
+                        ))}
+                    </div>
 
-                            <div className="space-y-2">
-                                <div className="flex flex-col gap-2 sm:flex-row">
-                                    <Input
-                                        placeholder="Telegram Chat ID"
-                                        value={chatIdInput}
-                                        onChange={(event) => setChatIdInput(event.target.value)}
-                                        disabled={isMutating}
-                                    />
-                                    <Button
-                                        type="button"
-                                        onClick={() => onTelegramChatIdSave(chatIdInput)}
-                                        disabled={isMutating || chatIdInput.trim() === telegramChatId?.trim()}
-                                    >
-                                        Save
-                                    </Button>
-                                </div>
-                                <p className="text-sm text-muted-foreground">
-                                    Set Telegram chat ID first, then switch channel to Telegram or Both.
-                                </p>
-                            </div>
-
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                                <Button
-                                    type="button"
-                                    variant="secondary"
-                                    onClick={onTestNotification}
-                                    disabled={isTestDisabled}
-                                >
-                                    Send Test Notification
-                                </Button>
-                                <p className="text-sm text-muted-foreground">
-                                    Sends a dummy message to your active channel selection.
-                                </p>
-                            </div>
-                        </div>
-
-                        <Separator className="my-4" />
-
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <p className="text-lg">Deadline Notification</p>
-                                <span className="text-muted-foreground">
-                                    Display a notification when the task is approaching the due date.
-                                </span>
-                            </div>
-
-                            <Select value={notify} onValueChange={onNotifyChange}>
-                                <SelectTrigger className="w-[170px]" disabled={isMutating}>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {DEADLINES.map((deadline) => (
-                                        <SelectItem key={deadline} value={deadline}>
-                                            {deadline}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <Separator className="my-4" />
-
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <p className="text-lg">Task Created Notification</p>
-                                <span className="text-muted-foreground">
-                                    Display a notification when the task is successfully created.
-                                </span>
-                            </div>
-                            <div className="w-[108px] text-center">
-                                <Switch checked={taskCreated === 1} onCheckedChange={onTaskCreatedToggle} disabled={isMutating} />
-                            </div>
-                        </div>
-
-                        <Separator className="my-4" />
-
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <p className="text-lg">Task Completed Notification</p>
-                                <span className="text-muted-foreground">
-                                    Display a notification when the task is successfully completed.
-                                </span>
-                            </div>
-                            <div className="w-[108px] text-center">
-                                <Switch checked={taskCompleted === 1} onCheckedChange={onTaskCompletedToggle} disabled={isMutating} />
-                            </div>
-                        </div>
-
-                        <Separator className="my-4" />
-
-                        <div className="space-y-2">
-                            <div>
-                                <p className="text-lg">Monitoring URL</p>
-                                <span className="text-muted-foreground">
-                                    Default URL for monitoring-akademik-siakang sync.
-                                </span>
-                            </div>
-
-                            <div className="flex flex-col gap-2 sm:flex-row">
+                    <div className="space-y-2">
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                            {isLoading ? (
+                                <Skeleton className="h-10 w-full" />
+                            ) : (
                                 <Input
-                                    placeholder="http://192.168.1.180:3003/api"
-                                    value={monitoringUrlInput}
-                                    onChange={(event) => setMonitoringUrlInput(event.target.value)}
+                                    placeholder="Telegram Chat ID"
+                                    value={chatIdInput}
+                                    onChange={(event) => setChatIdInput(event.target.value)}
                                     disabled={isMutating}
                                 />
-                                <Button
-                                    type="button"
-                                    onClick={() => onMonitoringUrlSave(monitoringUrlInput)}
-                                    disabled={isMutating || monitoringUrlInput.trim() === (monitoringUrl || '').trim()}
-                                >
-                                    Save
-                                </Button>
-                            </div>
+                            )}
+                            <Button
+                                type="button"
+                                onClick={() => onTelegramChatIdSave(chatIdInput)}
+                                disabled={isMutating || isLoading}
+                            >
+                                Save
+                            </Button>
                         </div>
-                    </>
-                )}
+                        <p className="text-sm text-muted-foreground">
+                            Set Telegram chat ID first, then switch channel to Telegram or Both.
+                        </p>
+                    </div>
+
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={onTestNotification}
+                            disabled={isTestDisabled}
+                        >
+                            Send Test Notification
+                        </Button>
+                        <p className="text-sm text-muted-foreground">
+                            Sends a dummy message to your active channel selection.
+                        </p>
+                    </div>
+                </div>
+
+                <Separator className="my-4" />
+
+                <div className="flex items-start justify-between gap-4">
+                    <div>
+                        <p className="text-lg">Deadline Notification</p>
+                        <span className="text-muted-foreground">
+                            Display a notification when the task is approaching the due date.
+                        </span>
+                    </div>
+
+                    {isLoading ? (
+                        <Skeleton className="h-10 w-[170px]" />
+                    ) : (
+                        <Select value={notify} onValueChange={onNotifyChange}>
+                            <SelectTrigger className="w-[170px]" disabled={isMutating}>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {DEADLINES.map((deadline) => (
+                                    <SelectItem key={deadline} value={deadline}>
+                                        {deadline}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    )}
+                </div>
+
+                <Separator className="my-4" />
+
+                <div className="flex items-start justify-between gap-4">
+                    <div>
+                        <p className="text-lg">Task Created Notification</p>
+                        <span className="text-muted-foreground">
+                            Display a notification when the task is successfully created.
+                        </span>
+                    </div>
+                    <div className="w-[108px] text-center">
+                        {isLoading ? (
+                            <Skeleton className="mx-auto h-6 w-11 rounded-full" />
+                        ) : (
+                            <Switch checked={taskCreated === 1} onCheckedChange={onTaskCreatedToggle} disabled={isMutating} />
+                        )}
+                    </div>
+                </div>
+
+                <Separator className="my-4" />
+
+                <div className="flex items-start justify-between gap-4">
+                    <div>
+                        <p className="text-lg">Task Completed Notification</p>
+                        <span className="text-muted-foreground">
+                            Display a notification when the task is successfully completed.
+                        </span>
+                    </div>
+                    <div className="w-[108px] text-center">
+                        {isLoading ? (
+                            <Skeleton className="mx-auto h-6 w-11 rounded-full" />
+                        ) : (
+                            <Switch checked={taskCompleted === 1} onCheckedChange={onTaskCompletedToggle} disabled={isMutating} />
+                        )}
+                    </div>
+                </div>
+
             </CardContent>
         </Card>
     );

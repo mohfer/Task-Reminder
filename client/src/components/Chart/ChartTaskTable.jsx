@@ -11,6 +11,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Card, CardContent } from '@/components/ui/card';
+import { LoadingTable } from '@/components/shared/LoadingTable';
 import { cn } from '@/lib/utils';
 import { compareValues, getDeadlineBadgeClass } from '@/lib/tableUtils';
 
@@ -35,7 +36,7 @@ const getSortValue = (item, key) => {
     }
 };
 
-export const ChartTaskTable = ({ rows, onRowClick }) => {
+export const ChartTaskTable = ({ rows, onRowClick, isLoading = false }) => {
     const [sortConfig, setSortConfig] = useState({ key: 'deadline', direction: 'asc' });
 
     const sortedRows = useMemo(() => {
@@ -103,7 +104,9 @@ export const ChartTaskTable = ({ rows, onRowClick }) => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {sortedRows.length === 0 ? (
+                        {isLoading ? (
+                            <LoadingTable rows={5} columns={8} />
+                        ) : sortedRows.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={8} className="text-center">
                                     No task data is available.

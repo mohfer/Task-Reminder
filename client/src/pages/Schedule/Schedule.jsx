@@ -3,7 +3,6 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { WeeklySchedule } from '@/components/Schedule/WeeklySchedule';
 import { useCourseContents } from '@/hooks/useCourseContents';
 import useSemesterStore from '@/store/useSemesterStore';
-import { Skeleton } from '@/components/ui/skeleton';
 
 const Schedule = () => {
     const selectedSemester = useSemesterStore((state) => state.semester);
@@ -15,14 +14,7 @@ const Schedule = () => {
 
     return (
         <AppLayout title="Schedule">
-            {isLoading ? (
-                <div className="space-y-3">
-                    <Skeleton className="h-10 w-64" />
-                    <Skeleton className="h-[520px] w-full" />
-                </div>
-            ) : (
-                <WeeklySchedule courseContents={courseContents} />
-            )}
+            <WeeklySchedule courseContents={courseContents} isLoading={isLoading} />
         </AppLayout>
     );
 };

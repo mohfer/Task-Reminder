@@ -20,7 +20,6 @@ export const SettingsView = () => {
         testNotification,
         toggleTaskCreatedNotification,
         toggleTaskCompletedNotification,
-        updateMonitoringUrl,
         updateProfile,
         changePassword,
     } = useSettings();
@@ -49,7 +48,6 @@ export const SettingsView = () => {
                         telegramChatId={settings?.telegram_chat_id || ''}
                         taskCreated={Number(settings?.task_created_notification || 0)}
                         taskCompleted={Number(settings?.task_completed_notification || 0)}
-                        monitoringUrl={settings?.monitoring_url || ''}
                         onNotifyChange={updateDeadlineNotification}
                         onNotificationChannelChange={updateNotificationChannel}
                         onTelegramChatIdSave={updateTelegramChatId}
@@ -60,7 +58,6 @@ export const SettingsView = () => {
                         onTaskCompletedToggle={() =>
                             toggleTaskCompletedNotification(Number(settings?.task_completed_notification || 0) === 1 ? 0 : 1)
                         }
-                        onMonitoringUrlSave={updateMonitoringUrl}
                     />
                 </TabsContent>
 
@@ -70,8 +67,8 @@ export const SettingsView = () => {
 
                 <TabsContent value="profile">
                     <div className="my-4 flex flex-col gap-4 lg:flex-row">
-                        <ProfileForm userData={userData} isLoading={isLoading} isMutating={isMutating} onSubmit={updateProfile} />
-                        <PasswordForm isLoading={isLoading} isMutating={isMutating} onSubmit={changePassword} />
+                        <ProfileForm userData={userData} isLoading={isLoading} onSubmit={updateProfile} />
+                        <PasswordForm onSubmit={changePassword} />
                     </div>
                 </TabsContent>
             </Tabs>

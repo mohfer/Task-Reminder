@@ -15,7 +15,7 @@ import {
 
 const ROW_HEIGHT = 52;
 
-export const WeeklySchedule = ({ courseContents = [], language = 'en' }) => {
+export const WeeklySchedule = ({ courseContents = [], language = 'en', isLoading = false }) => {
     const [weekOffset, setWeekOffset] = useState(0);
     const labels = useMemo(() => getScheduleLabels(language), [language]);
     const days = labels.days;
@@ -24,7 +24,7 @@ export const WeeklySchedule = ({ courseContents = [], language = 'en' }) => {
     const slots = useMemo(() => generateTimeSlots(GRID_START_MINUTES, GRID_END_MINUTES), []);
     const groupedCourses = useMemo(() => groupByDay(courseContents, days), [courseContents, days]);
 
-    if (!courseContents.length) {
+    if (!isLoading && !courseContents.length) {
         return (
             <Card>
                 <CardContent className="p-4 text-sm text-muted-foreground">
@@ -63,6 +63,7 @@ export const WeeklySchedule = ({ courseContents = [], language = 'en' }) => {
                                         start: GRID_START_MINUTES,
                                         end: GRID_END_MINUTES,
                                     }}
+                                    isLoading={isLoading}
                                 />
                             ))}
                         </div>

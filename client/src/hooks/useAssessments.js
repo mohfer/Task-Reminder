@@ -46,10 +46,10 @@ export const useAssessments = (selectedSemester) => {
     );
 
     const syncScores = useCallback(
-        async (sourceUrl, taskId) => {
+        async (taskId) => {
             try {
                 setIsMutating(true);
-                const response = await assessmentApi.sync({ source_url: sourceUrl, task_id: taskId }, selectedSemester);
+                const response = await assessmentApi.sync(taskId, selectedSemester);
                 toast.success(response.data.message);
                 await fetchAssessments(selectedSemester, false);
                 return { success: true, data: response.data.data };

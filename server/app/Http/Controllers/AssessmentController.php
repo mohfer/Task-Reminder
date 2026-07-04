@@ -35,7 +35,6 @@ class AssessmentController
     public function sync(Request $request)
     {
         $request->validate([
-            'source_url' => ['required', 'string', 'regex:/^https?:\/\/.+/i'],
             'task_id' => 'required|integer|min:1',
             'semester' => 'nullable|string',
         ]);
@@ -43,7 +42,6 @@ class AssessmentController
         try {
             $result = $this->assessmentService->syncFromMonitoring(
                 $request->user()->id,
-                rtrim($request->source_url, '/'),
                 (int) $request->task_id,
                 $request->semester
             );
@@ -52,5 +50,16 @@ class AssessmentController
         }
 
         return $this->sendResponse($result, "{$result['updated']} scores updated, " . count($result['skipped']) . " skipped");
+    }
+
+    public function monitoringTasks(Request $request)
+    {
+        try {
+            $tasks = $this->assessmentService->getMonitoringTasks($request->user()->id);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 502);
+        }
+
+        return $this->sendResponse($tasks, 'Monitoring tasks retrieved');
     }
 }

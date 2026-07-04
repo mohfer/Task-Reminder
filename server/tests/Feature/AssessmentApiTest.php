@@ -91,6 +91,7 @@ test('update endpoint returns 404 for another users course', function () {
 // ─── POST /api/assessments/sync ───
 
 test('sync endpoint updates scores from monitoring data and returns result', function () {
+    config(['app.monitoring_url' => 'http://localhost:8000']);
     Http::fake([
         'http://localhost:8000/tasks/1/data' => Http::response([
             'code' => 200,
@@ -106,7 +107,6 @@ test('sync endpoint updates scores from monitoring data and returns result', fun
     CourseContent::create(['semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus I', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
 
     $response = $this->postJson('/api/assessments/sync', [
-        'source_url' => 'http://localhost:8000',
         'task_id' => 1,
     ]);
 
@@ -118,26 +118,15 @@ test('sync endpoint updates scores from monitoring data and returns result', fun
     expect((float) CourseContent::first()->score)->toBe(85.0);
 });
 
-test('sync endpoint validates required fields', function () {
+test('sync endpoint requires task_id', function () {
     $response = $this->postJson('/api/assessments/sync', []);
 
     $response->assertStatus(422)
-        ->assertJsonPath('message', fn($msg) => str_contains($msg, 'The source url field is required'));
-});
-
-test('sync endpoint validates source_url is a valid URL', function () {
-    $response = $this->postJson('/api/assessments/sync', [
-        'source_url' => 'not-a-url',
-        'task_id' => 1,
-    ]);
-
-    $response->assertStatus(422)
-        ->assertJsonPath('message', fn($msg) => str_contains($msg, 'source url'));
+        ->assertJsonPath('message', fn($msg) => str_contains($msg, 'The task id field is required'));
 });
 
 test('sync endpoint validates task_id is a positive integer', function () {
     $response = $this->postJson('/api/assessments/sync', [
-        'source_url' => 'http://localhost:8000',
         'task_id' => 0,
     ]);
 
@@ -146,12 +135,12 @@ test('sync endpoint validates task_id is a positive integer', function () {
 });
 
 test('sync endpoint returns error when monitoring API is unreachable', function () {
+    config(['app.monitoring_url' => 'http://localhost:8000']);
     Http::fake([
         'http://localhost:8000/*' => Http::response('Server Error', 500),
     ]);
 
     $response = $this->postJson('/api/assessments/sync', [
-        'source_url' => 'http://localhost:8000',
         'task_id' => 1,
     ]);
 
@@ -160,6 +149,7 @@ test('sync endpoint returns error when monitoring API is unreachable', function 
 });
 
 test('sync endpoint passes semester to filter matching courses', function () {
+    config(['app.monitoring_url' => 'http://localhost:8000']);
     Http::fake([
         'http://localhost:8000/tasks/1/data' => Http::response([
             'code' => 200,
@@ -177,7 +167,6 @@ test('sync endpoint passes semester to filter matching courses', function () {
     CourseContent::create(['semester' => 'Semester 4', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
 
     $response = $this->postJson('/api/assessments/sync', [
-        'source_url' => 'http://localhost:8000',
         'task_id' => 1,
         'semester' => 'Semester 4',
     ]);

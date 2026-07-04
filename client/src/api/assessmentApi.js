@@ -6,5 +6,9 @@ export const assessmentApi = {
 
     update: (id, data) => axiosInstance.patch(`/assessments/${id}`, data),
 
-    sync: (data, semester) => axiosInstance.post('/assessments/sync', { ...data, semester }),
+    sync: (taskId, semester) =>
+        axiosInstance.post('/assessments/sync', { task_id: taskId, semester }),
+
+    getMonitoringTasks: () =>
+        axiosInstance.get('/assessments/monitoring-tasks'),
 };

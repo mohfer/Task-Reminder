@@ -109,6 +109,7 @@ export const DashboardView = () => {
                     <TaskMonthCalendar
                         tasks={tasks}
                         selectedDate={selectedDate}
+                        isLoading={isLoading}
                         onDateSelect={(date) => {
                             setSelectedDate(date);
                             setSelectedMonth(date.getMonth());
@@ -123,6 +124,7 @@ export const DashboardView = () => {
                     {selectedDate ? (
                         <TaskDateTable
                             tasks={tasksForDate}
+                            isLoading={isLoading}
                             onStatusChange={updateTaskStatus}
                             onEdit={handleOpenEdit}
                             onDelete={(id) => {

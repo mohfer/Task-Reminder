@@ -1,8 +1,6 @@
 import axiosInstance from './axiosInstance';
 
 export const settingsApi = {
-    getSettings: () => axiosInstance.get('/settings'),
-
     updateDeadlineNotification: (data) =>
         axiosInstance.put('/settings/deadline-notification', data),
 
@@ -21,6 +19,4 @@ export const settingsApi = {
     updateTaskCompletedNotification: (data) =>
         axiosInstance.patch('/settings/task-completed-notification', data),
 
-    updateMonitoringUrl: (data) =>
-        axiosInstance.put('/settings/monitoring-url', data),
 };

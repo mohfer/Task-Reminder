@@ -1,4 +1,5 @@
 import { format, isToday } from 'date-fns';
+import { Skeleton } from '@/components/ui/skeleton';
 import { ScheduleCourseBlock } from '@/components/Schedule/ScheduleCourseBlock';
 import { cn } from '@/lib/utils';
 import {
@@ -18,6 +19,7 @@ export const ScheduleDayColumn = ({
     timeRange,
     slots,
     language,
+    isLoading = false,
 }) => {
     const totalHeight = (slots.length - 1) * rowHeight;
     const dateLocale = getDateLocale(language);
@@ -86,7 +88,22 @@ export const ScheduleDayColumn = ({
                     />
                 ))}
 
-                {positionedCourses.map((course) => (
+                {isLoading ? (
+                    <>
+                        <div className="absolute left-1 right-1 rounded-md border border-primary/10 bg-primary/5 p-2" style={{ top: '10%', height: '12%' }}>
+                            <Skeleton className="mb-1 h-3 w-20" />
+                            <Skeleton className="h-3 w-32" />
+                        </div>
+                        <div className="absolute left-1 right-1 rounded-md border border-primary/10 bg-primary/5 p-2" style={{ top: '35%', height: '12%' }}>
+                            <Skeleton className="mb-1 h-3 w-20" />
+                            <Skeleton className="h-3 w-28" />
+                        </div>
+                        <div className="absolute left-1 right-1 rounded-md border border-primary/10 bg-primary/5 p-2" style={{ top: '60%', height: '12%' }}>
+                            <Skeleton className="mb-1 h-3 w-20" />
+                            <Skeleton className="h-3 w-36" />
+                        </div>
+                    </>
+                ) : positionedCourses.map((course) => (
                     <ScheduleCourseBlock
                         key={course.id}
                         course={course}

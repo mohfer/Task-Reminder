@@ -43,7 +43,7 @@ export const CourseContentView = () => {
                     <Plus className="mr-2 h-4 w-4" /> New Course Content
                 </Button>
 
-                <Button onClick={excelDialog.open}>
+                <Button variant="outline" onClick={excelDialog.open}>
                     <Import className="mr-2 h-4 w-4" /> Excel
                 </Button>
             </div>

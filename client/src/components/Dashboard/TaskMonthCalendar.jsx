@@ -17,11 +17,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 
 const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
-export const TaskMonthCalendar = ({ tasks = [], selectedDate, onDateSelect, onMonthChange }) => {
+export const TaskMonthCalendar = ({ tasks = [], selectedDate, onDateSelect, onMonthChange, isLoading = false }) => {
     const [currentMonth, setCurrentMonth] = useState(() => new Date());
     const todayStart = startOfDay(new Date());
 
@@ -141,7 +142,12 @@ export const TaskMonthCalendar = ({ tasks = [], selectedDate, onDateSelect, onMo
                                     </div>
 
                                     <div className="mt-1 flex flex-col gap-0.5 overflow-hidden">
-                                        {dayTasks.slice(0, 3).map((task) => {
+                                        {isLoading ? (
+                                            <>
+                                                <Skeleton className="h-4 w-full rounded-sm" />
+                                                <Skeleton className="h-4 w-3/4 rounded-sm" />
+                                            </>
+                                        ) : dayTasks.slice(0, 3).map((task) => {
                                             const deadlineDate = new Date(task.deadline);
                                             const isOverdue =
                                                 Number(task.status) !== 1 &&
@@ -168,7 +174,7 @@ export const TaskMonthCalendar = ({ tasks = [], selectedDate, onDateSelect, onMo
                                                 </Badge>
                                             );
                                         })}
-                                        {dayTasks.length > 3 ? (
+                                        {!isLoading && dayTasks.length > 3 ? (
                                             <span className="px-1 text-[10px] text-muted-foreground">
                                                 +{dayTasks.length - 3} more
                                             </span>

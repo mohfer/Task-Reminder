@@ -12,6 +12,7 @@ uses(Tests\TestCase::class, RefreshDatabase::class);
 beforeEach(function () {
     $this->user = User::factory()->create();
     $this->service = new AssessmentService();
+    config(['app.monitoring_url' => 'http://localhost:8000']);
 });
 
 // ─── calculateGpa ───
@@ -119,7 +120,7 @@ test('syncFromMonitoring updates matching course scores from monitoring data', f
     CourseContent::create(['semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus I', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
     CourseContent::create(['semester' => '2024/2025 Ganjil', 'code' => 'MK002', 'course_content' => 'Fisika I', 'credits' => 2, 'lecturer' => 'B', 'day' => 'Selasa', 'hour_start' => '10:00', 'hour_end' => '12:00', 'score' => null, 'user_id' => $this->user->id]);
 
-    $result = $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1);
+    $result = $this->service->syncFromMonitoring($this->user->id, 1);
 
     expect($result['updated'])->toBe(2);
     expect($result['skipped'])->toBeEmpty();
@@ -140,7 +141,7 @@ test('syncFromMonitoring skips courses with non-numeric grades', function () {
 
     CourseContent::create(['semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus I', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
 
-    $result = $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1);
+    $result = $this->service->syncFromMonitoring($this->user->id, 1);
 
     expect($result['updated'])->toBe(0);
     expect($result['skipped'])->toContain('Kalkulus I');
@@ -159,7 +160,7 @@ test('syncFromMonitoring skips courses with placeholder dashes', function () {
 
     CourseContent::create(['semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus I', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
 
-    $result = $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1);
+    $result = $this->service->syncFromMonitoring($this->user->id, 1);
 
     expect($result['updated'])->toBe(0);
     expect($result['skipped'])->toContain('Kalkulus I');
@@ -176,7 +177,7 @@ test('syncFromMonitoring skips courses not found in user course_contents', funct
         ], 200),
     ]);
 
-    $result = $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1);
+    $result = $this->service->syncFromMonitoring($this->user->id, 1);
 
     expect($result['updated'])->toBe(0);
     expect($result['skipped'])->toContain('Statistika');
@@ -195,7 +196,7 @@ test('syncFromMonitoring matches courses case-insensitively', function () {
 
     CourseContent::create(['semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus I', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
 
-    $result = $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1);
+    $result = $this->service->syncFromMonitoring($this->user->id, 1);
 
     expect($result['updated'])->toBe(1);
 });
@@ -205,7 +206,7 @@ test('syncFromMonitoring throws when monitoring API returns error', function () 
         'http://localhost:8000/tasks/1/data' => Http::response('Not Found', 404),
     ]);
 
-    $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1);
+    $this->service->syncFromMonitoring($this->user->id, 1);
 })->throws(\Exception::class, 'Failed to fetch');
 
 test('syncFromMonitoring throws when response has no nilai array', function () {
@@ -215,7 +216,7 @@ test('syncFromMonitoring throws when response has no nilai array', function () {
         ], 200),
     ]);
 
-    $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1);
+    $this->service->syncFromMonitoring($this->user->id, 1);
 })->throws(\Exception::class, 'No grade data');
 
 test('syncFromMonitoring filters by active semester and ignores other semesters', function () {
@@ -236,7 +237,7 @@ test('syncFromMonitoring filters by active semester and ignores other semesters'
     CourseContent::create(['semester' => 'Semester 4', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
 
     // Sync only Semester 4 (active semester)
-    $result = $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1, 'Semester 4');
+    $result = $this->service->syncFromMonitoring($this->user->id, 1, 'Semester 4');
 
     expect($result['updated'])->toBe(1);
 
@@ -265,7 +266,7 @@ test('syncFromMonitoring syncs across all semesters when no semester filter give
     CourseContent::create(['semester' => 'Semester 3', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
 
     // No semester filter — matches the first (and only) one
-    $result = $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1);
+    $result = $this->service->syncFromMonitoring($this->user->id, 1);
 
     expect($result['updated'])->toBe(1);
 });
@@ -283,7 +284,7 @@ test('syncFromMonitoring matches by stripped course name ignoring parenthetical 
 
     CourseContent::create(['semester' => 'Semester 4', 'code' => 'INF622208', 'course_content' => 'Sistem Terdistribusi (C)', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
 
-    $result = $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1, 'Semester 4');
+    $result = $this->service->syncFromMonitoring($this->user->id, 1, 'Semester 4');
 
     expect($result['updated'])->toBe(1);
 });
@@ -299,7 +300,7 @@ test('syncFromMonitoring handles response without data wrapper', function () {
 
     CourseContent::create(['semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
 
-    $result = $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1);
+    $result = $this->service->syncFromMonitoring($this->user->id, 1);
 
     expect($result['updated'])->toBe(1);
 });
@@ -319,7 +320,7 @@ test('syncFromMonitoring skips when no course matches within filtered semester',
     CourseContent::create(['semester' => 'Semester 3', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
 
     // Sync for Semester 4 — no matching course there
-    $result = $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1, 'Semester 4');
+    $result = $this->service->syncFromMonitoring($this->user->id, 1, 'Semester 4');
 
     expect($result['updated'])->toBe(0);
     expect($result['skipped'])->toContain('Jaringan Komputer');

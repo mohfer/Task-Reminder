@@ -91,21 +91,6 @@ class SettingsController
         return $this->sendResponse($setting, 'Task created notification updated successfully');
     }
 
-    public function monitoringUrl(Request $request)
-    {
-        $request->validate([
-            'monitoring_url' => ['nullable', 'string', 'max:255', 'regex:/^https?:\/\/.+/i'],
-        ]);
-
-        try {
-            $setting = $this->settingsService->updateMonitoringUrl($request->user()->id, $request->input('monitoring_url'));
-        } catch (\Exception $e) {
-            return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 422);
-        }
-
-        return $this->sendResponse($setting, 'Monitoring URL updated successfully');
-    }
-
     public function taskCompletedNotification(Request $request)
     {
         try {

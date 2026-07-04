@@ -6,10 +6,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getFieldError } from '@/lib/formUtils';
 
-export const ProfileForm = ({ userData, isLoading, isMutating, onSubmit }) => {
+export const ProfileForm = ({ userData, isLoading, onSubmit }) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [errors, setErrors] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         setName(userData?.name || '');
@@ -18,12 +19,17 @@ export const ProfileForm = ({ userData, isLoading, isMutating, onSubmit }) => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const result = await onSubmit({ name, email });
-        if (result.success) {
-            setErrors({});
-            return;
+        setIsSubmitting(true);
+        try {
+            const result = await onSubmit({ name, email });
+            if (result.success) {
+                setErrors({});
+                return;
+            }
+            setErrors(result.errors || {});
+        } finally {
+            setIsSubmitting(false);
         }
-        setErrors(result.errors || {});
     };
 
     return (
@@ -33,28 +39,27 @@ export const ProfileForm = ({ userData, isLoading, isMutating, onSubmit }) => {
                 <CardDescription>Update your account profile information and email address.</CardDescription>
             </CardHeader>
             <CardContent>
-
-                {isLoading ? (
-                    <div className="space-y-3">
-                        <Skeleton className="h-10 w-full" />
-                        <Skeleton className="h-10 w-full" />
-                        <Skeleton className="h-10 w-24" />
-                    </div>
-                ) : (
-                    <form className="space-y-4" onSubmit={handleSubmit}>
-                        <FormField label="Name" error={getFieldError(errors, 'name')}>
+                <form className="space-y-4" onSubmit={handleSubmit}>
+                    <FormField label="Name" error={getFieldError(errors, 'name')}>
+                        {isLoading ? (
+                            <Skeleton className="h-10 w-full" />
+                        ) : (
                             <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Enter your name" />
-                        </FormField>
+                        )}
+                    </FormField>
 
-                        <FormField label="Email" error={getFieldError(errors, 'email')}>
+                    <FormField label="Email" error={getFieldError(errors, 'email')}>
+                        {isLoading ? (
+                            <Skeleton className="h-10 w-full" />
+                        ) : (
                             <Input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Enter your email" />
-                        </FormField>
+                        )}
+                    </FormField>
 
-                        <Button type="submit" disabled={isMutating}>
-                            {isMutating ? 'Saving...' : 'Save'}
-                        </Button>
-                    </form>
-                )}
+                    <Button type="submit" disabled={isSubmitting || isLoading}>
+                        {isSubmitting ? 'Saving...' : 'Save'}
+                    </Button>
+                </form>
             </CardContent>
         </Card>
     );

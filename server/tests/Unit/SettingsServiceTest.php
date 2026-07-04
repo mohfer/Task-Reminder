@@ -139,26 +139,6 @@ test('toggleTaskCompletedNotification flips from 1 to 0', function () {
     expect($result->task_completed_notification)->toBe(0);
 });
 
-// ─── updateMonitoringUrl ───
-
-test('updateMonitoringUrl sets trimmed url', function () {
-    $result = $this->service->updateMonitoringUrl($this->user->id, '  http://example.com/  ');
-
-    expect($result->monitoring_url)->toBe('http://example.com');
-});
-
-test('updateMonitoringUrl sets null when empty', function () {
-    $result = $this->service->updateMonitoringUrl($this->user->id, '');
-
-    expect($result->monitoring_url)->toBeNull();
-});
-
-test('updateMonitoringUrl strips trailing slash', function () {
-    $result = $this->service->updateMonitoringUrl($this->user->id, 'http://example.com/');
-
-    expect($result->monitoring_url)->toBe('http://example.com');
-});
-
 // ─── Settings model helpers ───
 
 test('wantsEmailChannel returns true for email and both', function () {

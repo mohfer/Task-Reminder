@@ -8,6 +8,58 @@ use Illuminate\Support\Facades\Http;
 
 class AssessmentService
 {
+    private function monitoringUrl(): string
+    {
+        $url = config('app.monitoring_url');
+
+        if (!$url) {
+            throw new \Exception('MONITORING_URL is not configured', 500);
+        }
+
+        return rtrim($url, '/');
+    }
+
+    public function getMonitoringTasks(int $userId): array
+    {
+        $url = $this->monitoringUrl();
+
+        $response = Http::timeout(10)->get("{$url}/tasks");
+
+        if (!$response->successful()) {
+            throw new \Exception("Failed to fetch tasks from monitoring API: HTTP {$response->status()}", 502);
+        }
+
+        $body = $response->json();
+        $data = $body['data'] ?? $body;
+        $tasks = is_array($data) ? $data : [];
+
+        $user = \App\Models\User::find($userId);
+
+        return array_values(array_filter($tasks, function ($task) use ($user) {
+            if (($task['monitor_type'] ?? '') !== 'nilai') {
+                return false;
+            }
+
+            if (!$user) {
+                return true;
+            }
+
+            $userWords = array_filter(explode(' ', strtolower($user->name)));
+            $taskName = strtolower($task['name'] ?? '');
+            $taskNamePart = trim(explode('-', $taskName)[0]);
+            $taskWords = explode(' ', $taskNamePart);
+
+            foreach ($userWords as $userWord) {
+                foreach ($taskWords as $taskWord) {
+                    if (str_contains($userWord, $taskWord) || str_contains($taskWord, $userWord)) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }));
+    }
     public function calculateGpa(int $userId, ?string $selectedSemester): array
     {
         $grades = Grade::where('user_id', $userId)->get();
@@ -96,8 +148,9 @@ class AssessmentService
         return $courseContent;
     }
 
-    public function syncFromMonitoring(int $userId, string $sourceUrl, int $taskId, ?string $semester = null): array
+    public function syncFromMonitoring(int $userId, int $taskId, ?string $semester = null): array
     {
+        $sourceUrl = $this->monitoringUrl();
         $response = Http::timeout(30)->get("{$sourceUrl}/tasks/{$taskId}/data");
 
         if (!$response->successful()) {

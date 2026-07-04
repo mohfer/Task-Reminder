@@ -96,29 +96,4 @@ test('toggle task completed notification', function () {
         ->assertJsonPath('data.task_completed_notification', 0);
 });
 
-// ─── PUT /api/settings/monitoring-url ───
 
-test('update monitoring url', function () {
-    $response = $this->putJson('/api/settings/monitoring-url', [
-        'monitoring_url' => 'http://192.168.1.1:3000',
-    ]);
-
-    $response->assertOk()
-        ->assertJsonPath('data.monitoring_url', 'http://192.168.1.1:3000');
-});
-
-test('update monitoring url rejects invalid url', function () {
-    $response = $this->putJson('/api/settings/monitoring-url', [
-        'monitoring_url' => 'not-a-url',
-    ]);
-
-    $response->assertStatus(422);
-});
-
-test('monitoring url can be null', function () {
-    $response = $this->putJson('/api/settings/monitoring-url', [
-        'monitoring_url' => null,
-    ]);
-
-    $response->assertOk();
-});

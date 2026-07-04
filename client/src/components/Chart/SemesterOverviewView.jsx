@@ -9,19 +9,7 @@ import { GraduationCap, ListChecks, CheckCircle2, Clock } from 'lucide-react';
 export const SemesterOverviewView = () => {
     const { semesters, overviewData, isLoading } = useSemesterOverview();
 
-    if (isLoading) {
-        return (
-            <Card className="mt-4">
-                <CardContent className="space-y-3 p-4">
-                    <Skeleton className="h-8 w-1/3" />
-                    <Skeleton className="h-72 w-full" />
-                    <Skeleton className="h-72 w-full" />
-                </CardContent>
-            </Card>
-        );
-    }
-
-    if (!semesters.length) {
+    if (!semesters.length && !isLoading) {
         return (
             <Card className="mt-4">
                 <CardContent className="p-6 text-sm text-muted-foreground">
@@ -68,8 +56,25 @@ export const SemesterOverviewView = () => {
                 />
             </div>
 
-            <GpaTrendChart semesters={semesters} />
-            <TaskDistributionLineChart semesters={semesters} />
+            {isLoading ? (
+                <>
+                    <Card>
+                        <CardContent className="p-4">
+                            <Skeleton className="h-[300px] w-full" />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="p-4">
+                            <Skeleton className="h-[300px] w-full" />
+                        </CardContent>
+                    </Card>
+                </>
+            ) : (
+                <>
+                    <GpaTrendChart semesters={semesters} />
+                    <TaskDistributionLineChart semesters={semesters} />
+                </>
+            )}
         </div>
     );
 };
