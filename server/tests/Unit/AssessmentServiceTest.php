@@ -217,3 +217,110 @@ test('syncFromMonitoring throws when response has no nilai array', function () {
 
     $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1);
 })->throws(\Exception::class, 'No grade data');
+
+test('syncFromMonitoring filters by active semester and ignores other semesters', function () {
+    Http::fake([
+        'http://localhost:8000/tasks/1/data' => Http::response([
+            'code' => 200,
+            'message' => 'Success',
+            'data' => [
+                'nilai' => [
+                    ['matkul' => 'Jaringan Komputer', 'sks' => 3, 'nilai' => '88', 'mutu' => '4.00'],
+                ],
+            ],
+        ], 200),
+    ]);
+
+    // Same course name in two semesters
+    CourseContent::create(['semester' => 'Semester 3', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
+    CourseContent::create(['semester' => 'Semester 4', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
+
+    // Sync only Semester 4 (active semester)
+    $result = $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1, 'Semester 4');
+
+    expect($result['updated'])->toBe(1);
+
+    $semester3Course = CourseContent::where('course_content', 'Jaringan Komputer')->where('semester', 'Semester 3')->first();
+    $semester4Course = CourseContent::where('course_content', 'Jaringan Komputer')->where('semester', 'Semester 4')->first();
+
+    // Semester 3 should NOT be updated
+    expect($semester3Course->score)->toBeNull();
+    // Semester 4 should be updated
+    expect((float) $semester4Course->score)->toBe(88.0);
+});
+
+test('syncFromMonitoring syncs across all semesters when no semester filter given', function () {
+    Http::fake([
+        'http://localhost:8000/tasks/1/data' => Http::response([
+            'code' => 200,
+            'message' => 'Success',
+            'data' => [
+                'nilai' => [
+                    ['matkul' => 'Jaringan Komputer', 'sks' => 3, 'nilai' => '90', 'mutu' => '4.00'],
+                ],
+            ],
+        ], 200),
+    ]);
+
+    CourseContent::create(['semester' => 'Semester 3', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
+
+    // No semester filter — matches the first (and only) one
+    $result = $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1);
+
+    expect($result['updated'])->toBe(1);
+});
+
+test('syncFromMonitoring matches by stripped course name ignoring parenthetical codes', function () {
+    Http::fake([
+        'http://localhost:8000/tasks/1/data' => Http::response([
+            'data' => [
+                'nilai' => [
+                    ['matkul' => 'Sistem Terdistribusi (INF622208)', 'sks' => 3, 'nilai' => '82', 'mutu' => '4.00'],
+                ],
+            ],
+        ], 200),
+    ]);
+
+    CourseContent::create(['semester' => 'Semester 4', 'code' => 'INF622208', 'course_content' => 'Sistem Terdistribusi (C)', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
+
+    $result = $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1, 'Semester 4');
+
+    expect($result['updated'])->toBe(1);
+});
+
+test('syncFromMonitoring handles response without data wrapper', function () {
+    Http::fake([
+        'http://localhost:8000/tasks/1/data' => Http::response([
+            'nilai' => [
+                ['matkul' => 'Kalkulus', 'sks' => 3, 'nilai' => '80', 'mutu' => '4.00'],
+            ],
+        ], 200),
+    ]);
+
+    CourseContent::create(['semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
+
+    $result = $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1);
+
+    expect($result['updated'])->toBe(1);
+});
+
+test('syncFromMonitoring skips when no course matches within filtered semester', function () {
+    Http::fake([
+        'http://localhost:8000/tasks/1/data' => Http::response([
+            'data' => [
+                'nilai' => [
+                    ['matkul' => 'Jaringan Komputer', 'sks' => 3, 'nilai' => '88', 'mutu' => '4.00'],
+                ],
+            ],
+        ], 200),
+    ]);
+
+    // Course exists but only in Semester 3
+    CourseContent::create(['semester' => 'Semester 3', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
+
+    // Sync for Semester 4 — no matching course there
+    $result = $this->service->syncFromMonitoring($this->user->id, 'http://localhost:8000', 1, 'Semester 4');
+
+    expect($result['updated'])->toBe(0);
+    expect($result['skipped'])->toContain('Jaringan Komputer');
+});

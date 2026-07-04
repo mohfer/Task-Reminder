@@ -96,7 +96,7 @@ class AssessmentService
         return $courseContent;
     }
 
-    public function syncFromMonitoring(int $userId, string $sourceUrl, int $taskId): array
+    public function syncFromMonitoring(int $userId, string $sourceUrl, int $taskId, ?string $semester = null): array
     {
         $response = Http::timeout(30)->get("{$sourceUrl}/tasks/{$taskId}/data");
 
@@ -114,7 +114,9 @@ class AssessmentService
         }
 
         $grades = Grade::where('user_id', $userId)->get();
-        $userCourses = CourseContent::where('user_id', $userId)->get();
+        $userCourses = CourseContent::where('user_id', $userId)
+            ->when($semester, fn ($q) => $q->where('semester', $semester))
+            ->get();
 
         $updated = 0;
         $skipped = [];

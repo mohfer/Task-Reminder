@@ -47,6 +47,7 @@
 .vscode/*
 .agents
 .omc
+.opencode
 !.vscode/extensions.json
 .idea
 .fleet

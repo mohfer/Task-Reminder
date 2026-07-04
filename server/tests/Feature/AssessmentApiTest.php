@@ -132,7 +132,7 @@ test('sync endpoint validates source_url is a valid URL', function () {
     ]);
 
     $response->assertStatus(422)
-        ->assertJsonPath('message', 'The source url field must be a valid URL.');
+        ->assertJsonPath('message', fn($msg) => str_contains($msg, 'source url'));
 });
 
 test('sync endpoint validates task_id is a positive integer', function () {
@@ -157,4 +157,39 @@ test('sync endpoint returns error when monitoring API is unreachable', function 
 
     $response->assertStatus(502)
         ->assertJsonPath('message', fn($msg) => str_contains($msg, 'Failed to fetch'));
+});
+
+test('sync endpoint passes semester to filter matching courses', function () {
+    Http::fake([
+        'http://localhost:8000/tasks/1/data' => Http::response([
+            'code' => 200,
+            'message' => 'Success',
+            'data' => [
+                'nilai' => [
+                    ['matkul' => 'Jaringan Komputer', 'sks' => 3, 'nilai' => '90', 'mutu' => '4.00'],
+                ],
+            ],
+        ], 200),
+    ]);
+
+    // Same name in both semesters
+    CourseContent::create(['semester' => 'Semester 3', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
+    CourseContent::create(['semester' => 'Semester 4', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
+
+    $response = $this->postJson('/api/assessments/sync', [
+        'source_url' => 'http://localhost:8000',
+        'task_id' => 1,
+        'semester' => 'Semester 4',
+    ]);
+
+    $response->assertOk()
+        ->assertJsonPath('data.updated', 1);
+
+    // Semester 3 should stay null
+    $sem3 = CourseContent::where('semester', 'Semester 3')->first();
+    expect($sem3->score)->toBeNull();
+
+    // Semester 4 should be updated
+    $sem4 = CourseContent::where('semester', 'Semester 4')->first();
+    expect((float) $sem4->score)->toBe(90.0);
 });

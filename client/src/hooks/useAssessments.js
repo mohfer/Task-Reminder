@@ -49,7 +49,7 @@ export const useAssessments = (selectedSemester) => {
         async (sourceUrl, taskId) => {
             try {
                 setIsMutating(true);
-                const response = await assessmentApi.sync({ source_url: sourceUrl, task_id: taskId });
+                const response = await assessmentApi.sync({ source_url: sourceUrl, task_id: taskId }, selectedSemester);
                 toast.success(response.data.message);
                 await fetchAssessments(selectedSemester, false);
                 return { success: true, data: response.data.data };

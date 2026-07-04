@@ -37,13 +37,15 @@ class AssessmentController
         $request->validate([
             'source_url' => ['required', 'string', 'regex:/^https?:\/\/.+/i'],
             'task_id' => 'required|integer|min:1',
+            'semester' => 'nullable|string',
         ]);
 
         try {
             $result = $this->assessmentService->syncFromMonitoring(
                 $request->user()->id,
                 rtrim($request->source_url, '/'),
-                (int) $request->task_id
+                (int) $request->task_id,
+                $request->semester
             );
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 500);
