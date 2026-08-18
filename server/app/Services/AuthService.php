@@ -25,7 +25,7 @@ class AuthService
             throw new \Exception('User not found', 404);
         }
 
-        $expiration = $rememberMe ? now()->addDays(7) : now()->addHours(1);
+        $expiration = $rememberMe ? now()->addDays(30) : now()->addHours(1);
         $token = $user->createToken('Task Reminder', ['*'], $expiration)->plainTextToken;
 
         return [

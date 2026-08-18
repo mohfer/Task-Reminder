@@ -37,7 +37,7 @@ test('login throws 401 with unknown email', function () {
     $this->service->login(['email' => 'nobody@example.com', 'password' => 'password'], false);
 })->throws(\Exception::class, 'Email or password is incorrect', 401);
 
-test('login with remember_me creates 7-day token', function () {
+test('login with remember_me creates 30-day token', function () {
     $user = User::factory()->create(['password' => 'password']);
 
     $result = $this->service->login(['email' => $user->email, 'password' => 'password'], true);
