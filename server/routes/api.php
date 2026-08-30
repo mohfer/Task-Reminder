@@ -1,15 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\TaskController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\SettingsController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\CourseContentController;
 use App\Http\Controllers\AssessmentController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CourseContentController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->middleware('throttle:10,1')->group(function () {
     // Auth
@@ -23,7 +23,7 @@ Route::post('/password/reset', [PasswordResetController::class, 'resetPassword']
 
 // Verify Email
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])->middleware(['throttle:6,1'])->name('verification.send');;
+    Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])->middleware(['throttle:6,1'])->name('verification.send');
     Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware(['signed'])->name('verification.verify');
     Route::get('/auth/check/token', [AuthController::class, 'checkToken']);
     Route::get('/auth/check/email', [AuthController::class, 'checkEmail']);
@@ -45,12 +45,13 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/course-contents/filter', [CourseContentController::class, 'filter']);
     Route::get('/course-contents/download-template', [CourseContentController::class, 'downloadTemplate']);
     Route::post('/course-contents/import-from-excel', [CourseContentController::class, 'importFromExcel']);
+    Route::post('/course-contents/sync-schedule', [CourseContentController::class, 'syncSchedule']);
 
     // Assessment
     Route::get('/assessments/calculate', [AssessmentController::class, 'calculateGpa']);
     Route::patch('/assessments/{id}', [AssessmentController::class, 'update']);
     Route::post('/assessments/sync', [AssessmentController::class, 'sync']);
-    Route::get('/assessments/monitoring-tasks', [AssessmentController::class, 'monitoringTasks']);
+    Route::get('/assessments/semesters', [AssessmentController::class, 'semesters']);
 
     // Task
     Route::resource('tasks', TaskController::class)->only(['store', 'update', 'destroy']);
@@ -64,6 +65,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::post('/settings/test-notification', [SettingsController::class, 'testNotification']);
     Route::patch('/settings/task-created-notification', [SettingsController::class, 'taskCreatedNotification']);
     Route::patch('/settings/task-completed-notification', [SettingsController::class, 'taskCompletedNotification']);
+    Route::put('/settings/siakang-credentials', [SettingsController::class, 'siakangCredentials']);
+    Route::delete('/settings/siakang-credentials', [SettingsController::class, 'siakangCredentialsDelete']);
     Route::put('/settings/profile', [UserController::class, 'updateProfile']);
     Route::put('/settings/password', [UserController::class, 'changePassword']);
     Route::resource('/settings/grades', GradeController::class)->only(['index', 'store', 'update', 'destroy']);

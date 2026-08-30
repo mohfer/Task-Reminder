@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useModal } from '@/hooks/useModal';
 import useSemesterStore from '@/store/useSemesterStore';
 import { useAssessments } from '@/hooks/useAssessments';
+import { useSettings } from '@/hooks/useSettings';
 import { AssessmentTable } from '@/components/Assessment/AssessmentTable';
 import { GpaSummary } from '@/components/Assessment/GpaSummary';
 import { ScoreUpdateDialog } from '@/components/Assessment/ScoreUpdateDialog';
@@ -10,6 +11,7 @@ import { Button } from '@/components/ui/button';
 
 export const AssessmentView = () => {
     const selectedSemester = useSemesterStore((state) => state.semester);
+    const { settings } = useSettings();
     const { courseContents, totalSemesterGpa, totalCumulativeGpa, isLoading, isMutating, updateScore, syncScores } = useAssessments(selectedSemester);
 
     const updateDialog = useModal();
@@ -22,11 +24,13 @@ export const AssessmentView = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex gap-4">
-                <Button variant="outline" onClick={syncDialog.open}>
-                    Sync from Monitoring
-                </Button>
-            </div>
+            {settings?.has_siakang_credentials ? (
+                <div className="flex gap-4">
+                    <Button variant="outline" onClick={syncDialog.open}>
+                        Sync from Siakang
+                    </Button>
+                </div>
+            ) : null}
 
             <AssessmentTable
                 rows={courseContents}
@@ -64,6 +68,8 @@ export const AssessmentView = () => {
                 }}
                 isLoading={isMutating}
                 onSubmit={syncScores}
+                targetSemester={selectedSemester}
+                hasCredentials={Boolean(settings?.has_siakang_credentials)}
             />
         </div>
     );

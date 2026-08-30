@@ -22,4 +22,10 @@ export const courseContentApi = {
             headers: { 'Content-Type': 'multipart/form-data' },
             onUploadProgress,
         }),
+
+    syncSchedule: (targetSemester, sourceSemester) =>
+        axiosInstance.post('/course-contents/sync-schedule', {
+            semester: targetSemester,
+            source_semester: sourceSemester,
+        }),
 };

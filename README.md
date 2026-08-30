@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  A college assignment reminder app with task tracking, GPA tracking, schedule management, monitoring-akademik sync, and configurable notifications.
+  A college assignment reminder app with task tracking, GPA tracking, schedule management, Siakang sync, and configurable notifications.
 </p>
 
 ## Features
@@ -25,7 +25,7 @@
 - **Task Calendar**: Monthly calendar with task status badges and overdue highlighting.
 - **Dashboard Analytics**: Bar chart and semester overview for academic progress.
 - **Assessment & GPA Tracking**: Record scores and calculate semester/cumulative GPA.
-- **Monitoring Akademik Sync**: Pull scores from an external monitoring-akademik-siakang API and match courses by name.
+- **Siakang Sync**: Pull grades and weekly schedules directly from Siakang Untirta via the `siakang-scrapling` library.
 - **Custom Grade Scale**: Manage your own grade ranges and points.
 - **Notification Channels**: Choose `email`, `telegram`, or `both` from settings.
 - **Telegram Integration**: Telegram Bot API notifications with MarkdownV2 formatting.
@@ -58,6 +58,7 @@
 - Database queue driver for email notifications
 - Telegram Bot API
 - Pest testing framework
+- Python bridge (`siakang-sync`) using [siakang-scrapling](https://github.com/mohfer/siakang-scrapling) via `uv`
 
 ## Setup
 
@@ -67,6 +68,7 @@
 - Composer
 - Node.js 18+
 - pnpm
+- Python 3.11+ and [uv](https://docs.astral.sh/uv/) (for the Siakang sync bridge)
 - MySQL (or compatible database)
 
 ### Backend (`server/`)
@@ -78,6 +80,10 @@ npm install
 cp .env.example .env
 php artisan key:generate
 php artisan migrate
+
+# Python bridge for Siakang sync (requires Python 3.11+ and uv)
+cd siakang-sync
+uv sync
 ```
 
 ### Frontend (`client/`)
@@ -95,7 +101,6 @@ pnpm install
 | `QUEUE_CONNECTION` | Queue driver (set to `database`) |
 | `FRONTEND_URL` | CORS/origin for Sanctum (default `http://localhost:5173`) |
 | `TELEGRAM_BOT_TOKEN` | Required for Telegram notifications |
-| `MONITORING_URL` | Base URL of monitoring-akademik API (e.g. `http://localhost:3000`) |
 
 ### Run Development Servers
 
@@ -136,17 +141,17 @@ cd client && pnpm lint
 - **Sanctum SPA auth**: Most API routes require `auth:sanctum` + `verified` middleware.
 - **Queue**: Database driver. Email notifications use `ShouldQueue`.
 - **Notifications**: `notifications:reminder` sends both email (queued) and Telegram (synchronous) per user settings.
-- **Monitoring Sync**: Reads `MONITORING_URL` from config, fetches tasks and grade data server-side.
+- **Siakang Sync**: Laravel shells out to a small Python bridge (`server/siakang-sync`) that uses the `siakang-scrapling` library over stdin/stdout JSON.
 
-## Monitoring Akademik Sync
+## Siakang Sync
 
-The app can sync scores from [monitoring-akademik-siakang](https://github.com/mohfer/monitoring-akademik-siakang) — an external API that tracks student grades per task.
+The app pulls grades and weekly schedules straight from [Siakang Untirta](https://siakang.untirta.ac.id) via the [siakang-scrapling](https://github.com/mohfer/siakang-scrapling) Python library.
 
-1. Set `MONITORING_URL` in `.env` (e.g. `http://localhost:3000`).
-2. Go to **Assessments** page → click **Sync from Monitoring**.
-3. Select a monitoring task and click **Sync**.
+1. In **Settings → Siakang**, enter your Siakang email and password (stored encrypted). The credentials are validated against Siakang before being saved. This is separate from your Task Reminder login.
+2. Open **Assessments** (grades) or **Course Contents** (schedule) → click **Sync from Siakang** (visible only when credentials are connected).
+3. Pick the Siakang semester to pull from. Data is saved into the semester you are currently viewing in the app.
 
-The sync matches courses by name (case-insensitive, supports parenthetical codes). The connection is server-to-server, so no CORS issues.
+Credentials are encrypted at rest via Laravel's `encrypted` cast. The Python bridge reads them from stdin and never logs them. Siakang session cookies are gitignored.
 
 ## Notification Notes
 

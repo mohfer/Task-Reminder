@@ -60,8 +60,8 @@ export const AssessmentTable = ({ rows, isLoading, onEdit }) => {
     };
 
     return (
-        <Card className="mb-3">
-            <CardContent className="overflow-x-auto p-4">
+        <Card className="mb-4">
+            <CardContent className="overflow-x-auto p-0">
                 <Table>
                     <TableHeader>
                         <TableRow>

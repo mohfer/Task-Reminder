@@ -183,6 +183,42 @@ export const useSettings = () => {
         [fetchUserData]
     );
 
+    const saveSiakangCredentials = useCallback(
+        async (data) => {
+            try {
+                setIsMutating(true);
+                const response = await settingsApi.saveSiakangCredentials(data);
+                toast.success(response.data.message);
+                await fetchUserData(false);
+                return { success: true };
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Failed to save Siakang credentials.');
+                return { success: false, errors: error.response?.data?.errors || {} };
+            } finally {
+                setIsMutating(false);
+            }
+        },
+        [fetchUserData]
+    );
+
+    const deleteSiakangCredentials = useCallback(
+        async () => {
+            try {
+                setIsMutating(true);
+                const response = await settingsApi.deleteSiakangCredentials();
+                toast.success(response.data.message);
+                await fetchUserData(false);
+                return { success: true };
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Failed to remove Siakang credentials.');
+                return { success: false };
+            } finally {
+                setIsMutating(false);
+            }
+        },
+        [fetchUserData]
+    );
+
     useEffect(() => {
         fetchUserData();
     }, [fetchUserData]);
@@ -200,5 +236,7 @@ export const useSettings = () => {
         toggleTaskCompletedNotification,
         updateProfile,
         changePassword,
+        saveSiakangCredentials,
+        deleteSiakangCredentials,
     };
 };

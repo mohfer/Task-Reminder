@@ -2,13 +2,16 @@
 
 use App\Models\CourseContent;
 use App\Models\Grade;
+use App\Models\Setting;
 use App\Models\User;
-use Illuminate\Support\Facades\Http;
+use App\Services\SiakangClient;
 use Laravel\Sanctum\Sanctum;
 
 beforeEach(function () {
     $this->user = User::factory()->create(['email_verified_at' => now()]);
     Sanctum::actingAs($this->user, ['*']);
+    $this->siakangClient = Mockery::mock(SiakangClient::class);
+    $this->app->instance(SiakangClient::class, $this->siakangClient);
 });
 
 // ─── GET /api/assessments/calculate ───
@@ -90,95 +93,89 @@ test('update endpoint returns 404 for another users course', function () {
 
 // ─── POST /api/assessments/sync ───
 
-test('sync endpoint updates scores from monitoring data and returns result', function () {
-    config(['app.monitoring_url' => 'http://localhost:8000']);
-    Http::fake([
-        'http://localhost:8000/tasks/1/data' => Http::response([
+test('sync endpoint updates scores from siakang data and returns result', function () {
+    Setting::factory()->withSiakangCredentials()->create(['user_id' => $this->user->id]);
+
+    $this->siakangClient->shouldReceive('getGrades')
+        ->once()
+        ->with('student@student.untirta.ac.id', 'secret', '20251')
+        ->andReturn([
             'code' => 200,
             'message' => 'Success',
             'data' => [
-                'nilai' => [
-                    ['matkul' => 'Kalkulus I', 'sks' => 3, 'nilai' => '85', 'mutu' => '4.00'],
+                'ip' => 3.6,
+                'ipk' => 3.5,
+                'courses' => [
+                    ['no' => 1, 'code' => 'MK001', 'name' => 'Kalkulus I', 'credits' => 3, 'score' => 85.0, 'letter' => 'B+'],
                 ],
             ],
-        ], 200),
-    ]);
+        ]);
 
-    CourseContent::create(['semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus I', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
+    CourseContent::create(['semester' => 'Semester 2', 'code' => 'MK001', 'course_content' => 'Kalkulus I', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
 
     $response = $this->postJson('/api/assessments/sync', [
-        'task_id' => 1,
+        'semester' => 'Semester 2',
+        'source_semester' => '20251',
     ]);
 
     $response->assertOk()
         ->assertJsonPath('code', 200)
         ->assertJsonPath('data.updated', 1)
-        ->assertJsonPath('data.skipped', []);
+        ->assertJsonPath('data.no_match', [])
+        ->assertJsonPath('data.unchanged', 0);
 
     expect((float) CourseContent::first()->score)->toBe(85.0);
 });
 
-test('sync endpoint requires task_id', function () {
-    $response = $this->postJson('/api/assessments/sync', []);
-
-    $response->assertStatus(422)
-        ->assertJsonPath('message', fn($msg) => str_contains($msg, 'The task id field is required'));
-});
-
-test('sync endpoint validates task_id is a positive integer', function () {
+test('sync endpoint returns error when siakang credentials are missing', function () {
     $response = $this->postJson('/api/assessments/sync', [
-        'task_id' => 0,
+        'semester' => 'Semester 2',
+        'source_semester' => '20251',
     ]);
 
     $response->assertStatus(422)
-        ->assertJsonPath('message', 'The task id field must be at least 1.');
+        ->assertJsonPath('message', 'Siakang credentials are not configured. Add them in Settings.');
 });
 
-test('sync endpoint returns error when monitoring API is unreachable', function () {
-    config(['app.monitoring_url' => 'http://localhost:8000']);
-    Http::fake([
-        'http://localhost:8000/*' => Http::response('Server Error', 500),
-    ]);
+test('sync endpoint returns error when siakang login fails', function () {
+    Setting::factory()->withSiakangCredentials()->create(['user_id' => $this->user->id]);
+
+    $this->siakangClient->shouldReceive('getGrades')
+        ->once()
+        ->andReturn(['code' => 401, 'message' => 'Login failed — check email/password']);
 
     $response = $this->postJson('/api/assessments/sync', [
-        'task_id' => 1,
+        'semester' => 'Semester 2',
+        'source_semester' => '20251',
     ]);
 
-    $response->assertStatus(502)
-        ->assertJsonPath('message', fn($msg) => str_contains($msg, 'Failed to fetch'));
+    $response->assertStatus(401)
+        ->assertJsonPath('message', 'Login failed — check email/password');
 });
 
-test('sync endpoint passes semester to filter matching courses', function () {
-    config(['app.monitoring_url' => 'http://localhost:8000']);
-    Http::fake([
-        'http://localhost:8000/tasks/1/data' => Http::response([
+test('sync endpoint returns 422 when no courses match the target semester', function () {
+    Setting::factory()->withSiakangCredentials()->create(['user_id' => $this->user->id]);
+
+    $this->siakangClient->shouldReceive('getGrades')
+        ->once()
+        ->andReturn([
             'code' => 200,
             'message' => 'Success',
             'data' => [
-                'nilai' => [
-                    ['matkul' => 'Jaringan Komputer', 'sks' => 3, 'nilai' => '90', 'mutu' => '4.00'],
+                'ip' => null,
+                'ipk' => null,
+                'courses' => [
+                    ['no' => 1, 'code' => 'MK099', 'name' => 'Statistika', 'credits' => 3, 'score' => 80.0, 'letter' => 'A'],
                 ],
             ],
-        ], 200),
-    ]);
+        ]);
 
-    // Same name in both semesters
-    CourseContent::create(['semester' => 'Semester 3', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
-    CourseContent::create(['semester' => 'Semester 4', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
-
+    // No CourseContent exists in the target semester, so nothing can match.
     $response = $this->postJson('/api/assessments/sync', [
-        'task_id' => 1,
         'semester' => 'Semester 4',
+        'source_semester' => '20251',
     ]);
 
-    $response->assertOk()
-        ->assertJsonPath('data.updated', 1);
-
-    // Semester 3 should stay null
-    $sem3 = CourseContent::where('semester', 'Semester 3')->first();
-    expect($sem3->score)->toBeNull();
-
-    // Semester 4 should be updated
-    $sem4 = CourseContent::where('semester', 'Semester 4')->first();
-    expect((float) $sem4->score)->toBe(90.0);
+    $response->assertStatus(422)
+        ->assertJsonPath('message', 'No matching scores found — 1 course(s) not found in Semester 4');
 });

@@ -1,16 +1,22 @@
 <?php
 
 use App\Models\CourseContent;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\CourseContentService;
+use App\Services\SiakangClient;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Tests\TestCase;
 
-uses(Tests\TestCase::class, RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->service = new CourseContentService();
+    $this->siakangClient = Mockery::mock(SiakangClient::class);
+    $this->service = new CourseContentService($this->siakangClient);
     $this->user = User::factory()->create();
+    $this->setting = Setting::factory()->withSiakangCredentials()->create(['user_id' => $this->user->id]);
 });
 
 // ─── create ───
@@ -42,7 +48,7 @@ test('create throws 409 when code already exists in same semester', function () 
         'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin',
         'hour_start' => '08:00', 'hour_end' => '10:00',
     ]);
-})->throws(\Exception::class, 'Course Content Already Added', 409);
+})->throws(Exception::class, 'Course Content Already Added', 409);
 
 test('create throws 409 when course_content already exists in same semester', function () {
     CourseContent::create([
@@ -56,7 +62,7 @@ test('create throws 409 when course_content already exists in same semester', fu
         'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin',
         'hour_start' => '08:00', 'hour_end' => '10:00',
     ]);
-})->throws(\Exception::class, 'Course Content Already Added', 409);
+})->throws(Exception::class, 'Course Content Already Added', 409);
 
 test('create allows same code in different semester', function () {
     CourseContent::create([
@@ -111,7 +117,7 @@ test('update throws 409 on duplicate code in same semester', function () {
         'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin',
         'hour_start' => '08:00', 'hour_end' => '10:00',
     ]);
-})->throws(\Exception::class, 'Code already exists', 409);
+})->throws(Exception::class, 'Code already exists', 409);
 
 test('update throws for another user course', function () {
     $otherUser = User::factory()->create();
@@ -126,7 +132,7 @@ test('update throws for another user course', function () {
         'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin',
         'hour_start' => '08:00', 'hour_end' => '10:00',
     ]);
-})->throws(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+})->throws(ModelNotFoundException::class);
 
 // ─── delete ───
 
@@ -151,7 +157,7 @@ test('delete throws for another user course', function () {
     ]);
 
     $this->service->delete($this->user->id, $course->id);
-})->throws(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+})->throws(ModelNotFoundException::class);
 
 // ─── filter ───
 
@@ -187,4 +193,94 @@ test('importFromExcel creates courses from valid Excel data', function () {
     $file = UploadedFile::fake()->create('test.txt', 1024, 'text/plain');
 
     $this->service->importFromExcel($this->user->id, $file);
-})->throws(\Exception::class, 'Failed to read');
+})->throws(Exception::class, 'Failed to read');
+
+// ─── syncScheduleFromSiakang ───
+
+test('syncScheduleFromSiakang imports schedule rows into the target semester', function () {
+    $this->siakangClient->shouldReceive('getSchedule')
+        ->once()
+        ->with('student@student.untirta.ac.id', 'secret', '20252')
+        ->andReturn([
+            'code' => 200,
+            'message' => 'Success',
+            'data' => [
+                [
+                    'name' => 'Sistem Terdistribusi',
+                    'code' => 'INF622208',
+                    'schedule_code' => '2600000001',
+                    'mode' => 'Offline',
+                    'credits' => 3,
+                    'schedules' => [['day' => 'Senin', 'time' => '07:30 - 09:10', 'room' => 'Ruang 101']],
+                    'lecturers' => ['Dr. A'],
+                    'schedule_id' => '019bde9b-...',
+                    'detail' => [
+                        'header' => [
+                            'kode_jadwal' => '2600000001',
+                            'mata_kuliah' => 'Sistem Terdistribusi',
+                            'kelas' => 'C24',
+                            'dosen' => 'Yulian Ansori, S.Kom., M.Kom',
+                            'ruang_dan_waktu' => 'Ruang 101, Senin 07:30 - 09:10',
+                            'pertemuan_terlaksana' => '0 Kali',
+                        ],
+                        'tabs' => [],
+                    ],
+                ],
+            ],
+        ]);
+
+    // Target semester is the app semester the user is viewing; source is the Siakang code.
+    $result = $this->service->syncScheduleFromSiakang($this->user->id, 'Semester 2', '20252');
+
+    expect($result['inserted'])->toBe(1);
+    expect($result['semester_label'])->toBe('Semester 2');
+
+    $course = CourseContent::where('course_content', 'Sistem Terdistribusi (C)')->first();
+    expect($course)->not->toBeNull();
+    expect($course->code)->toBe('INF622208');
+    expect($course->credits)->toBe(3);
+    expect($course->day)->toBe('Monday');
+    expect(substr($course->hour_start, 0, 5))->toBe('07:30');
+    expect(substr($course->hour_end, 0, 5))->toBe('09:10');
+    expect($course->lecturer)->toBe('Yulian Ansori, S.Kom., M.Kom');
+    expect($course->semester)->toBe('Semester 2');
+});
+
+test('syncScheduleFromSiakang requires siakang credentials', function () {
+    $this->setting->update(['siakang_email' => null, 'siakang_password' => null]);
+
+    $this->service->syncScheduleFromSiakang($this->user->id, 'Semester 2', '20252');
+})->throws(Exception::class, 'Siakang credentials are not configured', 422);
+
+test('syncScheduleFromSiakang throws on non-200 response', function () {
+    $this->siakangClient->shouldReceive('getSchedule')
+        ->once()
+        ->andReturn(['code' => 401, 'message' => 'Login failed — check email/password']);
+
+    $this->service->syncScheduleFromSiakang($this->user->id, 'Semester 2', '20252');
+})->throws(Exception::class, 'Login failed', 401);
+
+test('syncScheduleFromSiakang falls back to schedule lecturers when detail is missing', function () {
+    $this->siakangClient->shouldReceive('getSchedule')
+        ->once()
+        ->andReturn([
+            'code' => 200,
+            'message' => 'Success',
+            'data' => [
+                [
+                    'name' => 'Kalkulus',
+                    'code' => 'MK001',
+                    'credits' => 3,
+                    'schedules' => [['day' => 'Senin', 'time' => '08:00 - 09:40', 'room' => 'Ruang X']],
+                    'lecturers' => ['Dr. Budi'],
+                    'schedule_id' => 'abc',
+                ],
+            ],
+        ]);
+
+    $result = $this->service->syncScheduleFromSiakang($this->user->id, 'Semester 2', '20252');
+
+    $course = CourseContent::where('course_content', 'Kalkulus')->first();
+    expect($course)->not->toBeNull();
+    expect($course->lecturer)->toBe('Dr. Budi');
+});

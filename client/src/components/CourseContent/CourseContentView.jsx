@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Plus, Import } from 'lucide-react';
+import { Plus, Import, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useModal } from '@/hooks/useModal';
 import useSemesterStore from '@/store/useSemesterStore';
 import { useCourseContents } from '@/hooks/useCourseContents';
+import { useSettings } from '@/hooks/useSettings';
 import { CourseContentTable } from '@/components/CourseContent/CourseContentTable';
 import { CreditsSummary } from '@/components/CourseContent/CreditsSummary';
 import { CourseContentFormDialog } from '@/components/CourseContent/CourseContentFormDialog';
 import { ExcelImportDialog } from '@/components/CourseContent/ExcelImportDialog';
+import { SyncScheduleDialog } from '@/components/CourseContent/SyncScheduleDialog';
 import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog';
 
 export const CourseContentView = () => {
     const selectedSemester = useSemesterStore((state) => state.semester);
+    const { settings } = useSettings();
     const {
         courseContents,
         totalCredits,
@@ -22,12 +25,14 @@ export const CourseContentView = () => {
         deleteCourseContent,
         downloadTemplate,
         importFromExcel,
+        syncSchedule,
     } = useCourseContents(selectedSemester);
 
     const createDialog = useModal();
     const editDialog = useModal();
     const deleteDialog = useModal();
     const excelDialog = useModal();
+    const syncDialog = useModal();
 
     const [editingContent, setEditingContent] = useState(null);
     const [deleteContentId, setDeleteContentId] = useState(null);
@@ -38,14 +43,20 @@ export const CourseContentView = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex gap-4">
-                <Button onClick={createDialog.open}>
+            <div className="flex flex-wrap gap-2 sm:gap-4">
+                <Button className="flex-1 sm:flex-none" onClick={createDialog.open}>
                     <Plus className="mr-2 h-4 w-4" /> New Course Content
                 </Button>
 
-                <Button variant="outline" onClick={excelDialog.open}>
+                <Button className="flex-1 sm:flex-none" variant="outline" onClick={excelDialog.open}>
                     <Import className="mr-2 h-4 w-4" /> Excel
                 </Button>
+
+                {settings?.has_siakang_credentials ? (
+                    <Button className="flex-1 sm:flex-none" variant="outline" onClick={syncDialog.open}>
+                        <RefreshCw className="mr-2 h-4 w-4" /> Sync from Siakang
+                    </Button>
+                ) : null}
             </div>
 
             <CourseContentTable
@@ -123,6 +134,21 @@ export const CourseContentView = () => {
                 isLoading={isMutating}
                 onDownloadTemplate={downloadTemplate}
                 onImport={importFromExcel}
+            />
+
+            <SyncScheduleDialog
+                open={syncDialog.isOpen}
+                onOpenChange={(nextOpen) => {
+                    if (nextOpen) {
+                        syncDialog.open();
+                    } else {
+                        syncDialog.close();
+                    }
+                }}
+                isLoading={isMutating}
+                onSubmit={syncSchedule}
+                targetSemester={selectedSemester}
+                hasCredentials={Boolean(settings?.has_siakang_credentials)}
             />
         </div>
     );

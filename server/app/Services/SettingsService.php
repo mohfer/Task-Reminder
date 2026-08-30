@@ -8,7 +8,8 @@ use App\Notifications\TestNotification;
 class SettingsService
 {
     public function __construct(
-        private readonly TelegramService $telegramService
+        private readonly TelegramService $telegramService,
+        private readonly SiakangClient $siakangClient
     ) {}
 
     public function getSettings(int $userId): ?Setting
@@ -24,19 +25,19 @@ class SettingsService
         $setting = $this->getOrFail($userId);
         $user = $setting->user;
 
-        if (!$user) {
+        if (! $user) {
             throw new \Exception('User not found', 404);
         }
 
         $channels = [];
 
         if ($setting->wantsEmailChannel()) {
-            $user->notify(new TestNotification());
+            $user->notify(new TestNotification);
             $channels[] = Setting::CHANNEL_EMAIL;
         }
 
         if ($setting->wantsTelegramChannel()) {
-            if (!$setting->hasTelegramChatId()) {
+            if (! $setting->hasTelegramChatId()) {
                 throw new \Exception('Please set Telegram chat ID first', 422);
             }
 
@@ -45,7 +46,7 @@ class SettingsService
                 $setting->notification_channel
             );
 
-            if (!$isSent) {
+            if (! $isSent) {
                 throw new \Exception('Failed to send Telegram test notification', 502);
             }
 
@@ -75,13 +76,13 @@ class SettingsService
         $setting = $this->getOrFail($userId);
         $normalizedChannel = strtolower(trim($channel));
 
-        if (!in_array($normalizedChannel, [Setting::CHANNEL_EMAIL, Setting::CHANNEL_TELEGRAM, Setting::CHANNEL_BOTH], true)) {
+        if (! in_array($normalizedChannel, [Setting::CHANNEL_EMAIL, Setting::CHANNEL_TELEGRAM, Setting::CHANNEL_BOTH], true)) {
             throw new \Exception('Invalid notification channel', 422);
         }
 
         if (
             in_array($normalizedChannel, [Setting::CHANNEL_TELEGRAM, Setting::CHANNEL_BOTH], true)
-            && !$setting->hasTelegramChatId()
+            && ! $setting->hasTelegramChatId()
         ) {
             throw new \Exception('Please set Telegram chat ID first', 422);
         }
@@ -102,7 +103,7 @@ class SettingsService
             'telegram_chat_id' => $normalizedChatId !== '' ? $normalizedChatId : null,
         ]);
 
-        if (!$setting->hasTelegramChatId() && $setting->notification_channel !== Setting::CHANNEL_EMAIL) {
+        if (! $setting->hasTelegramChatId() && $setting->notification_channel !== Setting::CHANNEL_EMAIL) {
             $setting->update([
                 'notification_channel' => Setting::CHANNEL_EMAIL,
             ]);
@@ -133,11 +134,42 @@ class SettingsService
         return $setting;
     }
 
+    public function updateSiakangCredentials(int $userId, string $email, string $password): Setting
+    {
+        $setting = $this->getOrFail($userId);
+
+        // Validate the credentials against Siakang before persisting them.
+        $response = $this->siakangClient->verify(trim($email), $password);
+
+        if (($response['code'] ?? 0) !== 200) {
+            throw new \Exception($response['message'] ?? 'Invalid Siakang credentials', (int) ($response['code'] ?: 401));
+        }
+
+        $setting->update([
+            'siakang_email' => trim($email),
+            'siakang_password' => $password,
+        ]);
+
+        return $setting;
+    }
+
+    public function clearSiakangCredentials(int $userId): Setting
+    {
+        $setting = $this->getOrFail($userId);
+
+        $setting->update([
+            'siakang_email' => null,
+            'siakang_password' => null,
+        ]);
+
+        return $setting;
+    }
+
     private function getOrFail(int $userId): Setting
     {
         $setting = Setting::where('user_id', $userId)->first();
 
-        if (!$setting) {
+        if (! $setting) {
             throw new \Exception('Settings not found', 404);
         }
 

@@ -100,3 +100,9 @@ docker-compose.override.yml
 
 # Graphify
 graphify-out/
+
+# Siakang sync (Python bridge)
+**/siakang-sync/.venv
+**/siakang-sync/uv.lock
+**/siakang-sync/.siakang_session_*.json
+**/uv.lock

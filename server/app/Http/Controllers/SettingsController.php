@@ -18,7 +18,17 @@ class SettingsController
     {
         $settings = $this->settingsService->getSettings($request->user()->id);
 
-        return $this->sendResponse($settings, 'Settings retrieved successfully');
+        $hasSiakangCredentials = $settings?->hasSiakangCredentials() ?? false;
+
+        return $this->sendResponse([
+            'id' => $settings?->id,
+            'deadline_notification' => $settings?->deadline_notification,
+            'task_created_notification' => $settings?->task_created_notification,
+            'task_completed_notification' => $settings?->task_completed_notification,
+            'notification_channel' => $settings?->notification_channel,
+            'telegram_chat_id' => $settings?->telegram_chat_id,
+            'has_siakang_credentials' => $hasSiakangCredentials,
+        ], 'Settings retrieved successfully');
     }
 
     public function deadlineNotification(Request $request)
@@ -75,7 +85,7 @@ class SettingsController
         }
 
         $channelNames = array_map('ucfirst', $result['channels']);
-        $message = 'Test notification sent to ' . implode(' and ', $channelNames);
+        $message = 'Test notification sent to '.implode(' and ', $channelNames);
 
         return $this->sendResponse($result, $message);
     }
@@ -100,5 +110,42 @@ class SettingsController
         }
 
         return $this->sendResponse($setting, 'Task completed notification updated successfully');
+    }
+
+    public function siakangCredentials(Request $request)
+    {
+        $request->validate([
+            'siakang_email' => 'required|email',
+            'siakang_password' => 'required|string|min:1',
+        ]);
+
+        try {
+            $setting = $this->settingsService->updateSiakangCredentials(
+                $request->user()->id,
+                $request->siakang_email,
+                $request->siakang_password
+            );
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 422);
+        }
+
+        return $this->sendResponse(
+            ['has_siakang_credentials' => true],
+            'Siakang credentials saved successfully'
+        );
+    }
+
+    public function siakangCredentialsDelete(Request $request)
+    {
+        try {
+            $setting = $this->settingsService->clearSiakangCredentials($request->user()->id);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 422);
+        }
+
+        return $this->sendResponse(
+            ['has_siakang_credentials' => false],
+            'Siakang credentials removed successfully'
+        );
     }
 }

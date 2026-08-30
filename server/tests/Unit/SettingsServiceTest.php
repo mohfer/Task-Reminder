@@ -3,15 +3,18 @@
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\SettingsService;
+use App\Services\SiakangClient;
 use App\Services\TelegramService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-uses(Tests\TestCase::class, RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
     $this->telegramService = Mockery::mock(TelegramService::class);
     $this->telegramService->shouldReceive('sendTestNotification')->byDefault();
-    $this->service = new SettingsService($this->telegramService);
+    $this->siakangClient = Mockery::mock(SiakangClient::class);
+    $this->service = new SettingsService($this->telegramService, $this->siakangClient);
     $this->user = User::factory()->create();
     // Settings are created via AuthService::register — manually create here
     Setting::create([
@@ -54,14 +57,14 @@ test('sendTestNotification throws when no channel enabled', function () {
     $setting->update(['notification_channel' => 'nonexistent']);
 
     $this->service->sendTestNotification($this->user->id);
-})->throws(\Exception::class, 'No notification channel enabled');
+})->throws(Exception::class, 'No notification channel enabled');
 
 test('sendTestNotification throws when telegram selected but no chat id', function () {
     $setting = Setting::where('user_id', $this->user->id)->first();
     $setting->update(['notification_channel' => Setting::CHANNEL_TELEGRAM]);
 
     $this->service->sendTestNotification($this->user->id);
-})->throws(\Exception::class, 'Please set Telegram chat ID first');
+})->throws(Exception::class, 'Please set Telegram chat ID first');
 
 // ─── updateDeadlineNotification ───
 
@@ -84,11 +87,11 @@ test('updateNotificationChannel sets valid channel', function () {
 
 test('updateNotificationChannel rejects invalid channel', function () {
     $this->service->updateNotificationChannel($this->user->id, 'invalid');
-})->throws(\Exception::class, 'Invalid notification channel');
+})->throws(Exception::class, 'Invalid notification channel');
 
 test('updateNotificationChannel requires chat id for telegram channel', function () {
     $this->service->updateNotificationChannel($this->user->id, Setting::CHANNEL_TELEGRAM);
-})->throws(\Exception::class, 'Please set Telegram chat ID first');
+})->throws(Exception::class, 'Please set Telegram chat ID first');
 
 // ─── updateTelegramChatId ───
 
@@ -178,4 +181,48 @@ test('hasTelegramChatId returns false for null or empty', function () {
 
     $setting->update(['telegram_chat_id' => '12345']);
     expect($setting->fresh()->hasTelegramChatId())->toBeTrue();
+});
+
+test('updateSiakangCredentials saves credentials when siakang verification succeeds', function () {
+    $this->siakangClient->shouldReceive('verify')
+        ->once()
+        ->with('student@student.untirta.ac.id', 'secret')
+        ->andReturn(['code' => 200, 'message' => 'Success', 'data' => ['ok' => true]]);
+
+    $setting = $this->service->updateSiakangCredentials(
+        $this->user->id,
+        'student@student.untirta.ac.id',
+        'secret'
+    );
+
+    expect($setting->fresh()->siakang_email)->toBe('student@student.untirta.ac.id');
+    expect($setting->fresh()->hasSiakangCredentials())->toBeTrue();
+});
+
+test('updateSiakangCredentials throws when siakang verification fails', function () {
+    $this->siakangClient->shouldReceive('verify')
+        ->once()
+        ->andReturn(['code' => 401, 'message' => 'Login failed — check email/password']);
+
+    $this->service->updateSiakangCredentials(
+        $this->user->id,
+        'student@student.untirta.ac.id',
+        'wong-password'
+    );
+})->throws(Exception::class, 'Login failed', 401);
+
+test('updateSiakangCredentials does not persist partial credentials on failure', function () {
+    $this->siakangClient->shouldReceive('verify')
+        ->once()
+        ->andReturn(['code' => 401, 'message' => 'Login failed — check email/password']);
+
+    try {
+        $this->service->updateSiakangCredentials($this->user->id, 'bad@x.id', 'bad');
+    } catch (Exception) {
+        // expected
+    }
+
+    $setting = Setting::where('user_id', $this->user->id)->first();
+    expect($setting->siakang_email)->toBeNull();
+    expect($setting->hasSiakangCredentials())->toBeFalse();
 });

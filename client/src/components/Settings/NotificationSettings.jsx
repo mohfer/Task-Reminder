@@ -37,11 +37,23 @@ export const NotificationSettings = ({
 }) => {
     const [chatIdInput, setChatIdInput] = useState('');
     const needsTelegramChatId = notificationChannel === 'telegram' || notificationChannel === 'both';
-    const isTestDisabled = isMutating || (needsTelegramChatId && chatIdInput.trim() === '');
+    const isTestDisabled = isMutating || (needsTelegramChatId && telegramChatId?.trim() === '');
 
     useEffect(() => {
         setChatIdInput(telegramChatId || '');
     }, [telegramChatId]);
+
+    const handleChannelSave = async () => {
+        if (needsTelegramChatId && chatIdInput.trim() === '') {
+            return;
+        }
+
+        if (needsTelegramChatId && chatIdInput.trim() !== (telegramChatId || '')) {
+            await onTelegramChatIdSave(chatIdInput);
+        }
+
+        await onNotificationChannelChange(notificationChannel);
+    };
 
     return (
         <Card className="my-4">
@@ -82,7 +94,7 @@ export const NotificationSettings = ({
                             )}
                             <Button
                                 type="button"
-                                onClick={() => onTelegramChatIdSave(chatIdInput)}
+                                onClick={() => handleChannelSave()}
                                 disabled={isMutating || isLoading}
                             >
                                 Save

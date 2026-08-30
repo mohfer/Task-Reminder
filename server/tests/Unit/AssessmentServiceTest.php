@@ -2,17 +2,20 @@
 
 use App\Models\CourseContent;
 use App\Models\Grade;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\AssessmentService;
+use App\Services\SiakangClient;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Http;
+use Tests\TestCase;
 
-uses(Tests\TestCase::class, RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
     $this->user = User::factory()->create();
-    $this->service = new AssessmentService();
-    config(['app.monitoring_url' => 'http://localhost:8000']);
+    $this->siakangClient = Mockery::mock(SiakangClient::class);
+    $this->service = new AssessmentService($this->siakangClient);
 });
 
 // ─── calculateGpa ───
@@ -98,230 +101,211 @@ test('updateScore throws 404 for another users course', function () {
     $course = CourseContent::create(['semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus I', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $otherUser->id]);
 
     $this->service->updateScore($this->user->id, $course->id, 90);
-})->throws(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+})->throws(ModelNotFoundException::class);
 
-// ─── syncFromMonitoring ───
+// ─── syncScoresFromSiakang ───
 
-test('syncFromMonitoring updates matching course scores from monitoring data', function () {
-    Http::fake([
-        'http://localhost:8000/tasks/1/data' => Http::response([
+test('syncScoresFromSiakang requires siakang credentials', function () {
+    $this->service->syncScoresFromSiakang($this->user->id, 'Semester 2', '20251');
+})->throws(Exception::class, 'Siakang credentials are not configured', 422);
+
+test('syncScoresFromSiakang updates matching course scores from siakang data', function () {
+    Setting::factory()->withSiakangCredentials()->create(['user_id' => $this->user->id]);
+
+    $this->siakangClient->shouldReceive('getGrades')
+        ->once()
+        ->with('student@student.untirta.ac.id', 'secret', '20251')
+        ->andReturn([
             'code' => 200,
             'message' => 'Success',
             'data' => [
-                'nama' => 'Test Student',
-                'nilai' => [
-                    ['matkul' => 'Kalkulus I', 'sks' => 3, 'nilai' => '85', 'mutu' => '4.00'],
-                    ['matkul' => 'Fisika I', 'sks' => 2, 'nilai' => '70', 'mutu' => '3.00'],
+                'ip' => 3.6,
+                'ipk' => 3.5,
+                'courses' => [
+                    ['no' => 1, 'code' => 'MK001', 'name' => 'Kalkulus I', 'credits' => 3, 'score' => 85.0, 'letter' => 'B+'],
+                    ['no' => 2, 'code' => 'MK002', 'name' => 'Fisika I', 'credits' => 2, 'score' => 70.0, 'letter' => 'B'],
                 ],
             ],
-        ], 200),
-    ]);
+        ]);
 
-    CourseContent::create(['semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus I', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
-    CourseContent::create(['semester' => '2024/2025 Ganjil', 'code' => 'MK002', 'course_content' => 'Fisika I', 'credits' => 2, 'lecturer' => 'B', 'day' => 'Selasa', 'hour_start' => '10:00', 'hour_end' => '12:00', 'score' => null, 'user_id' => $this->user->id]);
+    CourseContent::create(['semester' => 'Semester 2', 'code' => 'MK001', 'course_content' => 'Kalkulus I', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
+    CourseContent::create(['semester' => 'Semester 2', 'code' => 'MK002', 'course_content' => 'Fisika I', 'credits' => 2, 'lecturer' => 'B', 'day' => 'Selasa', 'hour_start' => '10:00', 'hour_end' => '12:00', 'score' => null, 'user_id' => $this->user->id]);
 
-    $result = $this->service->syncFromMonitoring($this->user->id, 1);
+    $result = $this->service->syncScoresFromSiakang($this->user->id, 'Semester 2', '20251');
 
     expect($result['updated'])->toBe(2);
-    expect($result['skipped'])->toBeEmpty();
+    expect($result['no_match'])->toBeEmpty();
+    expect($result['semester_label'])->toBe('Semester 2');
+    expect($result['ip'])->toBe(3.6);
 
     expect((float) CourseContent::where('course_content', 'Kalkulus I')->first()->score)->toBe(85.0);
 });
 
-test('syncFromMonitoring skips courses with non-numeric grades', function () {
-    Http::fake([
-        'http://localhost:8000/tasks/1/data' => Http::response([
-            'data' => [
-                'nilai' => [
-                    ['matkul' => 'Kalkulus I', 'sks' => 3, 'nilai' => 'A', 'mutu' => '4.00'],
-                ],
+test('syncScoresFromSiakang skips courses with null scores', function () {
+    Setting::factory()->withSiakangCredentials()->create(['user_id' => $this->user->id]);
+
+    $this->siakangClient->shouldReceive('getGrades')->once()->andReturn([
+        'code' => 200,
+        'message' => 'Success',
+        'data' => [
+            'ip' => null,
+            'ipk' => null,
+            'courses' => [
+                ['no' => 1, 'code' => 'MK001', 'name' => 'Kalkulus I', 'credits' => 3, 'score' => null, 'letter' => null],
             ],
-        ], 200),
+        ],
     ]);
 
-    CourseContent::create(['semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus I', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
+    CourseContent::create(['semester' => 'Semester 2', 'code' => 'MK001', 'course_content' => 'Kalkulus I', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
 
-    $result = $this->service->syncFromMonitoring($this->user->id, 1);
+    $result = $this->service->syncScoresFromSiakang($this->user->id, 'Semester 2', '20251');
 
     expect($result['updated'])->toBe(0);
-    expect($result['skipped'])->toContain('Kalkulus I');
+    expect($result['no_match'])->toContain('Kalkulus I (nilai belum keluar)');
 });
 
-test('syncFromMonitoring skips courses with placeholder dashes', function () {
-    Http::fake([
-        'http://localhost:8000/tasks/1/data' => Http::response([
-            'data' => [
-                'nilai' => [
-                    ['matkul' => 'Kalkulus I', 'sks' => 3, 'nilai' => '---', 'mutu' => '---'],
-                ],
+test('syncScoresFromSiakang skips courses not found in user course_contents', function () {
+    Setting::factory()->withSiakangCredentials()->create(['user_id' => $this->user->id]);
+
+    $this->siakangClient->shouldReceive('getGrades')->once()->andReturn([
+        'code' => 200,
+        'message' => 'Success',
+        'data' => [
+            'ip' => 2.0,
+            'ipk' => null,
+            'courses' => [
+                ['no' => 1, 'code' => 'MK099', 'name' => 'Statistika', 'credits' => 3, 'score' => 80.0, 'letter' => 'A'],
             ],
-        ], 200),
+        ],
     ]);
 
-    CourseContent::create(['semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus I', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
-
-    $result = $this->service->syncFromMonitoring($this->user->id, 1);
+    $result = $this->service->syncScoresFromSiakang($this->user->id, 'Semester 2', '20251');
 
     expect($result['updated'])->toBe(0);
-    expect($result['skipped'])->toContain('Kalkulus I');
+    expect($result['no_match'])->toContain('Statistika');
 });
 
-test('syncFromMonitoring skips courses not found in user course_contents', function () {
-    Http::fake([
-        'http://localhost:8000/tasks/1/data' => Http::response([
-            'data' => [
-                'nilai' => [
-                    ['matkul' => 'Statistika', 'sks' => 3, 'nilai' => '80', 'mutu' => '4.00'],
-                ],
+test('syncScoresFromSiakang matches courses case-insensitively', function () {
+    Setting::factory()->withSiakangCredentials()->create(['user_id' => $this->user->id]);
+
+    $this->siakangClient->shouldReceive('getGrades')->once()->andReturn([
+        'code' => 200,
+        'message' => 'Success',
+        'data' => [
+            'ip' => 4.0,
+            'ipk' => null,
+            'courses' => [
+                ['no' => 1, 'code' => 'MK001', 'name' => 'kalkulus i', 'credits' => 3, 'score' => 92.0, 'letter' => 'A'],
             ],
-        ], 200),
+        ],
     ]);
 
-    $result = $this->service->syncFromMonitoring($this->user->id, 1);
+    CourseContent::create(['semester' => 'Semester 2', 'code' => 'MK001', 'course_content' => 'Kalkulus I', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
 
-    expect($result['updated'])->toBe(0);
-    expect($result['skipped'])->toContain('Statistika');
-});
-
-test('syncFromMonitoring matches courses case-insensitively', function () {
-    Http::fake([
-        'http://localhost:8000/tasks/1/data' => Http::response([
-            'data' => [
-                'nilai' => [
-                    ['matkul' => 'kalkulus i', 'sks' => 3, 'nilai' => '92', 'mutu' => '4.00'],
-                ],
-            ],
-        ], 200),
-    ]);
-
-    CourseContent::create(['semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus I', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
-
-    $result = $this->service->syncFromMonitoring($this->user->id, 1);
+    $result = $this->service->syncScoresFromSiakang($this->user->id, 'Semester 2', '20251');
 
     expect($result['updated'])->toBe(1);
 });
 
-test('syncFromMonitoring throws when monitoring API returns error', function () {
-    Http::fake([
-        'http://localhost:8000/tasks/1/data' => Http::response('Not Found', 404),
+test('syncScoresFromSiakang throws when siakang returns error code', function () {
+    Setting::factory()->withSiakangCredentials()->create(['user_id' => $this->user->id]);
+
+    $this->siakangClient->shouldReceive('getGrades')->once()->andReturn([
+        'code' => 401,
+        'message' => 'Login failed — check email/password',
     ]);
 
-    $this->service->syncFromMonitoring($this->user->id, 1);
-})->throws(\Exception::class, 'Failed to fetch');
+    $this->service->syncScoresFromSiakang($this->user->id, 'Semester 2', '20251');
+})->throws(Exception::class, 'Login failed', 401);
 
-test('syncFromMonitoring throws when response has no nilai array', function () {
-    Http::fake([
-        'http://localhost:8000/tasks/1/data' => Http::response([
-            'data' => ['nama' => 'Test', 'nilai' => null],
-        ], 200),
+test('syncScoresFromSiakang throws when response has no courses array', function () {
+    Setting::factory()->withSiakangCredentials()->create(['user_id' => $this->user->id]);
+
+    $this->siakangClient->shouldReceive('getGrades')->once()->andReturn([
+        'code' => 200,
+        'message' => 'Success',
+        'data' => ['ip' => null, 'ipk' => null, 'courses' => []],
     ]);
 
-    $this->service->syncFromMonitoring($this->user->id, 1);
-})->throws(\Exception::class, 'No grade data');
+    $this->service->syncScoresFromSiakang($this->user->id, 'Semester 2', '20251');
+})->throws(Exception::class, 'No grade data found');
 
-test('syncFromMonitoring filters by active semester and ignores other semesters', function () {
-    Http::fake([
-        'http://localhost:8000/tasks/1/data' => Http::response([
-            'code' => 200,
-            'message' => 'Success',
-            'data' => [
-                'nilai' => [
-                    ['matkul' => 'Jaringan Komputer', 'sks' => 3, 'nilai' => '88', 'mutu' => '4.00'],
-                ],
+test('syncScoresFromSiakang filters by mapped semester label', function () {
+    Setting::factory()->withSiakangCredentials()->create(['user_id' => $this->user->id]);
+
+    $this->siakangClient->shouldReceive('getGrades')->once()->andReturn([
+        'code' => 200,
+        'message' => 'Success',
+        'data' => [
+            'ip' => 3.8,
+            'ipk' => null,
+            'courses' => [
+                ['no' => 1, 'code' => 'MK001', 'name' => 'Jaringan Komputer', 'credits' => 3, 'score' => 88.0, 'letter' => 'A'],
             ],
-        ], 200),
+        ],
     ]);
 
     // Same course name in two semesters
-    CourseContent::create(['semester' => 'Semester 3', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
-    CourseContent::create(['semester' => 'Semester 4', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
+    CourseContent::create(['semester' => 'Semester 1', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
+    CourseContent::create(['semester' => 'Semester 2', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
 
-    // Sync only Semester 4 (active semester)
-    $result = $this->service->syncFromMonitoring($this->user->id, 1, 'Semester 4');
-
-    expect($result['updated'])->toBe(1);
-
-    $semester3Course = CourseContent::where('course_content', 'Jaringan Komputer')->where('semester', 'Semester 3')->first();
-    $semester4Course = CourseContent::where('course_content', 'Jaringan Komputer')->where('semester', 'Semester 4')->first();
-
-    // Semester 3 should NOT be updated
-    expect($semester3Course->score)->toBeNull();
-    // Semester 4 should be updated
-    expect((float) $semester4Course->score)->toBe(88.0);
-});
-
-test('syncFromMonitoring syncs across all semesters when no semester filter given', function () {
-    Http::fake([
-        'http://localhost:8000/tasks/1/data' => Http::response([
-            'code' => 200,
-            'message' => 'Success',
-            'data' => [
-                'nilai' => [
-                    ['matkul' => 'Jaringan Komputer', 'sks' => 3, 'nilai' => '90', 'mutu' => '4.00'],
-                ],
-            ],
-        ], 200),
-    ]);
-
-    CourseContent::create(['semester' => 'Semester 3', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
-
-    // No semester filter — matches the first (and only) one
-    $result = $this->service->syncFromMonitoring($this->user->id, 1);
+    // Semester code "20251" maps to "Semester 2" → only that row updated
+    $result = $this->service->syncScoresFromSiakang($this->user->id, 'Semester 2', '20251');
 
     expect($result['updated'])->toBe(1);
+    expect($result['semester_label'])->toBe('Semester 2');
+
+    $sem1 = CourseContent::where('semester', 'Semester 1')->first();
+    $sem2 = CourseContent::where('semester', 'Semester 2')->first();
+    expect($sem1->score)->toBeNull();
+    expect((float) $sem2->score)->toBe(88.0);
 });
 
-test('syncFromMonitoring matches by stripped course name ignoring parenthetical codes', function () {
-    Http::fake([
-        'http://localhost:8000/tasks/1/data' => Http::response([
-            'data' => [
-                'nilai' => [
-                    ['matkul' => 'Sistem Terdistribusi (INF622208)', 'sks' => 3, 'nilai' => '82', 'mutu' => '4.00'],
-                ],
+test('syncScoresFromSiakang matches by stripped course name ignoring parenthetical codes', function () {
+    Setting::factory()->withSiakangCredentials()->create(['user_id' => $this->user->id]);
+
+    $this->siakangClient->shouldReceive('getGrades')->once()->andReturn([
+        'code' => 200,
+        'message' => 'Success',
+        'data' => [
+            'ip' => 3.5,
+            'ipk' => null,
+            'courses' => [
+                ['no' => 1, 'code' => 'INF622208', 'name' => 'Sistem Terdistribusi (INF622208)', 'credits' => 3, 'score' => 82.0, 'letter' => 'A-'],
             ],
-        ], 200),
+        ],
     ]);
 
-    CourseContent::create(['semester' => 'Semester 4', 'code' => 'INF622208', 'course_content' => 'Sistem Terdistribusi (C)', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
+    CourseContent::create(['semester' => 'Semester 2', 'code' => 'INF622208', 'course_content' => 'Sistem Terdistribusi (C)', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
 
-    $result = $this->service->syncFromMonitoring($this->user->id, 1, 'Semester 4');
+    $result = $this->service->syncScoresFromSiakang($this->user->id, 'Semester 2', '20251');
 
     expect($result['updated'])->toBe(1);
 });
 
-test('syncFromMonitoring handles response without data wrapper', function () {
-    Http::fake([
-        'http://localhost:8000/tasks/1/data' => Http::response([
-            'nilai' => [
-                ['matkul' => 'Kalkulus', 'sks' => 3, 'nilai' => '80', 'mutu' => '4.00'],
+test('syncScoresFromSiakang counts unchanged scores and does not rewrite them', function () {
+    Setting::factory()->withSiakangCredentials()->create(['user_id' => $this->user->id]);
+
+    $this->siakangClient->shouldReceive('getGrades')->once()->andReturn([
+        'code' => 200,
+        'message' => 'Success',
+        'data' => [
+            'ip' => 3.6,
+            'ipk' => null,
+            'courses' => [
+                ['no' => 1, 'code' => 'MK001', 'name' => 'Kalkulus I', 'credits' => 3, 'score' => 85.0, 'letter' => 'B+'],
             ],
-        ], 200),
+        ],
     ]);
 
-    CourseContent::create(['semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
+    $course = CourseContent::create(['semester' => 'Semester 2', 'code' => 'MK001', 'course_content' => 'Kalkulus I', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => 85.0, 'user_id' => $this->user->id]);
 
-    $result = $this->service->syncFromMonitoring($this->user->id, 1);
-
-    expect($result['updated'])->toBe(1);
-});
-
-test('syncFromMonitoring skips when no course matches within filtered semester', function () {
-    Http::fake([
-        'http://localhost:8000/tasks/1/data' => Http::response([
-            'data' => [
-                'nilai' => [
-                    ['matkul' => 'Jaringan Komputer', 'sks' => 3, 'nilai' => '88', 'mutu' => '4.00'],
-                ],
-            ],
-        ], 200),
-    ]);
-
-    // Course exists but only in Semester 3
-    CourseContent::create(['semester' => 'Semester 3', 'code' => 'MK001', 'course_content' => 'Jaringan Komputer', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => null, 'user_id' => $this->user->id]);
-
-    // Sync for Semester 4 — no matching course there
-    $result = $this->service->syncFromMonitoring($this->user->id, 1, 'Semester 4');
+    $result = $this->service->syncScoresFromSiakang($this->user->id, 'Semester 2', '20251');
 
     expect($result['updated'])->toBe(0);
-    expect($result['skipped'])->toContain('Jaringan Komputer');
+    expect($result['unchanged'])->toBe(1);
+    expect($result['no_match'])->toBeEmpty();
+
+    $course->refresh();
+    expect((float) $course->score)->toBe(85.0);
 });

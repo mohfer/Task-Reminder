@@ -25,7 +25,10 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401 && !isRedirecting) {
+        const isAuthExpired =
+            error.response?.status === 401 && error.config?.skipAuthLogout !== true;
+
+        if (isAuthExpired && !isRedirecting) {
             isRedirecting = true;
             localStorage.clear();
             sessionStorage.clear();

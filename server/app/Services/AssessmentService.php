@@ -4,62 +4,14 @@ namespace App\Services;
 
 use App\Models\CourseContent;
 use App\Models\Grade;
-use Illuminate\Support\Facades\Http;
+use App\Models\Setting;
 
 class AssessmentService
 {
-    private function monitoringUrl(): string
-    {
-        $url = config('app.monitoring_url');
+    public function __construct(
+        private readonly SiakangClient $siakangClient
+    ) {}
 
-        if (!$url) {
-            throw new \Exception('MONITORING_URL is not configured', 500);
-        }
-
-        return rtrim($url, '/');
-    }
-
-    public function getMonitoringTasks(int $userId): array
-    {
-        $url = $this->monitoringUrl();
-
-        $response = Http::timeout(10)->get("{$url}/tasks");
-
-        if (!$response->successful()) {
-            throw new \Exception("Failed to fetch tasks from monitoring API: HTTP {$response->status()}", 502);
-        }
-
-        $body = $response->json();
-        $data = $body['data'] ?? $body;
-        $tasks = is_array($data) ? $data : [];
-
-        $user = \App\Models\User::find($userId);
-
-        return array_values(array_filter($tasks, function ($task) use ($user) {
-            if (($task['monitor_type'] ?? '') !== 'nilai') {
-                return false;
-            }
-
-            if (!$user) {
-                return true;
-            }
-
-            $userWords = array_filter(explode(' ', strtolower($user->name)));
-            $taskName = strtolower($task['name'] ?? '');
-            $taskNamePart = trim(explode('-', $taskName)[0]);
-            $taskWords = explode(' ', $taskNamePart);
-
-            foreach ($userWords as $userWord) {
-                foreach ($taskWords as $taskWord) {
-                    if (str_contains($userWord, $taskWord) || str_contains($taskWord, $userWord)) {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }));
-    }
     public function calculateGpa(int $userId, ?string $selectedSemester): array
     {
         $grades = Grade::where('user_id', $userId)->get();
@@ -98,10 +50,10 @@ class AssessmentService
 
         foreach ($groupedBySemester as $semester => $contents) {
             $mapped = $contents->map($mapGrade);
-            $hasEmpty = $mapped->contains(fn($c) => $c['score'] === null);
+            $hasEmpty = $mapped->contains(fn ($c) => $c['score'] === null);
 
-            if (!$hasEmpty) {
-                $weightedGradePoints = $mapped->sum(fn($c) => $c['grade_point'] * $c['credits']);
+            if (! $hasEmpty) {
+                $weightedGradePoints = $mapped->sum(fn ($c) => $c['grade_point'] * $c['credits']);
                 $totalCredits = $mapped->sum('credits');
                 $semesterGpa = $totalCredits > 0 ? $weightedGradePoints / $totalCredits : 0;
 
@@ -118,9 +70,9 @@ class AssessmentService
         $selectedSemester = $selectedSemester ?? $semesters->last();
         $selectedContents = ($groupedBySemester[$selectedSemester] ?? collect())->map($mapGrade);
 
-        $hasEmptySelected = $selectedContents->contains(fn($c) => $c['score'] === null);
-        if (!$hasEmptySelected && $selectedContents->isNotEmpty()) {
-            $weightedGradePoints = $selectedContents->sum(fn($c) => $c['grade_point'] * $c['credits']);
+        $hasEmptySelected = $selectedContents->contains(fn ($c) => $c['score'] === null);
+        if (! $hasEmptySelected && $selectedContents->isNotEmpty()) {
+            $weightedGradePoints = $selectedContents->sum(fn ($c) => $c['grade_point'] * $c['credits']);
             $totalCredits = $selectedContents->sum('credits');
             $selectedGpa = $totalCredits > 0 ? number_format($weightedGradePoints / $totalCredits, 2) : '0.00';
         } else {
@@ -148,75 +100,91 @@ class AssessmentService
         return $courseContent;
     }
 
-    public function syncFromMonitoring(int $userId, int $taskId, ?string $semester = null): array
+    public function syncScoresFromSiakang(int $userId, ?string $targetSemester = null, ?string $sourceSemester = null): array
     {
-        $sourceUrl = $this->monitoringUrl();
-        $response = Http::timeout(30)->get("{$sourceUrl}/tasks/{$taskId}/data");
+        $setting = Setting::where('user_id', $userId)->first();
 
-        if (!$response->successful()) {
-            throw new \Exception("Failed to fetch data from monitoring API: HTTP {$response->status()}", 502);
+        if (! $setting?->hasSiakangCredentials()) {
+            throw new \Exception('Siakang credentials are not configured. Add them in Settings.', 422);
         }
 
-        $body = $response->json();
+        $response = $this->siakangClient->getGrades(
+            trim($setting->siakang_email),
+            trim($setting->siakang_password),
+            $sourceSemester
+        );
 
-        // monitoring-akademik wraps responses in ApiResponse { code, message, data }
-        $data = $body['data'] ?? $body;
-
-        if (empty($data['nilai']) || !is_array($data['nilai'])) {
-            throw new \Exception('No grade data found in monitoring response', 422);
+        if (($response['code'] ?? 0) !== 200) {
+            throw new \Exception($response['message'] ?? 'Failed to fetch grades from Siakang.', (int) ($response['code'] ?: 502));
         }
 
-        $grades = Grade::where('user_id', $userId)->get();
+        $data = $response['data'] ?? [];
+
+        if (empty($data['courses']) || ! is_array($data['courses'])) {
+            throw new \Exception('No grade data found in Siakang response.', 422);
+        }
+
         $userCourses = CourseContent::where('user_id', $userId)
-            ->when($semester, fn ($q) => $q->where('semester', $semester))
+            ->when($targetSemester, fn ($q) => $q->where('semester', $targetSemester))
             ->get();
 
         $updated = 0;
-        $skipped = [];
+        $unchanged = 0;
+        $noMatch = [];
 
-        foreach ($data['nilai'] as $nilaiItem) {
-            $matkul = trim($nilaiItem['matkul'] ?? '');
-            $nilaiAngka = $nilaiItem['nilai'] ?? null;
+        foreach ($data['courses'] as $course) {
+            $name = trim($course['name'] ?? '');
+            $score = $course['score'] ?? null;
 
-            // Only sync if the grade value is numeric
-            if ($matkul === '' || $nilaiAngka === null || $nilaiAngka === '---' || !is_numeric($nilaiAngka)) {
-                if ($matkul !== '') {
-                    $skipped[] = $matkul;
+            // Only sync published numeric scores
+            if ($name === '' || $score === null || ! is_numeric($score)) {
+                if ($name !== '') {
+                    $noMatch[] = $name.' (nilai belum keluar)';
                 }
+
                 continue;
             }
 
-            $numericScore = (float) $nilaiAngka;
+            $numericScore = (float) $score;
 
-            // Try matching by extracting the course name (strip parenthetical codes)
-            // "Sistem Terdistribusi (INF622208)" → "Sistem Terdistribusi"
-            // "Sistem Terdistribusi (C)" → "Sistem Terdistribusi"
-            $matkulName = trim(preg_replace('/\s*\([^)]*\)\s*$/', '', $matkul));
+            $matkulName = trim(preg_replace('/\s*\([^)]*\)\s*$/', '', $name));
 
             // 1. Exact match first
-            $courseContent = $userCourses->first(function ($c) use ($matkul) {
-                return strcasecmp(trim($c->course_content), $matkul) === 0;
+            $courseContent = $userCourses->first(function ($c) use ($name) {
+                return strcasecmp(trim($c->course_content), $name) === 0;
             });
 
             // 2. Match by extracted name (both sides stripped of parentheticals)
-            if (!$courseContent) {
+            if (! $courseContent) {
                 $courseContent = $userCourses->first(function ($c) use ($matkulName) {
                     $localName = trim(preg_replace('/\s*\([^)]*\)\s*$/', '', $c->course_content));
+
                     return strcasecmp($localName, $matkulName) === 0;
                 });
             }
 
-            // 3. Fuzzy: monitoring matkul name is contained in local course_content (or vice versa)
-            if (!$courseContent && $matkulName !== '') {
+            // 3. Fuzzy: Siakang course name is contained in local course_content (or vice versa)
+            if (! $courseContent && $matkulName !== '') {
                 $courseContent = $userCourses->first(function ($c) use ($matkulName) {
                     $localName = trim(preg_replace('/\s*\([^)]*\)\s*$/', '', $c->course_content));
+
                     return stripos($c->course_content, $matkulName) !== false
                         || stripos($matkulName, $localName) !== false;
                 });
             }
 
-            if (!$courseContent) {
-                $skipped[] = $matkul;
+            if (! $courseContent) {
+                $noMatch[] = $name;
+
+                continue;
+            }
+
+            $existingScore = $courseContent->score === null ? null : (float) $courseContent->score;
+            $isSame = $existingScore !== null && abs($existingScore - $numericScore) < 0.0001;
+
+            if ($isSame) {
+                $unchanged++;
+
                 continue;
             }
 
@@ -226,7 +194,11 @@ class AssessmentService
 
         return [
             'updated' => $updated,
-            'skipped' => $skipped,
+            'unchanged' => $unchanged,
+            'no_match' => $noMatch,
+            'semester_label' => $targetSemester,
+            'ip' => $data['ip'] ?? null,
+            'ipk' => $data['ipk'] ?? null,
         ];
     }
 }

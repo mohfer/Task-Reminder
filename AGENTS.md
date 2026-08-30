@@ -74,6 +74,17 @@ cd server && php artisan test
 - `FRONTEND_URL` — CORS/origin for Sanctum (default `http://localhost:5173`)
 - `TELEGRAM_BOT_TOKEN` — required for Telegram notifications
 
+## Siakang sync (Python bridge)
+
+Laravel shells out to a small Python CLI at `server/siakang-sync/run.py` to pull grades/schedule from Siakang via the `siakang-scrapling` library. Communication is JSON over stdin/stdout.
+
+- **Bridge**: `server/siakang-sync/run.py` — reads a JSON command from stdin, writes `{code, message, data}` to stdout. Always exits `0` for valid commands (HTTP-like status rides in `code`); non-zero only for hard process failures.
+- **Invoker**: `app/Services/SiakangClient.php` — `Process` facade, sends payload via `->input()`. Prefers `.venv/bin/python` (no runtime `uv` dependency), falls back to `uv run`.
+- **Setup**: `cd server/siakang-sync && uv sync` (Python 3.11+). `.venv`, `uv.lock`, and `.siakang_session_*.json` are gitignored.
+- **Session cache**: `session_file=True` everywhere except `verify`, which forces a fresh login so a wrong password isn't masked by a cached session.
+- **Details**: the schedule bridge uses `get_detail(schedule_id, tab_keys=[])` (header-only) fetched in parallel — only `kelas` + `dosen` are needed, not all tabs.
+- **Credentials**: stored encrypted in `settings.siakang_email`/`settings.siakang_password` (`encrypted` cast, hidden from JSON). `SettingsService::updateSiakangCredentials` validates via Siakang before persisting; a 401 here must NOT be treated as an app-logout.
+
 ## graphify
 
 This project has a knowledge graph at `graphify-out/` with god nodes, community structure, and cross-file relationships.

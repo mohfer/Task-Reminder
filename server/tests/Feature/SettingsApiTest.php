@@ -2,6 +2,7 @@
 
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\SiakangClient;
 use Laravel\Sanctum\Sanctum;
 
 beforeEach(function () {
@@ -16,6 +17,8 @@ beforeEach(function () {
         'telegram_chat_id' => null,
         'user_id' => $this->user->id,
     ]);
+    $this->siakangClient = Mockery::mock(SiakangClient::class);
+    $this->app->instance(SiakangClient::class, $this->siakangClient);
 });
 
 // ─── GET /api/settings ───
@@ -96,4 +99,37 @@ test('toggle task completed notification', function () {
         ->assertJsonPath('data.task_completed_notification', 0);
 });
 
+// ─── PUT /api/settings/siakang-credentials ───
 
+test('stores siakang credentials when verification succeeds', function () {
+    $this->siakangClient->shouldReceive('verify')
+        ->once()
+        ->with('student@student.untirta.ac.id', 'secret')
+        ->andReturn(['code' => 200, 'message' => 'Success', 'data' => ['ok' => true]]);
+
+    $response = $this->putJson('/api/settings/siakang-credentials', [
+        'siakang_email' => 'student@student.untirta.ac.id',
+        'siakang_password' => 'secret',
+    ]);
+
+    $response->assertOk()
+        ->assertJsonPath('data.has_siakang_credentials', true);
+
+    expect(Setting::first()->hasSiakangCredentials())->toBeTrue();
+});
+
+test('returns 401 and does not store credentials when verification fails', function () {
+    $this->siakangClient->shouldReceive('verify')
+        ->once()
+        ->andReturn(['code' => 401, 'message' => 'Login failed — check email/password']);
+
+    $response = $this->putJson('/api/settings/siakang-credentials', [
+        'siakang_email' => 'student@student.untirta.ac.id',
+        'siakang_password' => 'wrong',
+    ]);
+
+    $response->assertStatus(401)
+        ->assertJsonPath('message', 'Login failed — check email/password');
+
+    expect(Setting::first()->hasSiakangCredentials())->toBeFalse();
+});

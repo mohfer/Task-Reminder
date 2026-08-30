@@ -19,7 +19,7 @@ class UserService
 
     public function changePassword(User $user, string $oldPassword, string $newPassword): void
     {
-        if (!Hash::check($oldPassword, $user->password)) {
+        if (! Hash::check($oldPassword, $user->password)) {
             throw new \Exception('Current password is incorrect', 401);
         }
 
@@ -31,13 +31,22 @@ class UserService
     {
         $user->load('setting');
 
+        $setting = $user->setting;
+        $settings = $setting ? $setting->toArray() : null;
+
+        if ($settings && $setting->hasSiakangCredentials()) {
+            $settings['has_siakang_credentials'] = true;
+        } elseif ($settings) {
+            $settings['has_siakang_credentials'] = false;
+        }
+
         return [
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
             ],
-            'settings' => $user->setting,
+            'settings' => $settings,
         ];
     }
 }

@@ -19,4 +19,14 @@ export const settingsApi = {
     updateTaskCompletedNotification: (data) =>
         axiosInstance.patch('/settings/task-completed-notification', data),
 
+    saveSiakangCredentials: (data) =>
+        axiosInstance.put('/settings/siakang-credentials', data, {
+            skipAuthLogout: true,
+        }),
+
+    deleteSiakangCredentials: () =>
+        axiosInstance.delete('/settings/siakang-credentials', {
+            skipAuthLogout: true,
+        }),
+
 };

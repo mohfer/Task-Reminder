@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSettings } from '@/hooks/useSettings';
 import { useAuth } from '@/hooks/useAuth';
 import { NotificationSettings } from '@/components/Settings/NotificationSettings';
+import { SiakangCredentialsForm } from '@/components/Settings/SiakangCredentialsForm';
 import { ProfileForm } from '@/components/Settings/ProfileForm';
 import { PasswordForm } from '@/components/Settings/PasswordForm';
 import { LogoutButton } from '@/components/Settings/LogoutButton';
@@ -22,6 +23,8 @@ export const SettingsView = () => {
         toggleTaskCompletedNotification,
         updateProfile,
         changePassword,
+        saveSiakangCredentials,
+        deleteSiakangCredentials,
     } = useSettings();
 
     const { logout } = useAuth();
@@ -35,6 +38,7 @@ export const SettingsView = () => {
             <Tabs defaultValue="notifications">
                 <TabsList>
                     <TabsTrigger value="notifications">Notifications</TabsTrigger>
+                    <TabsTrigger value="siakang">Siakang</TabsTrigger>
                     <TabsTrigger value="grades">Grades</TabsTrigger>
                     <TabsTrigger value="profile">Profile</TabsTrigger>
                 </TabsList>
@@ -58,6 +62,16 @@ export const SettingsView = () => {
                         onTaskCompletedToggle={() =>
                             toggleTaskCompletedNotification(Number(settings?.task_completed_notification || 0) === 1 ? 0 : 1)
                         }
+                    />
+                </TabsContent>
+
+                <TabsContent value="siakang">
+                    <SiakangCredentialsForm
+                        isLoading={isLoading}
+                        isMutating={isMutating}
+                        hasCredentials={Boolean(settings?.has_siakang_credentials)}
+                        onSave={saveSiakangCredentials}
+                        onDelete={deleteSiakangCredentials}
                     />
                 </TabsContent>
 

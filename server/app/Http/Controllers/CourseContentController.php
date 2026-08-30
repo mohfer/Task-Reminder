@@ -76,11 +76,34 @@ class CourseContentController
         return $this->sendResponse($data, 'Course Contents retrieved successfully');
     }
 
+    public function syncSchedule(Request $request)
+    {
+        $request->validate([
+            'semester' => 'nullable|string',
+            'source_semester' => 'nullable|string',
+        ]);
+
+        try {
+            $result = $this->courseContentService->syncScheduleFromSiakang(
+                $request->user()->id,
+                $request->semester,
+                $request->source_semester
+            );
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 500);
+        }
+
+        return $this->sendResponse(
+            $result,
+            "{$result['inserted']} schedules imported, ".count($result['skipped']).' skipped'
+        );
+    }
+
     public function downloadTemplate()
     {
         $filePath = public_path('templates/course_content_template.xlsx');
 
-        if (!file_exists($filePath)) {
+        if (! file_exists($filePath)) {
             return $this->sendError('Template file not found', 404);
         }
 

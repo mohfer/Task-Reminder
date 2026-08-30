@@ -1,0 +1,8 @@
+# Siakang sync session cookies (bearer credentials — never commit)
+.siakang_session_*.json
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+uv.lock
