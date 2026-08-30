@@ -73,6 +73,7 @@ cd server && php artisan test
 - `QUEUE_CONNECTION=database`
 - `FRONTEND_URL` — CORS/origin for Sanctum (default `http://localhost:5173`)
 - `TELEGRAM_BOT_TOKEN` — required for Telegram notifications
+- `SIAKANG_UV` — optional absolute path to `uv` for the bridge; set on servers where Octane/FrankenPHP has a restricted PATH (defaults to `/root/.local/bin/uv`)
 
 ## Siakang sync (Python bridge)
 

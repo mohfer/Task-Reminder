@@ -33,13 +33,20 @@ class SiakangClient
             ->run($command);
 
         if ($result->exitCode() !== 0) {
+            $stderr = trim($result->errorOutput());
+            $stdout = trim($result->output());
+            $detail = $stderr ?: $stdout;
+
             Log::error('Siakang sync process failed', [
                 'exit_code' => $result->exitCode(),
-                'error' => $result->errorOutput(),
-                'output' => $result->output(),
+                'command' => $command,
+                'error' => $stderr,
+                'output' => $stdout,
             ]);
 
-            throw new \Exception('Siakang sync process failed: '.trim($result->errorOutput() ?: $result->output()), 500);
+            throw new \Exception(
+                'Siakang sync process failed (exit '.$result->exitCode().'): '.($detail !== '' ? $detail : $this->scriptPath().' — check that the Python environment is set up via `cd server/siakang-sync && uv sync`.')
+            );
         }
 
         $decoded = json_decode($result->output(), true);
@@ -52,20 +59,63 @@ class SiakangClient
     }
 
     /**
-     * Resolve the Python interpreter command. Prefer running the venv's python
-     * directly (no runtime `uv` dependency); fall back to `uv run`.
+     * Resolve the Python interpreter command.
+     *
+     * Prefers `uv run` using the locked environment (uv.lock), which is
+     * reproducible and does not depend on a copied .venv surviving the deploy.
+     * Falls back to the in-repo .venv/bin/python when uv cannot be found.
      *
      * @return array{0: array<int, string>, 1: array<string, string>}
      */
     private function pythonCommand(): array
     {
+        $uv = $this->findUv();
+
+        if ($uv !== null) {
+            return [[$uv, 'run', '--project', '.', 'python', $this->scriptPath()], []];
+        }
+
         $venv = $this->venvPython();
 
         if ($venv && is_file($venv)) {
             return [[$venv, $this->scriptPath()], []];
         }
 
-        return [['uv', 'run', 'python', $this->scriptPath()], []];
+        return [['python3', $this->scriptPath()], []];
+    }
+
+    /**
+     * Locate the uv binary, preferring an explicit path so a process running
+     * under Octane/FrankenPHP with a restricted PATH still finds it.
+     */
+    private function findUv(): ?string
+    {
+        $candidates = array_filter([
+            env('SIAKANG_UV'),
+            $_SERVER['SIAKANG_UV'] ?? null,
+            '/root/.local/bin/uv',
+            '/usr/local/bin/uv',
+            '/home/'.(getenv('USER') ?: 'root').'/.local/bin/uv',
+        ]);
+
+        foreach ($candidates as $candidate) {
+            if (is_file($candidate) && is_executable($candidate)) {
+                return $candidate;
+            }
+        }
+
+        if ($this->commandExists('uv')) {
+            return 'uv';
+        }
+
+        return null;
+    }
+
+    private function commandExists(string $bin): bool
+    {
+        $result = Process::timeout(5)->run(['sh', '-c', 'command -v '.escapeshellarg($bin)]);
+
+        return $result->exitCode() === 0;
     }
 
     private function venvPython(): ?string

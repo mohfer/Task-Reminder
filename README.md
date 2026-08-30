@@ -101,6 +101,7 @@ pnpm install
 | `QUEUE_CONNECTION` | Queue driver (set to `database`) |
 | `FRONTEND_URL` | CORS/origin for Sanctum (default `http://localhost:5173`) |
 | `TELEGRAM_BOT_TOKEN` | Required for Telegram notifications |
+| `SIAKANG_UV` | Optional absolute path to the `uv` binary for the Siakang sync bridge (set on servers with a restricted runtime PATH; defaults to `/root/.local/bin/uv`) |
 
 ### Run Development Servers
 
