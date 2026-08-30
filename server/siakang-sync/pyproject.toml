@@ -2,7 +2,7 @@
 name = "siakang-sync"
 version = "0.1.0"
 description = "CLI bridge that calls siakang-scrapling for Task Reminder (Laravel)."
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.13"
 dependencies = [
     "siakang-scrapling @ git+https://github.com/mohfer/siakang-scrapling",
 ]
