@@ -12,11 +12,58 @@ Commands:
 Errors are surfaced as non-zero exit codes plus a rejected JSON body on stdout.
 """
 
+import glob
 import json
 import os
 import sys
 
-from siakang import SiakangClient, api_response
+# Make this script self-contained: if it is run by an interpreter that is NOT
+# the venv (e.g. a bare `python3` from a restricted PATH), locate the venv that
+# `uv sync` created and put its site-packages on sys.path so `siakang` resolves.
+_HERE = os.path.dirname(os.path.abspath(__file__))
+
+
+def _ensure_siakang_importable() -> None:
+    if 'siakang' in sys.modules:
+        return
+    try:
+        import siakang  # noqa: F401
+        return
+    except ModuleNotFoundError:
+        pass
+
+    venv_candidates = [
+        os.path.join(_HERE, '.venv'),
+        os.path.join(_HERE, '..', 'siakang-sync', '.venv'),
+    ]
+    for venv in venv_candidates:
+        for site in glob.glob(os.path.join(venv, 'lib', 'python*', 'site-packages')):
+            if site not in sys.path:
+                sys.path.insert(0, site)
+    # Fall back to the venv interpreter if we still cannot import.
+    if _try_import():
+        return
+    venv_python = os.path.join(_HERE, '.venv', 'bin', 'python')
+    if os.path.exists(venv_python):
+        os.execv(venv_python, [venv_python] + sys.argv)
+
+
+def _try_import() -> bool:
+    from siakang import SiakangClient, api_response  # noqa: F401
+    return True
+
+
+_ensure_siakang_importable()
+
+try:
+    from siakang import SiakangClient, api_response  # noqa: E402
+except ModuleNotFoundError as exc:
+    sys.stderr.write(
+        "ModuleNotFoundError: siakang-scrapling is not installed.\n"
+        "Run `cd server/siakang-sync && uv sync` (requires Python 3.11+ and uv).\n"
+        f"Tried venvs: {_HERE}/.venv\n"
+    )
+    sys.exit(1)
 
 # Only the header card is needed (kelas + dosen). Skip all detail tabs for speed.
 _HEADER_ONLY_TABS = []

@@ -61,24 +61,25 @@ class SiakangClient
     /**
      * Resolve the Python interpreter command.
      *
-     * Prefers `uv run` using the locked environment (uv.lock), which is
-     * reproducible and does not depend on a copied .venv surviving the deploy.
-     * Falls back to the in-repo .venv/bin/python when uv cannot be found.
+     * Prefer the in-repo `.venv/bin/python` created by `uv sync` — it is the
+     * exact locked environment, so `uv` does not need to be on the runtime PATH.
+     * Fall back to `uv run` (locked env too) when the venv is missing, then to
+     * a bare `python3` as a last resort.
      *
      * @return array{0: array<int, string>, 1: array<string, string>}
      */
     private function pythonCommand(): array
     {
-        $uv = $this->findUv();
-
-        if ($uv !== null) {
-            return [[$uv, 'run', '--project', '.', 'python', $this->scriptPath()], []];
-        }
-
         $venv = $this->venvPython();
 
         if ($venv && is_file($venv)) {
             return [[$venv, $this->scriptPath()], []];
+        }
+
+        $uv = $this->findUv();
+
+        if ($uv !== null) {
+            return [[$uv, 'run', '--project', '.', 'python', $this->scriptPath()], []];
         }
 
         return [['python3', $this->scriptPath()], []];
