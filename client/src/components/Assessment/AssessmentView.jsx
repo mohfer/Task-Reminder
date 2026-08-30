@@ -7,6 +7,7 @@ import { AssessmentTable } from '@/components/Assessment/AssessmentTable';
 import { GpaSummary } from '@/components/Assessment/GpaSummary';
 import { ScoreUpdateDialog } from '@/components/Assessment/ScoreUpdateDialog';
 import { SyncDialog } from '@/components/Assessment/SyncDialog';
+import { RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export const AssessmentView = () => {
@@ -27,7 +28,7 @@ export const AssessmentView = () => {
             {settings?.has_siakang_credentials ? (
                 <div className="flex gap-4">
                     <Button variant="outline" onClick={syncDialog.open}>
-                        Sync from Siakang
+                        <RefreshCw className="mr-2 h-4 w-4" /> Sync from Siakang
                     </Button>
                 </div>
             ) : null}
