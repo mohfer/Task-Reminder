@@ -132,11 +132,17 @@ export const TaskFormDialog = ({
                                 <SelectValue placeholder="Select course" />
                             </SelectTrigger>
                             <SelectContent>
-                                {courseContents.map((content) => (
-                                    <SelectItem key={content.id} value={String(content.id)}>
-                                        {content.course_content}
-                                    </SelectItem>
-                                ))}
+                                {[...courseContents]
+                                    .sort((a, b) =>
+                                        a.course_content.localeCompare(b.course_content, 'id', {
+                                            sensitivity: 'base',
+                                        })
+                                    )
+                                    .map((content) => (
+                                        <SelectItem key={content.id} value={String(content.id)}>
+                                            {content.course_content}
+                                        </SelectItem>
+                                    ))}
                             </SelectContent>
                         </Select>
                     </FormField>
