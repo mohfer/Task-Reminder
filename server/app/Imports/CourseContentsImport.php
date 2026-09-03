@@ -7,13 +7,7 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class CourseContentsImport implements ToArray, WithHeadingRow
 {
-    /**
-     * @param array $rows
-     *
-     * @return array
-     */
-    public function array(array $rows)
+    public function array(array $array): void
     {
-        return $rows;
     }
 }
