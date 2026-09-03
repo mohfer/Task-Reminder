@@ -17,12 +17,20 @@
 
 ## Features
 
-- Weekly tasks, course contents, and schedule with overlap detection
-- Dashboard and GPA chart per semester
-- Siakang sync for grades and schedules from Siakang Untirta
-- Excel import
-- Email and Telegram notifications
-- Sanctum auth with email verification and password reset
+- Task management with priority flags and due-date tracking
+- Course content CRUD with Excel import and template download
+- Weekly schedule with overlap detection and multi-week navigation
+- Monthly task calendar with status badges and overdue highlighting
+- Dashboard analytics with bar chart and semester overview
+- Assessment and GPA tracking per semester and cumulative
+- Custom grade scale management
+- Siakang sync for grades and schedules via siakang-scrapling
+- Notification channels: email, telegram, or both with test button
+- Queued email delivery and Telegram MarkdownV2 formatting
+- User settings for profile, password, and notification preferences
+- Theme support: light, dark, and system
+- Responsive design for mobile, tablet, and desktop
+- Sanctum SPA auth with email verification and password reset
 
 ## Tech Stack
 
