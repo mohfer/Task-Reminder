@@ -319,9 +319,27 @@ class CourseContentService
         }
 
         $rows = $sheets[0];
+        // Normalize alias columns: SCU/SKS -> credits (template lama masih pakai SCU)
+        $rows = array_map(function ($row) {
+            if (! isset($row['credits']) || $row['credits'] === null || $row['credits'] === '') {
+                if (isset($row['scu']) && $row['scu'] !== null && $row['scu'] !== '') {
+                    $row['credits'] = $row['scu'];
+                } elseif (isset($row['sks']) && $row['sks'] !== null && $row['sks'] !== '') {
+                    $row['credits'] = $row['sks'];
+                }
+            }
+
+            return $row;
+        }, $rows);
+
         $expectedHeadings = ['semester', 'code', 'course_content', 'credits', 'lecturer', 'day', 'hour_start', 'hour_end'];
         $firstRowKeys = array_keys($rows[0]);
-        $missingHeadings = array_diff($expectedHeadings, $firstRowKeys);
+        // Untuk cek missing, anggap credits terpenuhi jika ada scu/sks
+        $keysForCheck = $firstRowKeys;
+        if (in_array('scu', $firstRowKeys, true) || in_array('sks', $firstRowKeys, true)) {
+            $keysForCheck[] = 'credits';
+        }
+        $missingHeadings = array_diff($expectedHeadings, $keysForCheck);
 
         if (! empty($missingHeadings)) {
             throw new \RuntimeException('Template column format is incorrect.|Missing columns: '.implode(', ', $missingHeadings));
