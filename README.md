@@ -71,11 +71,14 @@ cd client && pnpm dev
 ## Commands
 
 ```bash
-cd server && php artisan test                    # 188 tests
+cd server && php artisan test                    # 218 tests (Feature + Unit)
+cd server && php artisan test --testsuite=Feature
+cd server && php artisan test --testsuite=Unit
 cd server && php artisan queue:listen --tries=1
 cd server && php artisan notifications:reminder
-cd client && pnpm lint && pnpm build
 cd server && ./vendor/bin/pint
+cd client && pnpm lint && pnpm build
+cd client && pnpm test                           # 97 tests Vitest + jsdom + Testing Library
 ```
 
 ## Siakang Sync

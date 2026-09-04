@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreGradeRequest;
+use App\Http\Requests\UpdateGradeRequest;
 use App\Services\GradeService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class GradeController
 {
@@ -22,31 +23,17 @@ class GradeController
         return $this->sendResponse($grades, 'Grades retrieved successfully');
     }
 
-    public function store(Request $request)
+    public function store(StoreGradeRequest $request)
     {
-        $request->validate([
-            'grade' => ['required', Rule::unique('grades')->where(fn($query) => $query->where('user_id', $request->user()->id))],
-            'grade_point' => 'required|numeric',
-            'minimal_score' => 'required|numeric|min:0|max:100',
-            'maximal_score' => 'required|numeric|min:0|max:100',
-        ]);
-
-        $grade = $this->gradeService->create($request->user()->id, $request->all());
+        $grade = $this->gradeService->create($request->user()->id, $request->validated());
 
         return $this->sendResponse($grade, 'Grade created successfully', 201);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateGradeRequest $request, $id)
     {
-        $request->validate([
-            'grade' => ['required', Rule::unique('grades')->where(fn($query) => $query->where('user_id', $request->user()->id))->ignore($id)],
-            'grade_point' => 'required|numeric',
-            'minimal_score' => 'required|numeric|min:0|max:100',
-            'maximal_score' => 'required|numeric|min:0|max:100',
-        ]);
-
         try {
-            $grade = $this->gradeService->update($request->user()->id, (int) $id, $request->all());
+            $grade = $this->gradeService->update($request->user()->id, (int) $id, $request->validated());
         } catch (\Exception) {
             return $this->sendError('Grade not found', 404);
         }

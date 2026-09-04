@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreSiakangCredentialsRequest;
+use App\Http\Requests\UpdateDeadlineNotificationRequest;
+use App\Http\Requests\UpdateNotificationChannelRequest;
+use App\Http\Requests\UpdateTelegramChatIdRequest;
 use App\Services\SettingsService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -31,14 +35,10 @@ class SettingsController
         ], 'Settings retrieved successfully');
     }
 
-    public function deadlineNotification(Request $request)
+    public function deadlineNotification(UpdateDeadlineNotificationRequest $request)
     {
-        $request->validate([
-            'deadline_notification' => 'required|string',
-        ]);
-
         try {
-            $setting = $this->settingsService->updateDeadlineNotification($request->user()->id, $request->deadline_notification);
+            $setting = $this->settingsService->updateDeadlineNotification($request->user()->id, $request->validated()['deadline_notification']);
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 404);
         }
@@ -46,14 +46,10 @@ class SettingsController
         return $this->sendResponse($setting, 'Deadline notification updated successfully');
     }
 
-    public function notificationChannel(Request $request)
+    public function notificationChannel(UpdateNotificationChannelRequest $request)
     {
-        $request->validate([
-            'notification_channel' => 'required|in:email,telegram,both',
-        ]);
-
         try {
-            $setting = $this->settingsService->updateNotificationChannel($request->user()->id, $request->notification_channel);
+            $setting = $this->settingsService->updateNotificationChannel($request->user()->id, $request->validated()['notification_channel']);
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 422);
         }
@@ -61,14 +57,10 @@ class SettingsController
         return $this->sendResponse($setting, 'Notification channel updated successfully');
     }
 
-    public function telegramChatId(Request $request)
+    public function telegramChatId(UpdateTelegramChatIdRequest $request)
     {
-        $request->validate([
-            'telegram_chat_id' => 'nullable|string|max:64',
-        ]);
-
         try {
-            $setting = $this->settingsService->updateTelegramChatId($request->user()->id, $request->input('telegram_chat_id'));
+            $setting = $this->settingsService->updateTelegramChatId($request->user()->id, $request->validated()['telegram_chat_id'] ?? null);
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 422);
         }
@@ -112,18 +104,13 @@ class SettingsController
         return $this->sendResponse($setting, 'Task completed notification updated successfully');
     }
 
-    public function siakangCredentials(Request $request)
+    public function siakangCredentials(StoreSiakangCredentialsRequest $request)
     {
-        $request->validate([
-            'siakang_email' => 'required|email',
-            'siakang_password' => 'required|string|min:1',
-        ]);
-
         try {
             $setting = $this->settingsService->updateSiakangCredentials(
                 $request->user()->id,
-                $request->siakang_email,
-                $request->siakang_password
+                $request->validated()['siakang_email'],
+                $request->validated()['siakang_password']
             );
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 422);

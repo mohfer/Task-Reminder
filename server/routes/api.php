@@ -12,7 +12,6 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->middleware('throttle:10,1')->group(function () {
-    // Auth
     Route::post('login', [AuthController::class, 'login']);
     Route::post('register', [AuthController::class, 'register']);
 });
@@ -38,23 +37,21 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/dashboard/chart', [DashboardController::class, 'chart']);
     Route::get('/dashboard/semester-overview', [DashboardController::class, 'semesterOverview']);
 
-    // Course Content
-    Route::post('/course-contents', [CourseContentController::class, 'store']);
-    Route::put('/course-contents/{id}', [CourseContentController::class, 'update']);
-    Route::delete('/course-contents/{id}', [CourseContentController::class, 'destroy']);
+    // Course Content — custom routes harus sebelum apiResource agar tidak tertabrak {course_content}
     Route::get('/course-contents/filter', [CourseContentController::class, 'filter']);
     Route::get('/course-contents/download-template', [CourseContentController::class, 'downloadTemplate']);
     Route::post('/course-contents/import-from-excel', [CourseContentController::class, 'importFromExcel']);
     Route::post('/course-contents/sync-schedule', [CourseContentController::class, 'syncSchedule']);
+    Route::apiResource('course-contents', CourseContentController::class)->only(['store', 'update', 'destroy']);
 
-    // Assessment
+    // Assessment — calculate/sync/semesters custom, update via resource-style
     Route::get('/assessments/calculate', [AssessmentController::class, 'calculateGpa']);
-    Route::patch('/assessments/{id}', [AssessmentController::class, 'update']);
-    Route::post('/assessments/sync', [AssessmentController::class, 'sync']);
     Route::get('/assessments/semesters', [AssessmentController::class, 'semesters']);
+    Route::post('/assessments/sync', [AssessmentController::class, 'sync']);
+    Route::patch('/assessments/{id}', [AssessmentController::class, 'update']);
 
-    // Task
-    Route::resource('tasks', TaskController::class)->only(['store', 'update', 'destroy']);
+    // Task — apiResource untuk CRUD standar, status toggle custom
+    Route::apiResource('tasks', TaskController::class)->only(['store', 'update', 'destroy']);
     Route::patch('/tasks/{id}/status', [TaskController::class, 'statusChanged']);
 
     // Settings
@@ -69,7 +66,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::delete('/settings/siakang-credentials', [SettingsController::class, 'siakangCredentialsDelete']);
     Route::put('/settings/profile', [UserController::class, 'updateProfile']);
     Route::put('/settings/password', [UserController::class, 'changePassword']);
-    Route::resource('/settings/grades', GradeController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::apiResource('settings/grades', GradeController::class)->only(['index', 'store', 'update', 'destroy']);
 
     // Logout
     Route::post('/auth/logout', [AuthController::class, 'logout']);

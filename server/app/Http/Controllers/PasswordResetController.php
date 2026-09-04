@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ResetPasswordRequest;
+use App\Http\Requests\SendResetLinkRequest;
 use App\Services\PasswordResetService;
 use App\Traits\ApiResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 
 class PasswordResetController
@@ -15,27 +16,16 @@ class PasswordResetController
         private readonly PasswordResetService $passwordResetService
     ) {}
 
-    public function sendResetLink(Request $request)
+    public function sendResetLink(SendResetLinkRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
-
-        $this->passwordResetService->sendResetLink($request->email);
+        $this->passwordResetService->sendResetLink($request->validated()['email']);
 
         return $this->sendResponse(null, 'If that email is registered, we have sent a password reset link.');
     }
 
-    public function resetPassword(Request $request)
+    public function resetPassword(ResetPasswordRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'token' => 'required',
-            'password' => 'required|min:8',
-            'password_confirmation' => 'required|same:password',
-        ]);
-
-        $status = $this->passwordResetService->resetPassword($request->only('email', 'password', 'password_confirmation', 'token'));
+        $status = $this->passwordResetService->resetPassword($request->validated());
 
         if ($status === Password::PASSWORD_RESET) {
             return $this->sendResponse(null, 'Password has been reset successfully.');

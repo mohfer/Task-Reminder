@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ChangePasswordRequest;
+use App\Http\Requests\UpdateProfileRequest;
 use App\Services\UserService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class UserController
 {
@@ -15,28 +16,17 @@ class UserController
         private readonly UserService $userService
     ) {}
 
-    public function updateProfile(Request $request)
+    public function updateProfile(UpdateProfileRequest $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($request->user()->id)],
-        ]);
-
-        $user = $this->userService->updateProfile($request->user(), $request->only(['name', 'email']));
+        $user = $this->userService->updateProfile($request->user(), $request->validated());
 
         return $this->sendResponse($user, 'User updated successfully');
     }
 
-    public function changePassword(Request $request)
+    public function changePassword(ChangePasswordRequest $request)
     {
-        $request->validate([
-            'old_password' => 'required',
-            'password' => 'required|min:8',
-            'password_confirmation' => 'required|same:password'
-        ]);
-
         try {
-            $this->userService->changePassword($request->user(), $request->old_password, $request->password);
+            $this->userService->changePassword($request->user(), $request->validated()['old_password'], $request->validated()['password']);
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 401);
         }

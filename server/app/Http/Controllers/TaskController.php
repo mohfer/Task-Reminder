@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
 use App\Services\TaskService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -14,18 +16,10 @@ class TaskController
         private readonly TaskService $taskService
     ) {}
 
-    public function store(Request $request)
+    public function store(StoreTaskRequest $request)
     {
-        $request->validate([
-            'task' => 'required',
-            'description' => 'nullable|string',
-            'deadline' => 'required|date',
-            'priority' => 'boolean',
-            'course_content_id' => 'required|exists:course_contents,id'
-        ]);
-
         try {
-            $task = $this->taskService->create($request->user(), $request->all());
+            $task = $this->taskService->create($request->user(), $request->validated());
         } catch (\Exception) {
             return $this->sendError('Course Content not found', 404);
         }
@@ -33,16 +27,10 @@ class TaskController
         return $this->sendResponse($task, 'Task created successfully', 201);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateTaskRequest $request, $id)
     {
-        $request->validate([
-            'task' => 'required',
-            'deadline' => 'required|date',
-            'course_content_id' => 'required'
-        ]);
-
         try {
-            $task = $this->taskService->update($request->user()->id, (int) $id, $request->all());
+            $task = $this->taskService->update($request->user()->id, (int) $id, $request->validated());
         } catch (\Exception) {
             return $this->sendError('Task not found', 404);
         }

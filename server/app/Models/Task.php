@@ -33,11 +33,11 @@ class Task extends Model
             return 'Overdue';
         }
 
-        $diffInDays = $now->diffInDays($deadline);
+        $diffInDays = (int) $now->diffInDays($deadline);
 
         if ($diffInDays == 0) {
             return 'Due today';
-        } else if ($diffInDays === 1) {
+        } elseif ($diffInDays == 1) {
             return '1 day left';
         } else {
             return $diffInDays . ' days left';

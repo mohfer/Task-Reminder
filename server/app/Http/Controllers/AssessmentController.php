@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SyncAssessmentRequest;
+use App\Http\Requests\UpdateAssessmentRequest;
 use App\Models\Setting;
 use App\Services\AssessmentService;
 use App\Services\SiakangClient;
@@ -24,29 +26,20 @@ class AssessmentController
         return $this->sendResponse($data, 'Course contents, semester GPA, and cumulative GPA retrieved successfully');
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateAssessmentRequest $request, $id)
     {
-        $request->validate([
-            'score' => 'nullable|numeric|min:0|max:100',
-        ]);
-
-        $courseContent = $this->assessmentService->updateScore($request->user()->id, (int) $id, $request->score);
+        $courseContent = $this->assessmentService->updateScore($request->user()->id, (int) $id, $request->validated()['score'] ?? null);
 
         return $this->sendResponse($courseContent, 'Score updated successfully');
     }
 
-    public function sync(Request $request)
+    public function sync(SyncAssessmentRequest $request)
     {
-        $request->validate([
-            'semester' => 'nullable|string',
-            'source_semester' => 'nullable|string',
-        ]);
-
         try {
             $result = $this->assessmentService->syncScoresFromSiakang(
                 $request->user()->id,
-                $request->semester,
-                $request->source_semester
+                $request->validated()['semester'] ?? null,
+                $request->validated()['source_semester'] ?? null
             );
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 500);

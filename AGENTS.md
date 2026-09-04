@@ -2,8 +2,8 @@
 
 Monorepo with two separate dev servers:
 
-- `client/` — React 18 + Vite SPA (pnpm)
-- `server/` — Laravel 12 API + Octane (FrankenPHP) + Pest tests
+- `client/` — React 19 + Vite SPA (pnpm) + Vitest
+- `server/` — Laravel 13 API + Octane (FrankenPHP) + Pest tests
 
 ## Commands
 
@@ -36,22 +36,21 @@ cd server && php artisan queue:listen --tries=1
 ## Architecture
 
 - **Controller → Service**: Controllers in `app/Http/Controllers/` delegate to services in `app/Services/`. All controllers use the `ApiResponse` trait for JSON responses.
+- **Validation**: All request validation lives in `app/Http/Requests/` Form Requests (20 classes), controllers use `$request->validated()` only. See `StoreTaskRequest`, `UpdateGradeRequest` etc for `authorize` and `rules`.
+- **Routes**: Standard CRUD uses `apiResource` (`server/routes/api.php:45,54,69`) for `course-contents`, `tasks`, `settings/grades`, custom routes are defined before the resource to avoid `{id}` collision. Non CRUD like `filter`, `sync-schedule` stays manual.
 - **Sanctum SPA auth**: Most API routes require `auth:sanctum` + `verified` middleware (`server/routes/api.php:32`). Auth routes are rate-limited (`throttle:10,1`).
 - **Queue**: Database driver. Email notifications use `ShouldQueue`. Must run a queue worker for email delivery.
 - **Notifications**: `notifications:reminder` sends both email (queued) and Telegram (synchronous via Bot API, MarkdownV2) per user settings. Test notification button hits the same services via `SettingsController::testNotification`.
 
-## Testing (Pest)
+## Testing
 
 ```bash
-cd server && php artisan test
+cd server && php artisan test                 # 218 tests (Feature + Unit)
+cd client && pnpm test                        # 97 tests Vitest + jsdom
 ```
 
-- Framework is **Pest** (not bare PHPUnit).
-- All `Feature` tests automatically use `RefreshDatabase` trait (`server/tests/Pest.php:14`).
-- Testing DB connection is `mysql` → database `task_reminder_test` (`server/phpunit.xml:27`). A MySQL server with that database must exist before running tests.
-- Test env sets `QUEUE_CONNECTION=sync` and `MAIL_MAILER=array`.
-- Feature tests match API route groups: Auth, Task, CourseContent, Assessment, Dashboard, Grade, Settings, PasswordReset, User.
-- Unit tests match service classes one-to-one.
+- **Server**: **Pest** (not bare PHPUnit), 218 tests. All `Feature` tests automatically use `RefreshDatabase` trait (`server/tests/Pest.php:14`). Testing DB connection is `mysql` → database `task_reminder_test` (`server/phpunit.xml:27`). A MySQL server with that database must exist before running tests. Test env sets `QUEUE_CONNECTION=sync` and `MAIL_MAILER=array`. Feature tests match API route groups: Auth, Task, CourseContent, Assessment, Dashboard, Grade, Settings, PasswordReset, User. Unit tests cover services one-to-one plus `RequestValidationTest` (20 Form Requests) and `ModelTest` (Setting, Task deadline_label, relations).
+- **Client**: **Vitest** 4 + `jsdom` + `@testing-library/react` + `jest-dom`. Config in `client/vite.config.js:13` (`environment: jsdom`, `setupFiles: src/test/setup.js`). Tests cover `src/lib/` (utils, constants, formUtils, tableUtils, scheduleUtils), `src/store/useSemesterStore`, `src/api/` (axiosInstance interceptors + 9 api modules), `src/hooks/` (useModal, useAuth, useChartData, useSemesterOverview, useGrades, useCourseContents, useDashboard, useAssessments, useSettings).
 
 ## Client conventions
 
@@ -61,6 +60,7 @@ cd server && php artisan test
 - **API**: Axios instance in `src/api/axiosInstance.js` — reads `VITE_API_URL` from env.
 - **Routing**: React Router with code-split lazy pages. All protected pages wrap in `<ProtectedRoute>`.
 - **Alias**: `@/` → `src/` (vite + jsconfig).
+- **Testing**: Vitest + jsdom. Run `pnpm test` from `client/`. Setup file `src/test/setup.js` mocks `matchMedia` and storage.
 
 ## Env vars
 
