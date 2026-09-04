@@ -2,29 +2,29 @@ import { describe, it, expect } from 'vitest';
 import { getFieldError } from './formUtils';
 
 describe('getFieldError', () => {
-  it('return null jika errors falsy', () => {
+  it('returns null if errors is falsy', () => {
     expect(getFieldError(null, 'name')).toBeNull();
     expect(getFieldError(undefined, 'name')).toBeNull();
     expect(getFieldError({}, 'name')).toBeNull();
   });
 
-  it('return string error langsung', () => {
-    expect(getFieldError({ name: 'Wajib diisi' }, 'name')).toBe('Wajib diisi');
+  it('returns string error directly', () => {
+    expect(getFieldError({ name: 'Required field' }, 'name')).toBe('Required field');
   });
 
-  it('return elemen pertama jika array', () => {
-    expect(getFieldError({ email: ['Email tidak valid', 'Lain'] }, 'email')).toBe('Email tidak valid');
+  it('returns first element if array', () => {
+    expect(getFieldError({ email: ['Invalid email', 'Other'] }, 'email')).toBe('Invalid email');
   });
 
-  it('return null jika field tidak ada', () => {
+  it('returns null if field does not exist', () => {
     expect(getFieldError({ name: 'error' }, 'email')).toBeNull();
   });
 
-  it('handle array kosong', () => {
+  it('handles empty array', () => {
     expect(getFieldError({ name: [] }, 'name')).toBeUndefined();
   });
 
-  it('handle field dengan string kosong', () => {
+  it('handles field with empty string', () => {
     expect(getFieldError({ name: '' }, 'name')).toBeNull();
   });
 });

@@ -24,7 +24,7 @@ import { passwordApi } from './passwordApi';
 describe('API modules', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('taskApi memanggil endpoint dengan benar', async () => {
+  it('taskApi calls correct endpoints', async () => {
     await taskApi.getAll();
     expect(axiosInstance.get).toHaveBeenCalledWith('/tasks');
     await taskApi.getById(1);
@@ -39,7 +39,7 @@ describe('API modules', () => {
     expect(axiosInstance.patch).toHaveBeenCalledWith('/tasks/5/status', { status: 1 });
   });
 
-  it('courseContentApi memanggil endpoint dengan benar', async () => {
+  it('courseContentApi calls correct endpoints', async () => {
     await courseContentApi.filter('Semester 1');
     expect(axiosInstance.get).toHaveBeenCalledWith('/course-contents/filter', { params: { semester: 'Semester 1' } });
     await courseContentApi.create({ code: 'MK001' });
@@ -57,7 +57,7 @@ describe('API modules', () => {
     expect(axiosInstance.post).toHaveBeenCalledWith('/course-contents/sync-schedule', { semester: 'Semester 1', source_semester: '20251' });
   });
 
-  it('authApi memanggil endpoint dengan benar', async () => {
+  it('authApi calls correct endpoints', async () => {
     await authApi.login({ email: 'a@b.com', password: 'secret' });
     expect(axiosInstance.post).toHaveBeenCalledWith('/auth/login', { email: 'a@b.com', password: 'secret' });
     await authApi.register({ name: 'Test' });
@@ -74,7 +74,7 @@ describe('API modules', () => {
     expect(axiosInstance.get).toHaveBeenCalledWith('/email/verify/1/hash', { params: { a: 1 } });
   });
 
-  it('gradeApi memanggil endpoint dengan benar', async () => {
+  it('gradeApi calls correct endpoints', async () => {
     await gradeApi.getAll();
     expect(axiosInstance.get).toHaveBeenCalledWith('/settings/grades');
     await gradeApi.create({ grade: 'A' });
@@ -85,7 +85,7 @@ describe('API modules', () => {
     expect(axiosInstance.delete).toHaveBeenCalledWith('/settings/grades/1');
   });
 
-  it('dashboardApi memanggil endpoint dengan benar', async () => {
+  it('dashboardApi calls correct endpoints', async () => {
     await dashboardApi.getDashboard();
     expect(axiosInstance.get).toHaveBeenCalledWith('/dashboard');
     await dashboardApi.getChart('Semester 1');
@@ -94,7 +94,7 @@ describe('API modules', () => {
     expect(axiosInstance.get).toHaveBeenCalledWith('/dashboard/semester-overview');
   });
 
-  it('assessmentApi memanggil endpoint dengan benar', async () => {
+  it('assessmentApi calls correct endpoints', async () => {
     await assessmentApi.calculate('Semester 1');
     expect(axiosInstance.get).toHaveBeenCalledWith('/assessments/calculate', { params: { semester: 'Semester 1' } });
     await assessmentApi.update(1, { score: 85 });
@@ -105,7 +105,7 @@ describe('API modules', () => {
     expect(axiosInstance.get).toHaveBeenCalledWith('/assessments/semesters');
   });
 
-  it('settingsApi memanggil endpoint dengan benar', async () => {
+  it('settingsApi calls correct endpoints', async () => {
     await settingsApi.updateDeadlineNotification({ deadline_notification: '3 days' });
     expect(axiosInstance.put).toHaveBeenCalledWith('/settings/deadline-notification', { deadline_notification: '3 days' });
     await settingsApi.updateNotificationChannel({ notification_channel: 'email' });
@@ -124,7 +124,7 @@ describe('API modules', () => {
     expect(axiosInstance.delete).toHaveBeenCalledWith('/settings/siakang-credentials', { skipAuthLogout: true });
   });
 
-  it('userApi memanggil endpoint dengan benar', async () => {
+  it('userApi calls correct endpoints', async () => {
     await userApi.getAuthenticatedUser();
     expect(axiosInstance.get).toHaveBeenCalledWith('/auth/user');
     await userApi.updateProfile({ name: 'New' });
@@ -133,7 +133,7 @@ describe('API modules', () => {
     expect(axiosInstance.put).toHaveBeenCalledWith('/settings/password', { old_password: 'old' });
   });
 
-  it('passwordApi memanggil endpoint dengan benar', async () => {
+  it('passwordApi calls correct endpoints', async () => {
     await passwordApi.sendResetLink({ email: 'a@b.com' });
     expect(axiosInstance.post).toHaveBeenCalledWith('/password/email', { email: 'a@b.com' });
     await passwordApi.resetPassword({ token: 'tok' });

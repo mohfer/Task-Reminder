@@ -7,7 +7,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { useModal } from './useModal';
 
 describe('useModal', () => {
-  it('initial false dan open/close/toggle', () => {
+  it('starts false and handles open/close/toggle', () => {
     const { result } = renderHook(() => useModal());
     expect(result.current.isOpen).toBe(false);
     act(() => result.current.open());
@@ -44,7 +44,7 @@ describe('useAuth', () => {
     vi.clearAllMocks();
   });
 
-  it('isAuthenticated dan getToken/getName', () => {
+  it('isAuthenticated and getToken/getName', () => {
     const wrapper = ({ children }) => createElement(MemoryRouter, null, children);
     const { result } = renderHook(() => useAuth(), { wrapper });
     expect(result.current.isAuthenticated()).toBe(false);
@@ -56,7 +56,7 @@ describe('useAuth', () => {
     expect(result.current.getName()).toBe('Budi');
   });
 
-  it('logout success menghapus storage dan navigasi', async () => {
+  it('logout success clears storage and navigates', async () => {
     localStorage.setItem('token', 'abc');
     sessionStorage.setItem('x', '1');
     const wrapper = ({ children }) => createElement(MemoryRouter, null, children);
@@ -69,7 +69,7 @@ describe('useAuth', () => {
     expect(localStorage.getItem('token')).toBeNull();
   });
 
-  it('logout error tetap clear dan navigasi', async () => {
+  it('logout error still clears and navigates', async () => {
     authApi.logout.mockRejectedValueOnce({ response: { data: { message: 'Gagal' } } });
     const wrapper = ({ children }) => createElement(MemoryRouter, null, children);
     const { result } = renderHook(() => useAuth(), { wrapper });
@@ -93,7 +93,7 @@ import { useChartData } from './useChartData';
 import { dashboardApi } from '@/api/dashboardApi';
 
 describe('useChartData', () => {
-  it('fetch chart data pada mount', async () => {
+  it('fetches chart data on mount', async () => {
     const { result } = renderHook(() => useChartData('Semester 1'));
     expect(result.current.isLoading).toBe(true);
     await waitFor(() => expect(result.current.isLoading).toBe(false));
@@ -103,7 +103,7 @@ describe('useChartData', () => {
     expect(result.current.totalTask).toBe(5);
   });
 
-  it('handle error tanpa crash', async () => {
+  it('handles error without crashing', async () => {
     dashboardApi.getChart.mockRejectedValueOnce(new Error('fail'));
     const { result } = renderHook(() => useChartData('Semester 1'));
     await waitFor(() => expect(result.current.isLoading).toBe(false));
@@ -115,7 +115,7 @@ describe('useChartData', () => {
 import { useSemesterOverview } from './useSemesterOverview';
 
 describe('useSemesterOverview', () => {
-  it('fetch overview dan expose semesters', async () => {
+  it('fetches overview and exposes semesters', async () => {
     const { result } = renderHook(() => useSemesterOverview());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(dashboardApi.getSemesterOverview).toHaveBeenCalled();
@@ -137,7 +137,7 @@ import { useGrades } from './useGrades';
 import { gradeApi } from '@/api/gradeApi';
 
 describe('useGrades', () => {
-  it('fetchGrades dan create/update/delete', async () => {
+  it('fetches grades and handles create/update/delete', async () => {
     const { result } = renderHook(() => useGrades());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(gradeApi.getAll).toHaveBeenCalled();
@@ -177,7 +177,7 @@ import { useCourseContents } from './useCourseContents';
 import { courseContentApi } from '@/api/courseContentApi';
 
 describe('useCourseContents', () => {
-  it('fetch dan create/update', async () => {
+  it('fetches and handles create/update', async () => {
     const { result } = renderHook(() => useCourseContents('Semester 1'));
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(courseContentApi.filter).toHaveBeenCalledWith('Semester 1');
@@ -209,7 +209,7 @@ vi.mock('@/api/taskApi', () => ({
 import { useDashboard } from './useDashboard';
 
 describe('useDashboard', () => {
-  it('fetchDashboard dan create task', async () => {
+  it('fetches dashboard and handles create task', async () => {
     const { result } = renderHook(() => useDashboard());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(dashboardApi.getDashboard).toHaveBeenCalled();
@@ -244,7 +244,7 @@ import { useAssessments } from './useAssessments';
 import { assessmentApi } from '@/api/assessmentApi';
 
 describe('useAssessments', () => {
-  it('fetch, updateScore, syncScores', async () => {
+  it('fetches, updates score and syncs scores', async () => {
     const { result } = renderHook(() => useAssessments('Semester 1'));
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(assessmentApi.calculate).toHaveBeenCalled();
@@ -287,7 +287,7 @@ vi.mock('@/api/userApi', () => ({
 import { useSettings } from './useSettings';
 
 describe('useSettings', () => {
-  it('fetchUserData dan update settings', async () => {
+  it('fetches user data and updates settings', async () => {
     const { result } = renderHook(() => useSettings());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     const { userApi: mockedUserApi } = await import('@/api/userApi');

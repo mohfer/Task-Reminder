@@ -319,7 +319,7 @@ class CourseContentService
         }
 
         $rows = $sheets[0];
-        // Normalize alias columns: SCU/SKS -> credits (template lama masih pakai SCU)
+        // Normalize alias columns: SCU/SKS -> credits (legacy template still uses SCU)
         $rows = array_map(function ($row) {
             if (! isset($row['credits']) || $row['credits'] === null || $row['credits'] === '') {
                 if (isset($row['scu']) && $row['scu'] !== null && $row['scu'] !== '') {
@@ -334,7 +334,7 @@ class CourseContentService
 
         $expectedHeadings = ['semester', 'code', 'course_content', 'credits', 'lecturer', 'day', 'hour_start', 'hour_end'];
         $firstRowKeys = array_keys($rows[0]);
-        // Untuk cek missing, anggap credits terpenuhi jika ada scu/sks
+        // For missing check, treat credits as satisfied if scu/sks exists
         $keysForCheck = $firstRowKeys;
         if (in_array('scu', $firstRowKeys, true) || in_array('sks', $firstRowKeys, true)) {
             $keysForCheck[] = 'credits';

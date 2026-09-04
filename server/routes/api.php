@@ -37,20 +37,20 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/dashboard/chart', [DashboardController::class, 'chart']);
     Route::get('/dashboard/semester-overview', [DashboardController::class, 'semesterOverview']);
 
-    // Course Content — custom routes harus sebelum apiResource agar tidak tertabrak {course_content}
+    // Course Content — custom routes must be defined before apiResource to avoid collision with {course_content}
     Route::get('/course-contents/filter', [CourseContentController::class, 'filter']);
     Route::get('/course-contents/download-template', [CourseContentController::class, 'downloadTemplate']);
     Route::post('/course-contents/import-from-excel', [CourseContentController::class, 'importFromExcel']);
     Route::post('/course-contents/sync-schedule', [CourseContentController::class, 'syncSchedule']);
     Route::apiResource('course-contents', CourseContentController::class)->only(['store', 'update', 'destroy']);
 
-    // Assessment — calculate/sync/semesters custom, update via resource-style
+    // Assessment — custom calculate/sync/semesters, update follows resource style
     Route::get('/assessments/calculate', [AssessmentController::class, 'calculateGpa']);
     Route::get('/assessments/semesters', [AssessmentController::class, 'semesters']);
     Route::post('/assessments/sync', [AssessmentController::class, 'sync']);
     Route::patch('/assessments/{id}', [AssessmentController::class, 'update']);
 
-    // Task — apiResource untuk CRUD standar, status toggle custom
+    // Task — apiResource for standard CRUD, custom status toggle
     Route::apiResource('tasks', TaskController::class)->only(['store', 'update', 'destroy']);
     Route::patch('/tasks/{id}/status', [TaskController::class, 'statusChanged']);
 

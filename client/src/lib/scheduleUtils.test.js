@@ -20,7 +20,7 @@ import {
 } from './scheduleUtils';
 
 describe('getScheduleLanguage', () => {
-  it('return id jika id', () => expect(getScheduleLanguage('id')).toBe('id'));
+  it('returns id when language is id', () => expect(getScheduleLanguage('id')).toBe('id'));
   it('default en', () => {
     expect(getScheduleLanguage('en')).toBe('en');
     expect(getScheduleLanguage('fr')).toBe('en');
@@ -42,7 +42,7 @@ describe('getScheduleLabels', () => {
 });
 
 describe('getDateLocale', () => {
-  it('return locale sesuai bahasa', () => {
+  it('returns locale according to language', () => {
     const id = getDateLocale('id');
     const en = getDateLocale('en');
     expect(id).toBeDefined();
@@ -60,7 +60,7 @@ describe('parseTimeToMinutes', () => {
     expect(parseTimeToMinutes('00:00')).toBe(0);
     expect(parseTimeToMinutes('8:5')).toBe(485);
   });
-  it('return null jika invalid', () => {
+  it('returns null if invalid', () => {
     expect(parseTimeToMinutes(null)).toBeNull();
     expect(parseTimeToMinutes(undefined)).toBeNull();
     expect(parseTimeToMinutes('')).toBeNull();
@@ -68,7 +68,7 @@ describe('parseTimeToMinutes', () => {
     expect(parseTimeToMinutes('abc')).toBeNull();
     expect(parseTimeToMinutes('ab:cd')).toBeNull();
   });
-  it('handle tanpa menit', () => {
+  it('handles missing minutes', () => {
     expect(parseTimeToMinutes('08')).toBe(480);
   });
 });
@@ -94,14 +94,14 @@ describe('generateTimeSlots', () => {
     expect(generateTimeSlots(480, 600, 60)).toEqual(['08:00', '09:00', '10:00']);
     expect(generateTimeSlots(0, 120, 30)).toEqual(['00:00', '00:30', '01:00', '01:30', '02:00']);
   });
-  it('step tidak membagi habis tetap include end jika pas', () => {
+  it('handles non-divisible step correctly', () => {
     const slots = generateTimeSlots(0, 100, 60);
     expect(slots).toEqual(['00:00', '01:00']);
   });
 });
 
 describe('getDayIndex', () => {
-  it('return index untuk hari', () => {
+  it('returns index for day', () => {
     expect(getDayIndex('Senin')).toBe(0);
     expect(getDayIndex('senin')).toBe(0);
     expect(getDayIndex('Monday')).toBe(0);
@@ -115,11 +115,11 @@ describe('getDayIndex', () => {
     expect(getDayIndex('Minggu')).toBe(6);
     expect(getDayIndex('Sunday')).toBe(6);
   });
-  it('handle trim dan case', () => {
+  it('handles trim and case', () => {
     expect(getDayIndex('  Senin  ')).toBe(0);
     expect(getDayIndex('SENIN')).toBe(0);
   });
-  it('return null jika invalid', () => {
+  it('returns null if invalid', () => {
     expect(getDayIndex(null)).toBeNull();
     expect(getDayIndex('')).toBeNull();
     expect(getDayIndex('InvalidDay')).toBeNull();
@@ -131,7 +131,7 @@ describe('groupByDay', () => {
   const daysEn = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const daysId = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
-  it('group correctly en', () => {
+  it('groups correctly for en', () => {
     const courses = [
       { day: 'Senin', course_content: 'Kalkulus' },
       { day: 'Tuesday', course_content: 'Fisika' },
@@ -143,19 +143,19 @@ describe('groupByDay', () => {
     expect(grouped['Wednesday']).toHaveLength(0);
   });
 
-  it('group correctly id', () => {
+  it('groups correctly for id', () => {
     const courses = [{ day: 'Senin', course_content: 'A' }];
     const grouped = groupByDay(courses, daysId);
     expect(grouped['Senin']).toHaveLength(1);
   });
 
-  it('abaikan hari tidak dikenal', () => {
+  it('ignores unknown days', () => {
     const courses = [{ day: 'Invalid', course_content: 'X' }, { day: null, course_content: 'Y' }];
     const grouped = groupByDay(courses, daysEn);
     Object.values(grouped).forEach(arr => expect(arr).toHaveLength(0));
   });
 
-  it('handle empty', () => {
+  it('handles empty input', () => {
     expect(groupByDay([], daysEn)).toEqual({
       Monday: [], Tuesday: [], Wednesday: [], Thursday: [], Friday: [], Saturday: [], Sunday: []
     });
@@ -163,7 +163,7 @@ describe('groupByDay', () => {
 });
 
 describe('getCurrentWeekRange', () => {
-  it('return start, end, label', () => {
+  it('returns start, end and label', () => {
     const range = getCurrentWeekRange(0, 'en');
     expect(range.start).toBeInstanceOf(Date);
     expect(range.end).toBeInstanceOf(Date);
@@ -171,7 +171,7 @@ describe('getCurrentWeekRange', () => {
     expect(range.start.getDay()).toBe(1);
   });
 
-  it('weekOffset menggeser seminggu', () => {
+  it('weekOffset shifts by a week', () => {
     const w0 = getCurrentWeekRange(0);
     const w1 = getCurrentWeekRange(1);
     const diff = (w1.start - w0.start) / (1000 * 60 * 60 * 24);
@@ -181,14 +181,14 @@ describe('getCurrentWeekRange', () => {
     expect(diffNeg).toBe(7);
   });
 
-  it('label id locale', () => {
+  it('handles id locale label', () => {
     const range = getCurrentWeekRange(0, 'id');
     expect(range.label).toBeDefined();
   });
 });
 
 describe('getDateForDay', () => {
-  it('tambah hari dengan benar', () => {
+  it('adds days correctly', () => {
     const monday = new Date(2025, 0, 6);
     expect(getDateForDay(monday, 0).getDate()).toBe(6);
     expect(getDateForDay(monday, 1).getDate()).toBe(7);
@@ -197,39 +197,39 @@ describe('getDateForDay', () => {
 });
 
 describe('calculateTopPosition', () => {
-  it('hitung posisi proporsional', () => {
+  it('calculates proportional position', () => {
     // range 7*60 to 21*60 = 840 minutes
     expect(calculateTopPosition(420)).toBe(0);
     expect(calculateTopPosition(1260)).toBe(100);
     expect(calculateTopPosition(840)).toBeCloseTo(50);
   });
-  it('clamp di luar range', () => {
+  it('clamps outside range', () => {
     expect(calculateTopPosition(0)).toBe(0);
     expect(calculateTopPosition(2000)).toBe(100);
   });
-  it('return 0 jika range invalid', () => {
+  it('returns 0 if range is invalid', () => {
     expect(calculateTopPosition(500, 100, 100)).toBe(0);
     expect(calculateTopPosition(500, 200, 100)).toBe(0);
   });
 });
 
 describe('calculateHeight', () => {
-  it('hitung height proporsional', () => {
+  it('calculates proportional height', () => {
     expect(calculateHeight(480, 540)).toBeCloseTo((60 / 840) * 100);
     expect(calculateHeight(420, 1260)).toBe(100);
   });
-  it('clamp dan handle overlap', () => {
+  it('clamps and handles overlap', () => {
     expect(calculateHeight(0, 2000)).toBe(100);
     expect(calculateHeight(500, 500)).toBe(0);
     expect(calculateHeight(600, 500)).toBe(0);
   });
-  it('return 0 jika range invalid', () => {
+  it('returns 0 if range is invalid', () => {
     expect(calculateHeight(100, 200, 100, 100)).toBe(0);
   });
 });
 
 describe('detectOverlaps', () => {
-  it('tidak overlap jika tidak tumpang tindih', () => {
+  it('no overlap when not overlapping', () => {
     const courses = [
       { id: 1, startMinutes: 480, endMinutes: 540 },
       { id: 2, startMinutes: 600, endMinutes: 660 },
@@ -241,7 +241,7 @@ describe('detectOverlaps', () => {
     expect(result[1].overlapTotal).toBe(1);
   });
 
-  it('deteksi overlap dua jadwal bersamaan', () => {
+  it('detects overlap for two concurrent schedules', () => {
     const courses = [
       { id: 1, startMinutes: 480, endMinutes: 600 },
       { id: 2, startMinutes: 500, endMinutes: 600 },
@@ -249,11 +249,11 @@ describe('detectOverlaps', () => {
     const result = detectOverlaps(courses);
     expect(result[0].overlapIndex).toBe(0);
     expect(result[1].overlapIndex).toBe(1);
-    // overlapTotal minimal 1
+    // overlapTotal at least 1
     expect(result[0].overlapTotal).toBeGreaterThanOrEqual(1);
   });
 
-  it('reuse kolom jika slot kosong', () => {
+  it('reuses column when slot is free', () => {
     const courses = [
       { id: 1, startMinutes: 480, endMinutes: 540 },
       { id: 2, startMinutes: 500, endMinutes: 560 },
@@ -263,7 +263,7 @@ describe('detectOverlaps', () => {
     expect(result[2].overlapIndex).toBe(0);
   });
 
-  it('sort berdasarkan startMinutes', () => {
+  it('sorts by startMinutes', () => {
     const courses = [
       { id: 2, startMinutes: 600, endMinutes: 660 },
       { id: 1, startMinutes: 480, endMinutes: 540 },
@@ -273,11 +273,11 @@ describe('detectOverlaps', () => {
     expect(result[1].id).toBe(2);
   });
 
-  it('handle empty', () => {
+  it('handles empty input', () => {
     expect(detectOverlaps([])).toEqual([]);
   });
 
-  it('handle same start, shorter first', () => {
+  it('handles same start with shorter first', () => {
     const courses = [
       { id: 1, startMinutes: 480, endMinutes: 600 },
       { id: 2, startMinutes: 480, endMinutes: 540 },

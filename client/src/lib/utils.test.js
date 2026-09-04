@@ -2,29 +2,29 @@ import { describe, it, expect } from 'vitest';
 import { cn } from './utils';
 
 describe('cn', () => {
-  it('menggabungkan class string', () => {
+  it('combines class strings', () => {
     expect(cn('a', 'b')).toBe('a b');
   });
 
-  it('mengabaikan falsy', () => {
+  it('ignores falsy values', () => {
     expect(cn('a', false, null, undefined, 0, 'b')).toBe('a b');
   });
 
-  it('menggabungkan conditional object', () => {
+  it('merges conditional object', () => {
     expect(cn({ a: true, b: false, c: true })).toBe('a c');
   });
 
-  it('merge tailwind dengan tailwind-merge (conflicting)', () => {
+  it('merges conflicting tailwind classes', () => {
     // tailwind-merge should keep last conflicting
     expect(cn('px-2 py-1', 'px-4')).toBe('py-1 px-4');
     expect(cn('text-red-500', 'text-blue-500')).toBe('text-blue-500');
   });
 
-  it('handle array input', () => {
+  it('handles array input', () => {
     expect(cn(['a', 'b'], 'c')).toBe('a b c');
   });
 
-  it('handle empty', () => {
+  it('handles empty input', () => {
     expect(cn()).toBe('');
     expect(cn('')).toBe('');
   });

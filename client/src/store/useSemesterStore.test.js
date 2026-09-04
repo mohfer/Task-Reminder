@@ -7,14 +7,14 @@ describe('useSemesterStore', () => {
     useSemesterStore.setState({ semester: 'Semester 1', semesterLabel: 'Semester 1', userName: '' });
   });
 
-  it('initial state', () => {
+  it('has initial state', () => {
     const state = useSemesterStore.getState();
     expect(state.semester).toBe('Semester 1');
     expect(state.semesterLabel).toBe('Semester 1');
     expect(state.userName).toBe('');
   });
 
-  it('setSemester mengupdate semester dan label', () => {
+  it('setSemester updates semester and label', () => {
     const { setSemester } = useSemesterStore.getState();
     setSemester('Semester 3', 'Semester 3 - Ganjil');
     const state = useSemesterStore.getState();
@@ -22,13 +22,13 @@ describe('useSemesterStore', () => {
     expect(state.semesterLabel).toBe('Semester 3 - Ganjil');
   });
 
-  it('setUserName mengupdate userName', () => {
+  it('setUserName updates userName', () => {
     const { setUserName } = useSemesterStore.getState();
     setUserName('Budi');
     expect(useSemesterStore.getState().userName).toBe('Budi');
   });
 
-  it('persisten ke localStorage', () => {
+  it('persists to localStorage', () => {
     const { setSemester } = useSemesterStore.getState();
     setSemester('Semester 2', 'Semester 2');
     // zustand persist stores under key semester-storage
@@ -38,14 +38,14 @@ describe('useSemesterStore', () => {
     expect(parsed.state.semester).toBe('Semester 2');
   });
 
-  it('handle ganti semester berkali-kali', () => {
+  it('handles changing semester multiple times', () => {
     const { setSemester } = useSemesterStore.getState();
     setSemester('Semester 5', 'Semester 5');
     setSemester('Semester 6', 'Semester 6');
     expect(useSemesterStore.getState().semester).toBe('Semester 6');
   });
 
-  it('setUserName kosong', () => {
+  it('handles empty userName', () => {
     const { setUserName } = useSemesterStore.getState();
     setUserName('');
     expect(useSemesterStore.getState().userName).toBe('');

@@ -92,21 +92,11 @@ class CourseContentController
         try {
             $result = $this->courseContentService->importFromExcel($request->user()->id, $request->file('file'));
 
-            return response()->json([
-                'code' => $result['status'],
-                'message' => $result['message'],
-                'data' => $result['data'],
-            ], $result['status']);
+            return $this->sendResponse($result['data'], $result['message'], $result['status']);
         } catch (\RuntimeException $e) {
             [$message, $headingError] = explode('|', $e->getMessage(), 2);
 
-            return response()->json([
-                'code' => 422,
-                'message' => $message,
-                'errors' => [
-                    'headings' => $headingError,
-                ],
-            ], 422);
+            return $this->sendError($message, 422, ['headings' => $headingError]);
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 422);
         }

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import axios from 'axios';
 
-// We need to mock localStorage and test interceptors
 describe('axiosInstance', () => {
   let axiosInstance;
   let clearSpy;
@@ -13,12 +12,9 @@ describe('axiosInstance', () => {
     window.sessionStorage.clear();
     clearSpy = vi.spyOn(window.localStorage, 'clear').mockImplementation(() => {});
     sessionClearSpy = vi.spyOn(window.sessionStorage, 'clear').mockImplementation(() => {});
-    // mock window.location
     delete window.location;
     window.location = { href: '' };
-    // set env
     vi.stubEnv('VITE_API_URL', 'http://localhost:8000/api');
-    // dynamic import after env set
     const mod = await import('./axiosInstance.js');
     axiosInstance = mod.default;
   });
@@ -29,26 +25,23 @@ describe('axiosInstance', () => {
     vi.restoreAllMocks();
   });
 
-  it('memiliki baseURL dari env', () => {
+  it('has baseURL from env', () => {
     expect(axiosInstance.defaults.baseURL).toBeDefined();
   });
 
-  it('request interceptor menambahkan Authorization jika token ada', async () => {
+  it('request interceptor adds Authorization when token exists', async () => {
     localStorage.setItem('token', 'test-token-123');
     const config = { headers: {} };
     const interceptor = axiosInstance.interceptors.request.handlers[0];
-    // handlers is internal, but we can test via actual request mock
-    // Simpler: trigger interceptor directly if available
     if (interceptor) {
       const result = await interceptor.fulfilled(config);
       expect(result.headers.Authorization).toBe('Bearer test-token-123');
     } else {
-      // fallback: make sure instance exists
       expect(axiosInstance.interceptors.request).toBeDefined();
     }
   });
 
-  it('request interceptor tidak menambahkan Authorization jika tidak ada token', async () => {
+  it('request interceptor does not add Authorization when token is missing', async () => {
     localStorage.clear();
     const config = { headers: {} };
     const interceptor = axiosInstance.interceptors.request.handlers[0];
@@ -60,7 +53,7 @@ describe('axiosInstance', () => {
     }
   });
 
-  it('response interceptor handle 401 dan redirect', async () => {
+  it('response interceptor handles 401 and redirects', async () => {
     const error = {
       response: { status: 401 },
       config: {},
@@ -78,7 +71,7 @@ describe('axiosInstance', () => {
     }
   });
 
-  it('response interceptor tidak redirect jika skipAuthLogout true', async () => {
+  it('response interceptor does not redirect when skipAuthLogout is true', async () => {
     const error = {
       response: { status: 401 },
       config: { skipAuthLogout: true },
@@ -93,7 +86,7 @@ describe('axiosInstance', () => {
     }
   });
 
-  it('response interceptor pass melalui untuk status bukan 401', async () => {
+  it('response interceptor passes through for non-401 status', async () => {
     const error = {
       response: { status: 500 },
       config: {},
