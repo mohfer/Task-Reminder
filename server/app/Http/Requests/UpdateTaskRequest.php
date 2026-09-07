@@ -15,7 +15,9 @@ class UpdateTaskRequest extends FormRequest
     {
         return [
             'task' => ['required', 'string'],
+            'description' => ['nullable', 'string'],
             'deadline' => ['required', 'date'],
+            'priority' => ['sometimes', 'boolean'],
             'course_content_id' => ['required', 'exists:course_contents,id'],
         ];
     }

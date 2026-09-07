@@ -36,23 +36,51 @@ export const NotificationSettings = ({
     onTaskCompletedToggle,
 }) => {
     const [chatIdInput, setChatIdInput] = useState('');
+    const [chatIdError, setChatIdError] = useState('');
     const needsTelegramChatId = notificationChannel === 'telegram' || notificationChannel === 'both';
     const isTestDisabled = isMutating || (needsTelegramChatId && telegramChatId?.trim() === '');
 
     useEffect(() => {
         setChatIdInput(telegramChatId || '');
+        setChatIdError('');
     }, [telegramChatId]);
 
     const handleChannelSave = async () => {
         if (needsTelegramChatId && chatIdInput.trim() === '') {
+            setChatIdError('Telegram Chat ID is required.');
             return;
         }
+        setChatIdError('');
 
-        if (needsTelegramChatId && chatIdInput.trim() !== (telegramChatId || '')) {
-            await onTelegramChatIdSave(chatIdInput);
+        // Save whenever the input differs from what is stored, even while
+        // the channel is still email (the normal first-time flow).
+        if (chatIdInput.trim() !== (telegramChatId || '')) {
+            const result = await onTelegramChatIdSave(chatIdInput);
+            if (result && result.success === false) {
+                return;
+            }
         }
 
         await onNotificationChannelChange(notificationChannel);
+    };
+
+    const handleChannelSelect = async (value) => {
+        // Flush a pending typed chat ID before switching, otherwise the
+        // server rejects telegram/both with "Please set Telegram chat ID first".
+        if ((value === 'telegram' || value === 'both') && chatIdInput.trim() === '') {
+            setChatIdError('Set Telegram chat ID first, then switch channel.');
+            return;
+        }
+        setChatIdError('');
+
+        if (chatIdInput.trim() !== '' && chatIdInput.trim() !== (telegramChatId || '')) {
+            const result = await onTelegramChatIdSave(chatIdInput);
+            if (result && result.success === false) {
+                return;
+            }
+        }
+
+        await onNotificationChannelChange(value);
     };
 
     return (
@@ -72,7 +100,7 @@ export const NotificationSettings = ({
                                 key={option.value}
                                 type="button"
                                 variant={isLoading ? 'outline' : notificationChannel === option.value ? 'default' : 'outline'}
-                                onClick={() => onNotificationChannelChange(option.value)}
+                                onClick={() => handleChannelSelect(option.value)}
                                 disabled={isMutating || isLoading}
                             >
                                 {option.label}
@@ -88,7 +116,10 @@ export const NotificationSettings = ({
                                 <Input
                                     placeholder="Telegram Chat ID"
                                     value={chatIdInput}
-                                    onChange={(event) => setChatIdInput(event.target.value)}
+                                    onChange={(event) => {
+                                        setChatIdInput(event.target.value);
+                                        if (chatIdError) setChatIdError('');
+                                    }}
                                     disabled={isMutating}
                                 />
                             )}
@@ -100,9 +131,13 @@ export const NotificationSettings = ({
                                 Save
                             </Button>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                            Set Telegram chat ID first, then switch channel to Telegram or Both.
-                        </p>
+                        {chatIdError ? (
+                            <p className="text-sm text-destructive">{chatIdError}</p>
+                        ) : (
+                            <p className="text-sm text-muted-foreground">
+                                Set Telegram chat ID first, then switch channel to Telegram or Both.
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">

@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { validateRequired } from '@/lib/formUtils';
 
 export const SiakangCredentialsForm = ({
     isLoading,
@@ -29,6 +30,17 @@ export const SiakangCredentialsForm = ({
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        const clientErrors = validateRequired(
+            { siakang_email: email, siakang_password: password },
+            [
+                { name: 'siakang_email', label: 'Siakang Email' },
+                { name: 'siakang_password', label: 'Siakang Password' },
+            ]
+        );
+        if (Object.keys(clientErrors).length > 0) {
+            setErrors(clientErrors);
+            return;
+        }
         const result = await onSave({ siakang_email: email, siakang_password: password });
         if (result.success) {
             setShowForm(false);
@@ -102,6 +114,7 @@ export const SiakangCredentialsForm = ({
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         disabled={isMutating}
+                                        required
                                     />
                                     {errors.siakang_email && (
                                         <p className="text-sm text-destructive">{errors.siakang_email}</p>
@@ -117,6 +130,7 @@ export const SiakangCredentialsForm = ({
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         disabled={isMutating}
+                                        required
                                     />
                                     {errors.siakang_password && (
                                         <p className="text-sm text-destructive">{errors.siakang_password}</p>

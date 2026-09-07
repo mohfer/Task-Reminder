@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { FormField } from '@/components/shared/FormField';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getFieldError } from '@/lib/formUtils';
+import { getFieldError, validateRequired } from '@/lib/formUtils';
 
 export const ProfileForm = ({ userData, isLoading, onSubmit }) => {
     const [name, setName] = useState('');
@@ -19,6 +19,17 @@ export const ProfileForm = ({ userData, isLoading, onSubmit }) => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        const clientErrors = validateRequired(
+            { name, email },
+            [
+                { name: 'name', label: 'Name' },
+                { name: 'email', label: 'Email' },
+            ]
+        );
+        if (Object.keys(clientErrors).length > 0) {
+            setErrors(clientErrors);
+            return;
+        }
         setIsSubmitting(true);
         try {
             const result = await onSubmit({ name, email });
@@ -44,7 +55,7 @@ export const ProfileForm = ({ userData, isLoading, onSubmit }) => {
                         {isLoading ? (
                             <Skeleton className="h-10 w-full" />
                         ) : (
-                            <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Enter your name" />
+                            <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Enter your name" required />
                         )}
                     </FormField>
 
@@ -52,7 +63,7 @@ export const ProfileForm = ({ userData, isLoading, onSubmit }) => {
                         {isLoading ? (
                             <Skeleton className="h-10 w-full" />
                         ) : (
-                            <Input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Enter your email" />
+                            <Input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Enter your email" required />
                         )}
                     </FormField>
 

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/shared/FormField';
 import { PasswordInput } from '@/components/shared/PasswordInput';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getFieldError } from '@/lib/formUtils';
+import { getFieldError, validateRequired } from '@/lib/formUtils';
 
 export const PasswordForm = ({ onSubmit }) => {
     const [currentPassword, setCurrentPassword] = useState('');
@@ -15,6 +15,19 @@ export const PasswordForm = ({ onSubmit }) => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        const clientErrors = validateRequired(
+            { old_password: currentPassword, password: newPassword, password_confirmation: confirmPassword },
+            [
+                { name: 'old_password', label: 'Current Password' },
+                { name: 'password', label: 'New Password' },
+                { name: 'password_confirmation', label: 'Confirm Password' },
+            ]
+        );
+        if (Object.keys(clientErrors).length > 0) {
+            setErrors({ password: clientErrors.password, password_confirmation: clientErrors.password_confirmation });
+            setOldPasswordError(clientErrors.old_password || '');
+            return;
+        }
         setIsSubmitting(true);
         try {
             const result = await onSubmit({
@@ -52,6 +65,7 @@ export const PasswordForm = ({ onSubmit }) => {
                             value={currentPassword}
                             onChange={setCurrentPassword}
                             placeholder="Enter your current password"
+                            required
                         />
                     </FormField>
 
@@ -60,6 +74,7 @@ export const PasswordForm = ({ onSubmit }) => {
                             value={newPassword}
                             onChange={setNewPassword}
                             placeholder="Enter your new password"
+                            required
                         />
                     </FormField>
 
@@ -68,6 +83,7 @@ export const PasswordForm = ({ onSubmit }) => {
                             value={confirmPassword}
                             onChange={setConfirmPassword}
                             placeholder="Confirm your new password"
+                            required
                         />
                     </FormField>
 

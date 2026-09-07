@@ -6,6 +6,7 @@ import { PasswordInput } from '@/components/shared/PasswordInput';
 import { FormField } from '@/components/shared/FormField';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { passwordApi } from '@/api/passwordApi';
+import { validateRequired } from '@/lib/formUtils';
 
 const ResetPassword = () => {
     const [searchParams] = useSearchParams();
@@ -21,6 +22,18 @@ const ResetPassword = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
+        const clientErrors = validateRequired(
+            { password, password_confirmation: confirmPassword },
+            [
+                { name: 'password', label: 'Password' },
+                { name: 'password_confirmation', label: 'Confirm Password' },
+            ]
+        );
+        if (Object.keys(clientErrors).length > 0) {
+            setMessage(clientErrors);
+            return;
+        }
 
         const formData = new FormData();
         formData.append('token', token || '');
@@ -70,6 +83,7 @@ const ResetPassword = () => {
                                 value={password}
                                 onChange={setPassword}
                                 autoComplete='new-password'
+                                required
                             />
                         </FormField>
 
@@ -79,6 +93,7 @@ const ResetPassword = () => {
                                 value={confirmPassword}
                                 onChange={setConfirmPassword}
                                 autoComplete='new-password'
+                                required
                             />
                         </FormField>
 
