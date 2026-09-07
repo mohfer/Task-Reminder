@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/shared/FormField';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { passwordApi } from '@/api/passwordApi';
-import { validateRequired } from '@/lib/formUtils';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -18,12 +17,6 @@ const ForgotPassword = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
-        const clientErrors = validateRequired({ email }, [{ name: 'email', label: 'Email' }]);
-        if (Object.keys(clientErrors).length > 0) {
-            setMessage(clientErrors);
-            return;
-        }
 
         try {
             setLoading(true);
@@ -62,7 +55,6 @@ const ForgotPassword = () => {
                                 value={email}
                                 onChange={(event) => setEmail(event.target.value)}
                                 autoComplete='email'
-                                required
                             />
                         </FormField>
 

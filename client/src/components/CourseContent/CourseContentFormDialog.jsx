@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/select';
 import { FormField } from '@/components/shared/FormField';
 import { SEMESTERS } from '@/lib/constants';
-import { getFieldError, validateRequired } from '@/lib/formUtils';
+import { getFieldError } from '@/lib/formUtils';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -72,24 +72,6 @@ export const CourseContentFormDialog = ({
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        const clientErrors = validateRequired(
-            { semester, code, course_content: courseContent, credits, lecturer, day, hour_start: hourStart, hour_end: hourEnd },
-            [
-                { name: 'semester', label: 'Semester' },
-                { name: 'code', label: 'Code' },
-                { name: 'course_content', label: 'Course Content' },
-                { name: 'credits', label: 'Credits' },
-                { name: 'lecturer', label: 'Lecturer' },
-                { name: 'day', label: 'Day' },
-                { name: 'hour_start', label: 'Hour Start' },
-                { name: 'hour_end', label: 'Hour End' },
-            ]
-        );
-        if (Object.keys(clientErrors).length > 0) {
-            setErrors(clientErrors);
-            return;
-        }
-
         const payload = {
             semester,
             code,
@@ -139,7 +121,7 @@ export const CourseContentFormDialog = ({
                     </FormField>
 
                     <FormField label="Code" error={getFieldError(errors, 'code')}>
-                        <Input value={code} onChange={(event) => setCode(event.target.value)} placeholder="Enter code" required />
+                        <Input value={code} onChange={(event) => setCode(event.target.value)} placeholder="Enter code" />
                     </FormField>
 
                     <FormField label="Course Content" error={getFieldError(errors, 'course_content')}>
@@ -147,7 +129,6 @@ export const CourseContentFormDialog = ({
                             value={courseContent}
                             onChange={(event) => setCourseContent(event.target.value)}
                             placeholder="Enter course content"
-                            required
                         />
                     </FormField>
 
@@ -158,7 +139,6 @@ export const CourseContentFormDialog = ({
                             value={credits}
                             onChange={(event) => setCredits(event.target.value)}
                             placeholder="Enter credits"
-                            required
                         />
                     </FormField>
 
@@ -167,7 +147,6 @@ export const CourseContentFormDialog = ({
                             value={lecturer}
                             onChange={(event) => setLecturer(event.target.value)}
                             placeholder="Enter lecturer"
-                            required
                         />
                     </FormField>
 
@@ -187,11 +166,11 @@ export const CourseContentFormDialog = ({
                     </FormField>
 
                     <FormField label="Hour Start" error={getFieldError(errors, 'hour_start')}>
-                        <Input type="time" value={hourStart} onChange={(event) => setHourStart(event.target.value)} required />
+                        <Input type="time" value={hourStart} onChange={(event) => setHourStart(event.target.value)} />
                     </FormField>
 
                     <FormField label="Hour End" error={getFieldError(errors, 'hour_end')}>
-                        <Input type="time" value={hourEnd} onChange={(event) => setHourEnd(event.target.value)} required />
+                        <Input type="time" value={hourEnd} onChange={(event) => setHourEnd(event.target.value)} />
                     </FormField>
 
                     <DialogFooter>

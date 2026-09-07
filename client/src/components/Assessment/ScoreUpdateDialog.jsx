@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FormField } from '@/components/shared/FormField';
-import { getFieldError, validateRequired } from '@/lib/formUtils';
+import { getFieldError } from '@/lib/formUtils';
 
 export const ScoreUpdateDialog = ({ open, onOpenChange, initialData, isLoading, onSubmit }) => {
     const [course, setCourse] = useState('');
@@ -29,11 +29,6 @@ export const ScoreUpdateDialog = ({ open, onOpenChange, initialData, isLoading, 
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const clientErrors = validateRequired({ score }, [{ name: 'score', label: 'Score' }]);
-        if (Object.keys(clientErrors).length > 0) {
-            setErrors(clientErrors);
-            return;
-        }
         const result = await onSubmit(initialData?.id, Number(String(score).replace(',', '.')));
         if (result.success) {
             onOpenChange(false);
@@ -56,7 +51,7 @@ export const ScoreUpdateDialog = ({ open, onOpenChange, initialData, isLoading, 
                     </FormField>
 
                     <FormField label="Score" error={getFieldError(errors, 'score')}>
-                        <Input type="text" inputMode="decimal" value={score} onChange={(event) => setScore(event.target.value)} required />
+                        <Input type="text" inputMode="decimal" value={score} onChange={(event) => setScore(event.target.value)} />
                     </FormField>
 
                     <DialogFooter>

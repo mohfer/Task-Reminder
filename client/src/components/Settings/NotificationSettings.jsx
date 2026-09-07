@@ -36,21 +36,17 @@ export const NotificationSettings = ({
     onTaskCompletedToggle,
 }) => {
     const [chatIdInput, setChatIdInput] = useState('');
-    const [chatIdError, setChatIdError] = useState('');
     const needsTelegramChatId = notificationChannel === 'telegram' || notificationChannel === 'both';
     const isTestDisabled = isMutating || (needsTelegramChatId && telegramChatId?.trim() === '');
 
     useEffect(() => {
         setChatIdInput(telegramChatId || '');
-        setChatIdError('');
     }, [telegramChatId]);
 
     const handleChannelSave = async () => {
         if (needsTelegramChatId && chatIdInput.trim() === '') {
-            setChatIdError('Telegram Chat ID is required.');
             return;
         }
-        setChatIdError('');
 
         if (needsTelegramChatId && chatIdInput.trim() !== (telegramChatId || '')) {
             await onTelegramChatIdSave(chatIdInput);
@@ -92,10 +88,7 @@ export const NotificationSettings = ({
                                 <Input
                                     placeholder="Telegram Chat ID"
                                     value={chatIdInput}
-                                    onChange={(event) => {
-                                        setChatIdInput(event.target.value);
-                                        if (chatIdError) setChatIdError('');
-                                    }}
+                                    onChange={(event) => setChatIdInput(event.target.value)}
                                     disabled={isMutating}
                                 />
                             )}
@@ -107,13 +100,9 @@ export const NotificationSettings = ({
                                 Save
                             </Button>
                         </div>
-                        {chatIdError ? (
-                            <p className="text-sm text-destructive">{chatIdError}</p>
-                        ) : (
-                            <p className="text-sm text-muted-foreground">
-                                Set Telegram chat ID first, then switch channel to Telegram or Both.
-                            </p>
-                        )}
+                        <p className="text-sm text-muted-foreground">
+                            Set Telegram chat ID first, then switch channel to Telegram or Both.
+                        </p>
                     </div>
 
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">

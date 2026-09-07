@@ -13,7 +13,6 @@ const PasswordEmailSent = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        if (!email.trim()) return;
 
         try {
             setLoading(true);
@@ -53,7 +52,7 @@ const PasswordEmailSent = () => {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className='space-y-4'>
-                        <Button type='submit' className='w-full' disabled={loading || !email.trim()}>
+                        <Button type='submit' className='w-full'>
                             {loading ? 'Resending...' : 'Resend Email'}
                         </Button>
                     </form>
