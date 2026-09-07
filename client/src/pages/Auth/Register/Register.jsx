@@ -14,6 +14,7 @@ import { FormField } from '@/components/shared/FormField';
 import { PasswordInput } from '@/components/shared/PasswordInput';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { authApi } from '@/api/authApi';
+import { validateRequired } from '@/lib/formUtils';
 
 const Register = () => {
     const [name, setName] = useState('');
@@ -27,6 +28,20 @@ const Register = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
+        const clientErrors = validateRequired(
+            { name, email, password, password_confirmation: confirmPassword },
+            [
+                { name: 'name', label: 'Name' },
+                { name: 'email', label: 'Email' },
+                { name: 'password', label: 'Password' },
+                { name: 'password_confirmation', label: 'Confirm Password' },
+            ]
+        );
+        if (Object.keys(clientErrors).length > 0) {
+            setMessage(clientErrors);
+            return;
+        }
 
         const formData = new FormData();
         formData.append('name', name);
@@ -74,6 +89,7 @@ const Register = () => {
                                 value={name}
                                 onChange={(event) => setName(event.target.value)}
                                 autoComplete='name'
+                                required
                             />
                         </FormField>
 
@@ -99,6 +115,7 @@ const Register = () => {
                                 value={email}
                                 onChange={(event) => setEmail(event.target.value)}
                                 autoComplete='email'
+                                required
                             />
                         </FormField>
 
@@ -108,6 +125,7 @@ const Register = () => {
                                 value={password}
                                 onChange={setPassword}
                                 autoComplete='new-password'
+                                required
                             />
                         </FormField>
 
@@ -117,6 +135,7 @@ const Register = () => {
                                 value={confirmPassword}
                                 onChange={setConfirmPassword}
                                 autoComplete='new-password'
+                                required
                             />
                         </FormField>
 

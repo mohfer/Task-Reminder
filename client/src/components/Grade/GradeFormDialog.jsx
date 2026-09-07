@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FormField } from '@/components/shared/FormField';
-import { getFieldError } from '@/lib/formUtils';
+import { getFieldError, validateRequired } from '@/lib/formUtils';
 
 export const GradeFormDialog = ({
     open,
@@ -50,6 +50,20 @@ export const GradeFormDialog = ({
     const handleSubmit = async (event) => {
         event.preventDefault();
 
+        const clientErrors = validateRequired(
+            { grade, grade_point: gradePoints, minimal_score: minimalScore, maximal_score: maximalScore },
+            [
+                { name: 'grade', label: 'Grade' },
+                { name: 'grade_point', label: 'Grade Points' },
+                { name: 'minimal_score', label: 'Minimal Score' },
+                { name: 'maximal_score', label: 'Maximal Score' },
+            ]
+        );
+        if (Object.keys(clientErrors).length > 0) {
+            setErrors(clientErrors);
+            return;
+        }
+
         const payload = {
             grade,
             grade_point: Number(gradePoints),
@@ -76,7 +90,7 @@ export const GradeFormDialog = ({
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <FormField label="Grade" error={getFieldError(errors, 'grade')}>
-                        <Input value={grade} onChange={(event) => setGrade(event.target.value)} placeholder="Enter grade" />
+                        <Input value={grade} onChange={(event) => setGrade(event.target.value)} placeholder="Enter grade" required />
                     </FormField>
 
                     <FormField label="Grade Points" error={getFieldError(errors, 'grade_point')}>
@@ -86,6 +100,7 @@ export const GradeFormDialog = ({
                             value={gradePoints}
                             onChange={(event) => setGradePoints(event.target.value)}
                             placeholder="Enter grade points"
+                            required
                         />
                     </FormField>
 
@@ -96,6 +111,7 @@ export const GradeFormDialog = ({
                             value={minimalScore}
                             onChange={(event) => setMinimalScore(event.target.value)}
                             placeholder="Enter minimal score"
+                            required
                         />
                     </FormField>
 
@@ -106,6 +122,7 @@ export const GradeFormDialog = ({
                             value={maximalScore}
                             onChange={(event) => setMaximalScore(event.target.value)}
                             placeholder="Enter maximal score"
+                            required
                         />
                     </FormField>
 

@@ -28,6 +28,7 @@ import {
 import { FormField } from '@/components/shared/FormField';
 import useSemesterStore from '@/store/useSemesterStore';
 import { SEMESTERS } from '@/lib/constants';
+import { validateRequired } from '@/lib/formUtils';
 
 export const TaskFormDialog = ({
     open,
@@ -80,6 +81,22 @@ export const TaskFormDialog = ({
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const clientErrors = validateRequired(
+            { course_content_id: course, task, deadline },
+            [
+                { name: 'course_content_id', label: 'Course Content' },
+                { name: 'task', label: 'Task' },
+                { name: 'deadline', label: 'Deadline' },
+            ]
+        );
+        if (Object.keys(clientErrors).length > 0) {
+            setErrors({
+                course_content: clientErrors.course_content_id,
+                task: clientErrors.task,
+                deadline: clientErrors.deadline,
+            });
+            return;
+        }
         const payload = {
             course_content_id: course,
             task,
@@ -148,7 +165,7 @@ export const TaskFormDialog = ({
                     </FormField>
 
                     <FormField label="Task" error={errors.task}>
-                        <Input value={task} onChange={(e) => setTask(e.target.value)} placeholder="Enter task" />
+                        <Input value={task} onChange={(e) => setTask(e.target.value)} placeholder="Enter task" required />
                     </FormField>
 
                     <FormField label="Description" error={errors.description}>
@@ -161,7 +178,7 @@ export const TaskFormDialog = ({
                     </FormField>
 
                     <FormField label="Deadline" error={errors.deadline}>
-                        <Input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+                        <Input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} required />
                     </FormField>
 
                     <div className="space-y-2">

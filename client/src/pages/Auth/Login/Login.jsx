@@ -8,6 +8,7 @@ import { FormField } from '@/components/shared/FormField';
 import { PasswordInput } from '@/components/shared/PasswordInput';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { authApi } from '@/api/authApi';
+import { validateRequired } from '@/lib/formUtils';
 import useSemesterStore from '@/store/useSemesterStore';
 
 const Login = () => {
@@ -21,6 +22,15 @@ const Login = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
+        const clientErrors = validateRequired({ email, password }, [
+            { name: 'email', label: 'Email' },
+            { name: 'password', label: 'Password' },
+        ]);
+        if (Object.keys(clientErrors).length > 0) {
+            setMessage(clientErrors);
+            return;
+        }
 
         const loginData = {
             email,
@@ -81,6 +91,7 @@ const Login = () => {
                                 placeholder='Enter your email'
                                 value={email}
                                 autoComplete='username'
+                                required
                                 onChange={(event) => setEmail(event.target.value)}
                             />
                         </FormField>
@@ -91,6 +102,7 @@ const Login = () => {
                                 value={password}
                                 onChange={setPassword}
                                 autoComplete='current-password'
+                                required
                             />
                         </FormField>
 
