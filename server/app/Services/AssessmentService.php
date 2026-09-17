@@ -139,7 +139,7 @@ class AssessmentService
             // Only sync published numeric scores
             if ($name === '' || $score === null || ! is_numeric($score)) {
                 if ($name !== '') {
-                    $noMatch[] = $name.' (nilai belum keluar)';
+                    $noMatch[] = $name.' (score not yet released)';
                 }
 
                 continue;

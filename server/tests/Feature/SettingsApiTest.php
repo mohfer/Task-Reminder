@@ -133,3 +133,47 @@ test('returns 401 and does not store credentials when verification fails', funct
 
     expect(Setting::first()->hasSiakangCredentials())->toBeFalse();
 });
+
+// ─── POST /api/settings/siakang-credentials/test ───
+
+test('test connection succeeds with stored credentials', function () {
+    Setting::first()->update([
+        'siakang_email' => 'student@student.untirta.ac.id',
+        'siakang_password' => 'secret',
+    ]);
+
+    $this->siakangClient->shouldReceive('verify')
+        ->once()
+        ->with('student@student.untirta.ac.id', 'secret')
+        ->andReturn(['code' => 200, 'message' => 'Success', 'data' => ['ok' => true]]);
+
+    $response = $this->postJson('/api/settings/siakang-credentials/test');
+
+    $response->assertOk()
+        ->assertJsonPath('message', 'Siakang connection successful')
+        ->assertJsonPath('data.email', 'student@student.untirta.ac.id')
+        ->assertJsonMissingPath('data.siakang_password');
+});
+
+test('test connection returns 401 when stored credentials are rejected', function () {
+    Setting::first()->update([
+        'siakang_email' => 'student@student.untirta.ac.id',
+        'siakang_password' => 'stale',
+    ]);
+
+    $this->siakangClient->shouldReceive('verify')
+        ->once()
+        ->andReturn(['code' => 401, 'message' => 'Login failed — check email/password']);
+
+    $response = $this->postJson('/api/settings/siakang-credentials/test');
+
+    $response->assertStatus(401);
+});
+
+test('test connection returns 422 when no credentials are stored', function () {
+    $this->siakangClient->shouldNotReceive('verify');
+
+    $response = $this->postJson('/api/settings/siakang-credentials/test');
+
+    $response->assertStatus(422);
+});

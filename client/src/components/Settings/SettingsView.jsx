@@ -25,6 +25,7 @@ export const SettingsView = () => {
         changePassword,
         saveSiakangCredentials,
         deleteSiakangCredentials,
+        testSiakangConnection,
     } = useSettings();
 
     const { logout } = useAuth();
@@ -72,6 +73,7 @@ export const SettingsView = () => {
                         hasCredentials={Boolean(settings?.has_siakang_credentials)}
                         onSave={saveSiakangCredentials}
                         onDelete={deleteSiakangCredentials}
+                        onTestConnection={testSiakangConnection}
                     />
                 </TabsContent>
 

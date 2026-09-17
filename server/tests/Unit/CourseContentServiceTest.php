@@ -2,6 +2,7 @@
 
 use App\Models\CourseContent;
 use App\Models\Setting;
+use App\Models\Task;
 use App\Models\User;
 use App\Services\CourseContentService;
 use App\Services\SiakangClient;
@@ -284,4 +285,82 @@ test('syncScheduleFromSiakang falls back to schedule lecturers when detail is mi
     $course = CourseContent::where('course_content', 'Kalkulus')->first();
     expect($course)->not->toBeNull();
     expect($course->lecturer)->toBe('Dr. Budi');
+});
+
+test('syncScheduleFromSiakang throws 422 when target semester is missing', function () {
+    $this->siakangClient->shouldNotReceive('getSchedule');
+
+    $this->service->syncScheduleFromSiakang($this->user->id, null, '20252');
+})->throws(Exception::class, 'Target semester is required', 422);
+
+test('syncScheduleFromSiakang throws 409 and preserves data when target semester is filled', function () {
+    $this->siakangClient->shouldNotReceive('getSchedule');
+
+    $course = CourseContent::create([
+        'semester' => 'Semester 2', 'code' => 'MK001', 'course_content' => 'Kalkulus I',
+        'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin',
+        'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => 85, 'user_id' => $this->user->id,
+    ]);
+    Task::create([
+        'task' => 'Tugas 1', 'deadline' => '2025-01-10', 'status' => 0,
+        'user_id' => $this->user->id, 'course_content_id' => $course->id,
+    ]);
+
+    try {
+        $this->service->syncScheduleFromSiakang($this->user->id, 'Semester 2', '20252');
+        $this->fail('Expected 409 exception');
+    } catch (Exception $e) {
+        expect($e->getCode())->toBe(409);
+    }
+
+    expect(CourseContent::find($course->id))->not->toBeNull();
+    expect(Task::where('course_content_id', $course->id)->count())->toBe(1);
+});
+
+// ─── clearSemester ───
+
+test('clearSemester deletes only the target semester and counts related data', function () {
+    $scored = CourseContent::create([
+        'semester' => 'Semester 2', 'code' => 'MK001', 'course_content' => 'Kalkulus I',
+        'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin',
+        'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => 85, 'user_id' => $this->user->id,
+    ]);
+    $plain = CourseContent::create([
+        'semester' => 'Semester 2', 'code' => 'MK002', 'course_content' => 'Fisika',
+        'credits' => 2, 'lecturer' => 'B', 'day' => 'Selasa',
+        'hour_start' => '10:00', 'hour_end' => '12:00', 'user_id' => $this->user->id,
+    ]);
+    $otherSemester = CourseContent::create([
+        'semester' => 'Semester 3', 'code' => 'MK003', 'course_content' => 'Algoritma',
+        'credits' => 4, 'lecturer' => 'C', 'day' => 'Rabu',
+        'hour_start' => '08:00', 'hour_end' => '10:00', 'user_id' => $this->user->id,
+    ]);
+    Task::create([
+        'task' => 'Tugas 1', 'deadline' => '2025-01-10', 'status' => 0,
+        'user_id' => $this->user->id, 'course_content_id' => $scored->id,
+    ]);
+
+    $result = $this->service->clearSemester($this->user->id, 'Semester 2');
+
+    expect($result['deleted_courses'])->toBe(2);
+    expect($result['deleted_tasks'])->toBe(1);
+    expect($result['cleared_scores'])->toBe(1);
+    expect(CourseContent::find($scored->id))->toBeNull();
+    expect(CourseContent::find($plain->id))->toBeNull();
+    expect(Task::where('course_content_id', $scored->id)->count())->toBe(0);
+    expect(CourseContent::find($otherSemester->id))->not->toBeNull();
+});
+
+test('clearSemester does not touch another user data', function () {
+    $otherUser = User::factory()->create();
+    $otherCourse = CourseContent::create([
+        'semester' => 'Semester 2', 'code' => 'MK001', 'course_content' => 'Kalkulus I',
+        'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin',
+        'hour_start' => '08:00', 'hour_end' => '10:00', 'user_id' => $otherUser->id,
+    ]);
+
+    $result = $this->service->clearSemester($this->user->id, 'Semester 2');
+
+    expect($result['deleted_courses'])->toBe(0);
+    expect(CourseContent::find($otherCourse->id))->not->toBeNull();
 });

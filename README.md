@@ -71,18 +71,20 @@ cd client && pnpm dev
 ## Commands
 
 ```bash
-cd server && php artisan test                    # 218 tests (Feature + Unit)
+cd server && php artisan test                    # 232 tests (Feature + Unit)
 cd server && php artisan test --testsuite=Feature
 cd server && php artisan test --testsuite=Unit
 cd server && php artisan queue:listen --tries=1
 cd server && php artisan notifications:reminder
 cd server && ./vendor/bin/pint
 cd client && pnpm lint && pnpm build
-cd client && pnpm test                           # 97 tests Vitest + jsdom + Testing Library
+cd client && pnpm test                           # 103 tests Vitest + jsdom + Testing Library
 ```
 
 ## Siakang Sync
 
 1. Settings → Siakang → enter Siakang email and password (encrypted, validated first)
-2. Open Assessments or Course Contents → Sync from Siakang → pick a Siakang semester
-3. Data is imported into the semester currently viewed in the app
+2. Test saved credentials anytime via the plug icon next to the Connected badge
+3. Open Assessments or Course Contents → Sync from Siakang → pick a Siakang semester
+4. Data is imported into the semester currently viewed in the app
+5. Schedule sync only targets an empty semester — Clear the semester first to sync again

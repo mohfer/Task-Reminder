@@ -7,7 +7,9 @@ import { AssessmentTable } from '@/components/Assessment/AssessmentTable';
 import { GpaSummary } from '@/components/Assessment/GpaSummary';
 import { ScoreUpdateDialog } from '@/components/Assessment/ScoreUpdateDialog';
 import { SyncDialog } from '@/components/Assessment/SyncDialog';
-import { RefreshCw } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { Card, CardContent } from '@/components/ui/card';
+import { GraduationCap, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export const AssessmentView = () => {
@@ -22,6 +24,26 @@ export const AssessmentView = () => {
     useEffect(() => {
         document.title = 'Assessments - Task Reminder';
     }, []);
+
+    // Assessments depend on course contents: with an empty semester there is
+    // nothing to score and nothing for Siakang sync to match against.
+    if (!isLoading && courseContents.length === 0) {
+        return (
+            <div className="space-y-6">
+                <Card>
+                    <CardContent>
+                        <EmptyState
+                            icon={GraduationCap}
+                            title="No assessments yet"
+                            description="Add courses first to start tracking grades."
+                            actionLabel="Add Courses"
+                            actionTo="/course-contents"
+                        />
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -42,7 +64,7 @@ export const AssessmentView = () => {
                 }}
             />
 
-            {!isLoading ? <GpaSummary semesterGpa={totalSemesterGpa} cumulativeGpa={totalCumulativeGpa} /> : null}
+            {!isLoading && courseContents.length > 0 ? <GpaSummary semesterGpa={totalSemesterGpa} cumulativeGpa={totalCumulativeGpa} /> : null}
 
             <ScoreUpdateDialog
                 open={updateDialog.isOpen}

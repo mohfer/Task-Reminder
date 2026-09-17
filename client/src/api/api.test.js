@@ -55,6 +55,8 @@ describe('API modules', () => {
     expect(axiosInstance.post).toHaveBeenCalledWith('/course-contents/import-from-excel', fd, expect.objectContaining({ headers: { 'Content-Type': 'multipart/form-data' } }));
     await courseContentApi.syncSchedule('Semester 1', '20251');
     expect(axiosInstance.post).toHaveBeenCalledWith('/course-contents/sync-schedule', { semester: 'Semester 1', source_semester: '20251' });
+    await courseContentApi.clearSemester('Semester 1');
+    expect(axiosInstance.post).toHaveBeenCalledWith('/course-contents/clear', { semester: 'Semester 1' });
   });
 
   it('authApi calls correct endpoints', async () => {
@@ -122,6 +124,8 @@ describe('API modules', () => {
     expect(axiosInstance.put).toHaveBeenCalledWith('/settings/siakang-credentials', { email: 'a@b.com' }, { skipAuthLogout: true });
     await settingsApi.deleteSiakangCredentials();
     expect(axiosInstance.delete).toHaveBeenCalledWith('/settings/siakang-credentials', { skipAuthLogout: true });
+    await settingsApi.testSiakangConnection();
+    expect(axiosInstance.post).toHaveBeenCalledWith('/settings/siakang-credentials/test', null, { skipAuthLogout: true });
   });
 
   it('userApi calls correct endpoints', async () => {

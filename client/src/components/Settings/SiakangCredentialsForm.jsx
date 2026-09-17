@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Plug } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { PasswordInput } from '@/components/shared/PasswordInput';
 import { validateRequired } from '@/lib/formUtils';
 
 export const SiakangCredentialsForm = ({
@@ -14,6 +16,7 @@ export const SiakangCredentialsForm = ({
     hasCredentials,
     onSave,
     onDelete,
+    onTestConnection,
 }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -77,6 +80,19 @@ export const SiakangCredentialsForm = ({
                             <Badge variant={hasCredentials ? 'default' : 'secondary'}>
                                 {hasCredentials ? 'Connected' : 'Not connected'}
                             </Badge>
+                            {hasCredentials ? (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    aria-label="Test Siakang connection"
+                                    title="Test Siakang connection"
+                                    onClick={onTestConnection}
+                                    disabled={isMutating}
+                                >
+                                    <Plug className="h-4 w-4" />
+                                </Button>
+                            ) : null}
                         </div>
                     </div>
 
@@ -85,12 +101,24 @@ export const SiakangCredentialsForm = ({
                     </span>
 
                     {hasCredentials ? (
-                        <div className="flex flex-col gap-2 sm:flex-row">
-                            <Button type="button" variant="outline" onClick={() => setShowForm((v) => !v)} disabled={isMutating}>
-                                {showForm ? 'Cancel' : 'Update Credentials'}
+                        <div className="flex flex-row gap-2">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="flex-1 sm:flex-none"
+                                onClick={() => setShowForm((v) => !v)}
+                                disabled={isMutating}
+                            >
+                                {showForm ? 'Cancel' : 'Update'}
                             </Button>
-                            <Button type="button" variant="destructive" onClick={handleDelete} disabled={isMutating}>
-                                Remove Credentials
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                className="flex-1 sm:flex-none"
+                                onClick={handleDelete}
+                                disabled={isMutating}
+                            >
+                                Remove
                             </Button>
                         </div>
                     ) : (
@@ -123,12 +151,11 @@ export const SiakangCredentialsForm = ({
 
                                 <div className="space-y-2">
                                     <Label htmlFor="siakang-password">Siakang Password</Label>
-                                    <Input
+                                    <PasswordInput
                                         id="siakang-password"
-                                        type="password"
-                                        placeholder="Enter your Siakang password"
                                         value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        onChange={setPassword}
+                                        placeholder="Enter your Siakang password"
                                         disabled={isMutating}
                                         required
                                     />

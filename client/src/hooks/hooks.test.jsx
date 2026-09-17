@@ -171,6 +171,8 @@ vi.mock('@/api/courseContentApi', () => ({
     create: vi.fn(() => Promise.resolve({ data: { message: 'created' } })),
     update: vi.fn(() => Promise.resolve({ data: { message: 'updated' } })),
     delete: vi.fn(() => Promise.resolve({ data: { message: 'deleted' } })),
+    syncSchedule: vi.fn(() => Promise.resolve({ data: { message: 'synced', data: {} } })),
+    clearSemester: vi.fn(() => Promise.resolve({ data: { message: 'cleared', data: {} } })),
   },
 }));
 import { useCourseContents } from './useCourseContents';
@@ -194,6 +196,31 @@ describe('useCourseContents', () => {
     courseContentApi.create.mockRejectedValueOnce({ response: { data: { message: 'fail', errors: { code: ['dup'] } } } });
     await act(async () => {
       const res = await result.current.createCourseContent(new FormData());
+      expect(res.success).toBe(false);
+    });
+  });
+
+  it('syncs only when empty and clears semester', async () => {
+    const { result } = renderHook(() => useCourseContents('Semester 1'));
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    // empty semester -> sync goes through
+    await act(async () => {
+      const res = await result.current.syncSchedule('20251');
+      expect(res.success).toBe(true);
+    });
+    expect(courseContentApi.syncSchedule).toHaveBeenCalledWith('Semester 1', '20251');
+
+    await act(async () => {
+      const res = await result.current.clearSemester();
+      expect(res.success).toBe(true);
+    });
+    expect(courseContentApi.clearSemester).toHaveBeenCalledWith('Semester 1');
+
+    // error path
+    courseContentApi.clearSemester.mockRejectedValueOnce({ response: { data: { message: 'fail' } } });
+    await act(async () => {
+      const res = await result.current.clearSemester();
       expect(res.success).toBe(false);
     });
   });
@@ -277,6 +304,7 @@ vi.mock('@/api/settingsApi', () => ({
     updateTaskCompletedNotification: vi.fn(() => Promise.resolve({ data: { message: 'ok' } })),
     saveSiakangCredentials: vi.fn(() => Promise.resolve({ data: { message: 'ok' } })),
     deleteSiakangCredentials: vi.fn(() => Promise.resolve({ data: { message: 'ok' } })),
+    testSiakangConnection: vi.fn(() => Promise.resolve({ data: { message: 'ok', data: {} } })),
   },
 }));
 vi.mock('@/api/userApi', () => ({
@@ -301,6 +329,17 @@ describe('useSettings', () => {
     await act(async () => {
       const res = await result.current.updateNotificationChannel('email');
       expect(res.success).toBe(true);
+    });
+    await act(async () => {
+      const res = await result.current.testSiakangConnection();
+      expect(res.success).toBe(true);
+      expect(mockedSettingsApi.testSiakangConnection).toHaveBeenCalled();
+    });
+    // error path
+    mockedSettingsApi.testSiakangConnection.mockRejectedValueOnce({ response: { data: { message: 'fail' } } });
+    await act(async () => {
+      const res = await result.current.testSiakangConnection();
+      expect(res.success).toBe(false);
     });
   });
 });

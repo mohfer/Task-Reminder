@@ -13,7 +13,7 @@
 
     @include('emails.components.button', [
         'url' => $dashboardUrl,
-        'label' => 'View Dashboard',
+        'label' => 'Open Dashboard',
     ])
 
     <p style="margin:12px 0 0;font-size:14px;line-height:1.6;color:#64748b;">Keep your momentum and complete your remaining

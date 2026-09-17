@@ -226,3 +226,40 @@ test('updateSiakangCredentials does not persist partial credentials on failure',
     expect($setting->siakang_email)->toBeNull();
     expect($setting->hasSiakangCredentials())->toBeFalse();
 });
+
+test('testSiakangConnection verifies stored credentials without changing them', function () {
+    Setting::where('user_id', $this->user->id)->first()->update([
+        'siakang_email' => 'student@student.untirta.ac.id',
+        'siakang_password' => 'secret',
+    ]);
+
+    $this->siakangClient->shouldReceive('verify')
+        ->once()
+        ->with('student@student.untirta.ac.id', 'secret')
+        ->andReturn(['code' => 200, 'message' => 'Success', 'data' => ['ok' => true]]);
+
+    $result = $this->service->testSiakangConnection($this->user->id);
+
+    expect($result['email'])->toBe('student@student.untirta.ac.id');
+    expect($result)->not->toHaveKey('password');
+    expect($result)->not->toHaveKey('siakang_password');
+});
+
+test('testSiakangConnection throws 401 when stored credentials are rejected', function () {
+    Setting::where('user_id', $this->user->id)->first()->update([
+        'siakang_email' => 'student@student.untirta.ac.id',
+        'siakang_password' => 'stale',
+    ]);
+
+    $this->siakangClient->shouldReceive('verify')
+        ->once()
+        ->andReturn(['code' => 401, 'message' => 'Login failed — check email/password']);
+
+    $this->service->testSiakangConnection($this->user->id);
+})->throws(Exception::class, 'Login failed', 401);
+
+test('testSiakangConnection throws 422 when no credentials are stored', function () {
+    $this->siakangClient->shouldNotReceive('verify');
+
+    $this->service->testSiakangConnection($this->user->id);
+})->throws(Exception::class, 'not configured', 422);

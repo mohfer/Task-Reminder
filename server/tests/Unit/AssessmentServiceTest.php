@@ -161,7 +161,7 @@ test('syncScoresFromSiakang skips courses with null scores', function () {
     $result = $this->service->syncScoresFromSiakang($this->user->id, 'Semester 2', '20251');
 
     expect($result['updated'])->toBe(0);
-    expect($result['no_match'])->toContain('Kalkulus I (nilai belum keluar)');
+    expect($result['no_match'])->toContain('Kalkulus I (score not yet released)');
 });
 
 test('syncScoresFromSiakang skips courses not found in user course_contents', function () {

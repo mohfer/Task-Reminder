@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Requests\ChangePasswordRequest;
+use App\Http\Requests\ClearSemesterRequest;
 use App\Http\Requests\ImportCourseContentRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
@@ -45,6 +46,7 @@ test('all requests authorize returns true', function () {
     $classes = [
         LoginRequest::class, RegisterRequest::class, StoreTaskRequest::class, UpdateTaskRequest::class,
         StoreCourseContentRequest::class, UpdateCourseContentRequest::class, SyncScheduleRequest::class,
+        ClearSemesterRequest::class,
         ImportCourseContentRequest::class, UpdateAssessmentRequest::class, SyncAssessmentRequest::class,
         UpdateDeadlineNotificationRequest::class, UpdateNotificationChannelRequest::class, UpdateTelegramChatIdRequest::class,
         StoreSiakangCredentialsRequest::class, StoreGradeRequest::class, UpdateGradeRequest::class,
@@ -160,15 +162,28 @@ test('UpdateCourseContentRequest validates same as store', function () {
 });
 
 // ─── SyncScheduleRequest ───
-test('SyncScheduleRequest validates nullable strings', function () {
+test('SyncScheduleRequest requires semester and allows nullable source_semester', function () {
     $rules = rulesFor(SyncScheduleRequest::class);
     expect($rules)->toHaveKeys(['semester','source_semester']);
-    $okEmpty = Validator::make([], $rules);
-    expect($okEmpty->passes())->toBeTrue();
-    $okNull = Validator::make(['semester'=>null,'source_semester'=>null], $rules);
-    expect($okNull->passes())->toBeTrue();
-    $okStr = Validator::make(['semester'=>'Semester 1','source_semester'=>'20251'], $rules);
-    expect($okStr->passes())->toBeTrue();
+    $failEmpty = Validator::make([], $rules);
+    expect($failEmpty->fails())->toBeTrue();
+    expect($failEmpty->errors()->has('semester'))->toBeTrue();
+    $ok = Validator::make(['semester'=>'Semester 1','source_semester'=>'20251'], $rules);
+    expect($ok->passes())->toBeTrue();
+    $okNoSource = Validator::make(['semester'=>'Semester 1'], $rules);
+    expect($okNoSource->passes())->toBeTrue();
+    $fail = Validator::make(['semester'=>123], $rules);
+    expect($fail->fails())->toBeTrue();
+});
+
+// ─── ClearSemesterRequest ───
+test('ClearSemesterRequest requires semester string', function () {
+    $rules = rulesFor(ClearSemesterRequest::class);
+    expect($rules)->toHaveKey('semester');
+    $failEmpty = Validator::make([], $rules);
+    expect($failEmpty->fails())->toBeTrue();
+    $ok = Validator::make(['semester'=>'Semester 1'], $rules);
+    expect($ok->passes())->toBeTrue();
     $fail = Validator::make(['semester'=>123], $rules);
     expect($fail->fails())->toBeTrue();
 });

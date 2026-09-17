@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FormField } from '@/components/shared/FormField';
-import { getFieldError, validateRequired } from '@/lib/formUtils';
+import { getFieldError } from '@/lib/formUtils';
 import { DiscardConfirmDialog } from '@/components/shared/DiscardConfirmDialog';
 
 export const ScoreUpdateDialog = ({ open, onOpenChange, initialData, isLoading, onSubmit }) => {
@@ -33,12 +33,26 @@ export const ScoreUpdateDialog = ({ open, onOpenChange, initialData, isLoading, 
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const clientErrors = validateRequired({ score }, [{ name: 'score', label: 'Score' }]);
-        if (Object.keys(clientErrors).length > 0) {
-            setErrors(clientErrors);
+        const trimmed = score.trim();
+
+        // An empty score clears the stored value (the column is nullable).
+        if (trimmed === '') {
+            const result = await onSubmit(initialData?.id, null);
+            if (result.success) {
+                onOpenChange(false);
+                return;
+            }
+            setErrors(result.errors || {});
             return;
         }
-        const result = await onSubmit(initialData?.id, Number(String(score).replace(',', '.')));
+
+        const numeric = Number(trimmed.replace(',', '.'));
+        if (!Number.isFinite(numeric) || numeric < 0 || numeric > 100) {
+            setErrors({ score: 'Score must be a number between 0 and 100.' });
+            return;
+        }
+
+        const result = await onSubmit(initialData?.id, numeric);
         if (result.success) {
             onOpenChange(false);
             return;
@@ -79,7 +93,7 @@ export const ScoreUpdateDialog = ({ open, onOpenChange, initialData, isLoading, 
                     </FormField>
 
                     <FormField label="Score" error={getFieldError(errors, 'score')}>
-                        <Input type="text" inputMode="decimal" value={score} onChange={(event) => setScore(event.target.value)} required />
+                        <Input type="text" inputMode="decimal" value={score} onChange={(event) => setScore(event.target.value)} placeholder="Empty to clear the score" />
                     </FormField>
 
                     <DialogFooter>

@@ -28,4 +28,6 @@ export const courseContentApi = {
             semester: targetSemester,
             source_semester: sourceSemester,
         }),
+
+    clearSemester: (semester) => axiosInstance.post('/course-contents/clear', { semester }),
 };

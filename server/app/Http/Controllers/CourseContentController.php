@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ClearSemesterRequest;
 use App\Http\Requests\ImportCourseContentRequest;
 use App\Http\Requests\StoreCourseContentRequest;
 use App\Http\Requests\SyncScheduleRequest;
@@ -73,6 +74,19 @@ class CourseContentController
         return $this->sendResponse(
             $result,
             "{$result['inserted']} schedules imported, ".count($result['skipped']).' skipped'
+        );
+    }
+
+    public function clear(ClearSemesterRequest $request)
+    {
+        $result = $this->courseContentService->clearSemester(
+            $request->user()->id,
+            $request->validated()['semester']
+        );
+
+        return $this->sendResponse(
+            $result,
+            "{$result['deleted_courses']} courses and {$result['deleted_tasks']} tasks cleared from {$result['semester']}"
         );
     }
 

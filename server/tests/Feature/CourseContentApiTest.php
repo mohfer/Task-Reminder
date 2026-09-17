@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\CourseContent;
+use App\Models\Setting;
+use App\Models\Task;
 use App\Models\User;
 use Laravel\Sanctum\Sanctum;
 
@@ -134,4 +136,54 @@ test('filter returns courses for semester ordered by day', function () {
         ->assertJsonCount(2, 'data.course_contents')
         // Senin before Selasa
         ->assertJsonPath('data.course_contents.0.course_content', 'Kalkulus');
+});
+
+// ─── POST /api/course-contents/clear ───
+
+test('clear semester removes courses and related tasks in that semester only', function () {
+    $course = CourseContent::create([
+        'semester' => 'Semester 2', 'code' => 'MK001', 'course_content' => 'Kalkulus I',
+        'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin',
+        'hour_start' => '08:00', 'hour_end' => '10:00', 'user_id' => $this->user->id,
+    ]);
+    $other = CourseContent::create([
+        'semester' => 'Semester 3', 'code' => 'MK002', 'course_content' => 'Fisika',
+        'credits' => 2, 'lecturer' => 'B', 'day' => 'Selasa',
+        'hour_start' => '10:00', 'hour_end' => '12:00', 'user_id' => $this->user->id,
+    ]);
+    Task::create([
+        'task' => 'Tugas 1', 'deadline' => '2025-01-10', 'status' => 0,
+        'user_id' => $this->user->id, 'course_content_id' => $course->id,
+    ]);
+
+    $response = $this->postJson('/api/course-contents/clear', ['semester' => 'Semester 2']);
+
+    $response->assertOk()
+        ->assertJsonPath('data.deleted_courses', 1)
+        ->assertJsonPath('data.deleted_tasks', 1);
+    expect(CourseContent::find($course->id))->toBeNull();
+    expect(CourseContent::find($other->id))->not->toBeNull();
+});
+
+test('clear semester validates semester is required', function () {
+    $response = $this->postJson('/api/course-contents/clear', []);
+
+    $response->assertStatus(422);
+});
+
+test('sync schedule returns 409 when target semester already has data', function () {
+    Setting::factory()->withSiakangCredentials()->create(['user_id' => $this->user->id]);
+    $course = CourseContent::create([
+        'semester' => 'Semester 2', 'code' => 'MK001', 'course_content' => 'Kalkulus I',
+        'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin',
+        'hour_start' => '08:00', 'hour_end' => '10:00', 'user_id' => $this->user->id,
+    ]);
+
+    $response = $this->postJson('/api/course-contents/sync-schedule', [
+        'semester' => 'Semester 2',
+        'source_semester' => '20252',
+    ]);
+
+    $response->assertStatus(409);
+    expect(CourseContent::find($course->id))->not->toBeNull();
 });

@@ -165,6 +165,30 @@ class SettingsService
         return $setting;
     }
 
+    /**
+     * Re-verify the stored Siakang credentials with a fresh login.
+     * Read-only: nothing is imported or persisted.
+     *
+     * @return array{email: string}
+     */
+    public function testSiakangConnection(int $userId): array
+    {
+        $setting = $this->getOrFail($userId);
+
+        if (! $setting->hasSiakangCredentials()) {
+            throw new \Exception('Siakang credentials are not configured. Add them in Settings.', 422);
+        }
+
+        $email = trim($setting->siakang_email);
+        $response = $this->siakangClient->verify($email, trim($setting->siakang_password));
+
+        if (($response['code'] ?? 0) !== 200) {
+            throw new \Exception($response['message'] ?? 'Invalid Siakang credentials', (int) ($response['code'] ?: 401));
+        }
+
+        return ['email' => $email];
+    }
+
     private function getOrFail(int $userId): Setting
     {
         $setting = Setting::where('user_id', $userId)->first();

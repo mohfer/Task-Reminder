@@ -118,6 +118,12 @@ export const useCourseContents = (selectedSemester) => {
 
     const syncSchedule = useCallback(
         async (sourceSemester) => {
+            // Siakang sync is only allowed into an empty semester (backend
+            // also enforces this with a 409) to protect tasks and scores.
+            if (courseContents.length > 0) {
+                toast.error('Semester already has course data. Clear the semester first to sync again.');
+                return { success: false };
+            }
             try {
                 setIsMutating(true);
                 const response = await courseContentApi.syncSchedule(selectedSemester, sourceSemester);
@@ -131,8 +137,23 @@ export const useCourseContents = (selectedSemester) => {
                 setIsMutating(false);
             }
         },
-        [selectedSemester, fetchCourseContents]
+        [selectedSemester, fetchCourseContents, courseContents.length]
     );
+
+    const clearSemester = useCallback(async () => {
+        try {
+            setIsMutating(true);
+            const response = await courseContentApi.clearSemester(selectedSemester);
+            toast.success(response.data.message);
+            await fetchCourseContents(selectedSemester, false);
+            return { success: true, data: response.data.data };
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to clear semester.');
+            return { success: false };
+        } finally {
+            setIsMutating(false);
+        }
+    }, [selectedSemester, fetchCourseContents]);
 
     useEffect(() => {
         fetchCourseContents(selectedSemester);
@@ -149,5 +170,6 @@ export const useCourseContents = (selectedSemester) => {
         downloadTemplate,
         importFromExcel,
         syncSchedule,
+        clearSemester,
     };
 };

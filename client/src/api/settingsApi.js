@@ -29,4 +29,9 @@ export const settingsApi = {
             skipAuthLogout: true,
         }),
 
+    testSiakangConnection: () =>
+        axiosInstance.post('/settings/siakang-credentials/test', null, {
+            skipAuthLogout: true,
+        }),
+
 };

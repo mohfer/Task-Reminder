@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Send } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -109,7 +110,7 @@ export const NotificationSettings = ({
                     </div>
 
                     <div className="space-y-2">
-                        <div className="flex flex-col gap-2 sm:flex-row">
+                        <div className="flex flex-row gap-2">
                             {isLoading ? (
                                 <Skeleton className="h-10 w-full" />
                             ) : (
@@ -121,6 +122,7 @@ export const NotificationSettings = ({
                                         if (chatIdError) setChatIdError('');
                                     }}
                                     disabled={isMutating}
+                                    className="min-w-0 flex-1"
                                 />
                             )}
                             <Button
@@ -133,25 +135,23 @@ export const NotificationSettings = ({
                         </div>
                         {chatIdError ? (
                             <p className="text-sm text-destructive">{chatIdError}</p>
-                        ) : (
+                        ) : needsTelegramChatId && (telegramChatId?.trim() === '') ? (
                             <p className="text-sm text-muted-foreground">
                                 Set Telegram chat ID first, then switch channel to Telegram or Both.
                             </p>
-                        )}
+                        ) : null}
                     </div>
 
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <div>
                         <Button
                             type="button"
-                            variant="secondary"
+                            variant="outline"
                             onClick={onTestNotification}
                             disabled={isTestDisabled}
+                            title="Sends a dummy message to your active channel selection."
                         >
-                            Send Test Notification
+                            <Send className="mr-2 h-4 w-4" /> Send Test Notification
                         </Button>
-                        <p className="text-sm text-muted-foreground">
-                            Sends a dummy message to your active channel selection.
-                        </p>
                     </div>
                 </div>
 

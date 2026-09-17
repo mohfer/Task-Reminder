@@ -135,4 +135,15 @@ class SettingsController
             'Siakang credentials removed successfully'
         );
     }
+
+    public function testSiakangConnection(Request $request)
+    {
+        try {
+            $result = $this->settingsService->testSiakangConnection($request->user()->id);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 500);
+        }
+
+        return $this->sendResponse($result, 'Siakang connection successful');
+    }
 }

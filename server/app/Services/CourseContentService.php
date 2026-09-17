@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Imports\CourseContentsImport;
 use App\Models\CourseContent;
 use App\Models\Setting;
+use App\Models\Task;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -18,12 +19,37 @@ class CourseContentService
 
     public function syncScheduleFromSiakang(int $userId, ?string $targetSemester = null, ?string $sourceSemester = null): array
     {
+        $semesterLabel = $targetSemester !== null ? trim($targetSemester) : '';
+
+        if ($semesterLabel === '') {
+            throw new \Exception('Target semester is required for sync.', 422);
+        }
+
         $setting = Setting::where('user_id', $userId)->first();
 
         if (! $setting?->hasSiakangCredentials()) {
             throw new \Exception('Siakang credentials are not configured. Add them in Settings.', 422);
         }
 
+        return DB::transaction(function () use ($userId, $semesterLabel, $setting, $sourceSemester) {
+            // Siakang sync is only allowed into an empty semester: re-syncing would
+            // delete existing courses and cascade-delete their tasks and scores.
+            // Use clearSemester() first for an explicit, confirmed reset.
+            $alreadyExists = CourseContent::where('user_id', $userId)
+                ->where('semester', $semesterLabel)
+                ->lockForUpdate()
+                ->exists();
+
+            if ($alreadyExists) {
+                throw new \Exception('Semester already has course data. Clear the semester first to sync again.', 409);
+            }
+
+            return $this->importScheduleRows($userId, $semesterLabel, $setting, $sourceSemester);
+        });
+    }
+
+    private function importScheduleRows(int $userId, string $semesterLabel, Setting $setting, ?string $sourceSemester): array
+    {
         $response = $this->siakangClient->getSchedule(
             trim($setting->siakang_email),
             trim($setting->siakang_password),
@@ -40,21 +66,11 @@ class CourseContentService
             throw new \Exception('No schedule data found in Siakang response.', 422);
         }
 
-        $semesterLabel = $targetSemester;
-
-        // Delete existing course contents for this semester before re-importing.
-        if ($semesterLabel) {
-            CourseContent::where('user_id', $userId)
-                ->where('semester', $semesterLabel)
-                ->delete();
-        }
-
         $inserted = 0;
         $skipped = [];
-        $existingCodes = CourseContent::where('user_id', $userId)
-            ->when($semesterLabel, fn ($q) => $q->where('semester', $semesterLabel))
-            ->pluck('code')
-            ->flip();
+        // The target semester is guaranteed empty (guarded above), so this only
+        // dedupes duplicate codes within the incoming Siakang payload itself.
+        $insertedCodes = [];
 
         foreach ($rows as $course) {
             $name = trim($course['name'] ?? '');
@@ -94,7 +110,7 @@ class CourseContentService
             $hourEnd = $this->normalizeTimeEnd($firstSchedule['time'] ?? '');
 
             $shouldInsert = true;
-            if ($code !== '' && isset($existingCodes[$code])) {
+            if ($code !== '' && isset($insertedCodes[$code])) {
                 $shouldInsert = false;
             }
 
@@ -111,6 +127,9 @@ class CourseContentService
                     'user_id' => $userId,
                 ]);
                 $inserted++;
+                if ($code !== '') {
+                    $insertedCodes[$code] = true;
+                }
             } else {
                 $skipped[] = $name;
             }
@@ -258,6 +277,45 @@ class CourseContentService
             ->firstOrFail();
 
         $courseContent->delete();
+    }
+
+    /**
+     * Delete all course contents in one semester (explicit reset so the
+     * semester can be synced again). Related tasks are removed via the
+     * tasks.course_content_id cascade; callers must confirm first.
+     */
+    public function clearSemester(int $userId, string $semester): array
+    {
+        return DB::transaction(function () use ($userId, $semester) {
+            $courseIds = CourseContent::where('user_id', $userId)
+                ->where('semester', $semester)
+                ->lockForUpdate()
+                ->pluck('id');
+
+            $courseCount = $courseIds->count();
+            $taskCount = $courseCount > 0
+                ? Task::whereIn('course_content_id', $courseIds)->count()
+                : 0;
+            $scoredCount = $courseCount > 0
+                ? CourseContent::where('user_id', $userId)
+                    ->where('semester', $semester)
+                    ->whereNotNull('score')
+                    ->count()
+                : 0;
+
+            if ($courseCount > 0) {
+                CourseContent::where('user_id', $userId)
+                    ->where('semester', $semester)
+                    ->delete();
+            }
+
+            return [
+                'semester' => $semester,
+                'deleted_courses' => $courseCount,
+                'deleted_tasks' => $taskCount,
+                'cleared_scores' => $scoredCount,
+            ];
+        });
     }
 
     public function filter(int $userId, string $semester): array

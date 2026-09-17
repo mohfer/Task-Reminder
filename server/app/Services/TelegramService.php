@@ -94,7 +94,7 @@ class TelegramService
         $message = [
             '*Test Notification*',
             '',
-            'This is a dummy notification from Task Reminder',
+            'This is a test notification from Task Reminder',
             '*Channel:* ' . $this->escapeMarkdownV2($channel),
             '*Status:* Telegram setup is working',
             '',

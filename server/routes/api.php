@@ -42,6 +42,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/course-contents/download-template', [CourseContentController::class, 'downloadTemplate']);
     Route::post('/course-contents/import-from-excel', [CourseContentController::class, 'importFromExcel']);
     Route::post('/course-contents/sync-schedule', [CourseContentController::class, 'syncSchedule']);
+    Route::post('/course-contents/clear', [CourseContentController::class, 'clear']);
     Route::apiResource('course-contents', CourseContentController::class)->only(['store', 'update', 'destroy']);
 
     // Assessment — custom calculate/sync/semesters, update follows resource style
@@ -63,6 +64,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::patch('/settings/task-created-notification', [SettingsController::class, 'taskCreatedNotification']);
     Route::patch('/settings/task-completed-notification', [SettingsController::class, 'taskCompletedNotification']);
     Route::put('/settings/siakang-credentials', [SettingsController::class, 'siakangCredentials']);
+    Route::post('/settings/siakang-credentials/test', [SettingsController::class, 'testSiakangConnection']);
     Route::delete('/settings/siakang-credentials', [SettingsController::class, 'siakangCredentialsDelete']);
     Route::put('/settings/profile', [UserController::class, 'updateProfile']);
     Route::put('/settings/password', [UserController::class, 'changePassword']);

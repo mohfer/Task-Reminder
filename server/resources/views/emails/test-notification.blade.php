@@ -2,7 +2,7 @@
 
 @section('content')
     <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#0a0f1a;">Hi {{ $userName }},</p>
-    <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#0a0f1a;">This is a dummy notification from
+    <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#0a0f1a;">This is a test notification from
         Task Reminder.</p>
     <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#0a0f1a;">If you receive this email, your
         notification setup is working correctly.</p>

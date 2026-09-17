@@ -219,6 +219,20 @@ export const useSettings = () => {
         [fetchUserData]
     );
 
+    const testSiakangConnection = useCallback(async () => {
+        try {
+            setIsMutating(true);
+            const response = await settingsApi.testSiakangConnection();
+            toast.success(response.data.message);
+            return { success: true, data: response.data.data };
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to test Siakang connection.');
+            return { success: false };
+        } finally {
+            setIsMutating(false);
+        }
+    }, []);
+
     useEffect(() => {
         fetchUserData();
     }, [fetchUserData]);
@@ -238,5 +252,6 @@ export const useSettings = () => {
         changePassword,
         saveSiakangCredentials,
         deleteSiakangCredentials,
+        testSiakangConnection,
     };
 };
