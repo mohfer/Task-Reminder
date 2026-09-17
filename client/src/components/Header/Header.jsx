@@ -42,7 +42,7 @@ const Header = ({ title }) => {
                 <div className="flex items-center gap-2 sm:gap-3">
                     {pathname !== '/settings' ? (
                         <Select value={semesterLabel} onValueChange={(value) => setSemester(value, value)}>
-                            <SelectTrigger className="w-[118px] bg-background px-2 text-xs sm:w-[160px] sm:text-sm [&>span]:truncate">
+                            <SelectTrigger className="w-[140px] bg-background px-2 text-xs sm:w-[160px] sm:text-sm [&>span]:truncate">
                                 <SelectValue placeholder="Select semester" />
                             </SelectTrigger>
                             <SelectContent>

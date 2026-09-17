@@ -70,22 +70,22 @@ export const TaskDateTable = ({ tasks, onStatusChange, onEdit, onDelete, isMutat
                         <TableRow>
                             <TableHead className="text-center">No</TableHead>
                             <TableHead>
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('course_content')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('course_content')}>
                                     Course Content <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead>
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('task')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('task')}>
                                     Task <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('deadline')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('deadline')}>
                                     Deadline <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('status')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('status')}>
                                     Status <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>

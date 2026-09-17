@@ -128,32 +128,32 @@ export const CourseContentTable = ({ rows, isLoading, onEdit, onDelete }) => {
                         <TableRow>
                             <TableHead className="text-center">No</TableHead>
                             <TableHead className="text-center">
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('code')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('code')}>
                                     Code <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead>
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('course_content')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('course_content')}>
                                     Course Content <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead>
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('lecturer')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('lecturer')}>
                                     Lecturer <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('credits')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('credits')}>
                                     Credits <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('day')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('day')}>
                                     Day <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('time')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('time')}>
                                     Time <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>

@@ -11,11 +11,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FormField } from '@/components/shared/FormField';
 import { getFieldError, validateRequired } from '@/lib/formUtils';
+import { DiscardConfirmDialog } from '@/components/shared/DiscardConfirmDialog';
 
 export const ScoreUpdateDialog = ({ open, onOpenChange, initialData, isLoading, onSubmit }) => {
     const [course, setCourse] = useState('');
     const [score, setScore] = useState('');
     const [errors, setErrors] = useState({});
+    const [showDiscard, setShowDiscard] = useState(false);
+
+    const isDirty = score !== String(initialData?.score || '');
 
     useEffect(() => {
         if (!open) {
@@ -42,9 +46,28 @@ export const ScoreUpdateDialog = ({ open, onOpenChange, initialData, isLoading, 
         setErrors(result.errors || {});
     };
 
+    const requestClose = () => {
+        if (isDirty) {
+            setShowDiscard(true);
+            return;
+        }
+
+        onOpenChange(false);
+    };
+
+    const handleOpenChange = (nextOpen) => {
+        if (!nextOpen && isDirty) {
+            setShowDiscard(true);
+            return;
+        }
+
+        onOpenChange(nextOpen);
+    };
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
+        <>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+            <DialogContent persistent>
                 <DialogHeader>
                     <DialogTitle>Update Score</DialogTitle>
                     <DialogDescription>Update the score of the selected course content.</DialogDescription>
@@ -60,7 +83,7 @@ export const ScoreUpdateDialog = ({ open, onOpenChange, initialData, isLoading, 
                     </FormField>
 
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                        <Button type="button" variant="outline" onClick={requestClose}>
                             Cancel
                         </Button>
                         <Button type="submit" disabled={isLoading}>
@@ -70,5 +93,14 @@ export const ScoreUpdateDialog = ({ open, onOpenChange, initialData, isLoading, 
                 </form>
             </DialogContent>
         </Dialog>
+            <DiscardConfirmDialog
+                open={showDiscard}
+                onOpenChange={setShowDiscard}
+                onConfirm={() => {
+                    setShowDiscard(false);
+                    onOpenChange(false);
+                }}
+            />
+        </>
     );
 };

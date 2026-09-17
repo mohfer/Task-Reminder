@@ -65,17 +65,17 @@ export const GradeTable = ({ rows, isLoading, onEdit, onDelete }) => {
                         <TableRow>
                             <TableHead className="text-center">No</TableHead>
                             <TableHead className="text-center">
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('grade')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('grade')}>
                                     Grade <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('grade_point')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('grade_point')}>
                                     Grade Points <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('minimal_score')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('minimal_score')}>
                                     Score <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>

@@ -67,27 +67,27 @@ export const AssessmentTable = ({ rows, isLoading, onEdit }) => {
                         <TableRow>
                             <TableHead className="text-center">No</TableHead>
                             <TableHead>
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('course_content')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('course_content')}>
                                     Course Content <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('credits')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('credits')}>
                                     Credits <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('score')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('score')}>
                                     Score <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('grade')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('grade')}>
                                     Grade <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
-                                <Button variant="ghost" className="h-auto p-0 font-medium" onClick={() => handleSort('grade_point')}>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('grade_point')}>
                                     Grade Points <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>

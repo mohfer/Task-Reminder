@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FormField } from '@/components/shared/FormField';
 import { getFieldError, validateRequired } from '@/lib/formUtils';
+import { DiscardConfirmDialog } from '@/components/shared/DiscardConfirmDialog';
 
 export const GradeFormDialog = ({
     open,
@@ -25,6 +26,15 @@ export const GradeFormDialog = ({
     const [minimalScore, setMinimalScore] = useState('');
     const [maximalScore, setMaximalScore] = useState('');
     const [errors, setErrors] = useState({});
+    const [showDiscard, setShowDiscard] = useState(false);
+
+    const isDirty =
+        mode === 'edit' && initialData
+            ? grade !== (initialData.grade || '') ||
+              gradePoints !== String(initialData.grade_point || '') ||
+              minimalScore !== String(initialData.minimal_score || '') ||
+              maximalScore !== String(initialData.maximal_score || '')
+            : grade !== '' || gradePoints !== '' || minimalScore !== '' || maximalScore !== '';
 
     useEffect(() => {
         if (!open) {
@@ -80,9 +90,28 @@ export const GradeFormDialog = ({
         setErrors(result.errors || {});
     };
 
+    const requestClose = () => {
+        if (isDirty) {
+            setShowDiscard(true);
+            return;
+        }
+
+        onOpenChange(false);
+    };
+
+    const handleOpenChange = (nextOpen) => {
+        if (!nextOpen && isDirty) {
+            setShowDiscard(true);
+            return;
+        }
+
+        onOpenChange(nextOpen);
+    };
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
+        <>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+            <DialogContent persistent>
                 <DialogHeader>
                     <DialogTitle>{mode === 'create' ? 'Add New Grade' : 'Edit Grade'}</DialogTitle>
                     <DialogDescription>Enter the details of the grade.</DialogDescription>
@@ -127,7 +156,7 @@ export const GradeFormDialog = ({
                     </FormField>
 
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                        <Button type="button" variant="outline" onClick={requestClose}>
                             Cancel
                         </Button>
                         <Button type="submit" disabled={isLoading}>
@@ -137,5 +166,14 @@ export const GradeFormDialog = ({
                 </form>
             </DialogContent>
         </Dialog>
+            <DiscardConfirmDialog
+                open={showDiscard}
+                onOpenChange={setShowDiscard}
+                onConfirm={() => {
+                    setShowDiscard(false);
+                    onOpenChange(false);
+                }}
+            />
+        </>
     );
 };

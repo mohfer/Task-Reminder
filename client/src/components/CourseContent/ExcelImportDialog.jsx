@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { DiscardConfirmDialog } from '@/components/shared/DiscardConfirmDialog';
 
 export const ExcelImportDialog = ({
     open,
@@ -20,8 +21,14 @@ export const ExcelImportDialog = ({
     const [file, setFile] = useState(null);
     const [uploadProgress, setUploadProgress] = useState(null);
     const [isProcessingImport, setIsProcessingImport] = useState(false);
+    const [showDiscard, setShowDiscard] = useState(false);
 
     const closeDialog = (nextOpen) => {
+        if (!nextOpen && file) {
+            setShowDiscard(true);
+            return;
+        }
+
         if (!nextOpen) {
             setFile(null);
             setUploadProgress(null);
@@ -52,15 +59,20 @@ export const ExcelImportDialog = ({
         });
 
         if (result.success) {
-            closeDialog(false);
+            setFile(null);
+            setUploadProgress(null);
+            setIsProcessingImport(false);
+            onOpenChange(false);
+            return;
         }
 
         setIsProcessingImport(false);
     };
 
     return (
+        <>
         <Dialog open={open} onOpenChange={closeDialog}>
-            <DialogContent>
+            <DialogContent persistent>
                 <DialogHeader>
                     <DialogTitle>Import Data From Excel</DialogTitle>
                     <DialogDescription>
@@ -129,5 +141,17 @@ export const ExcelImportDialog = ({
                 </form>
             </DialogContent>
         </Dialog>
+            <DiscardConfirmDialog
+                open={showDiscard}
+                onOpenChange={setShowDiscard}
+                onConfirm={() => {
+                    setShowDiscard(false);
+                    setFile(null);
+                    setUploadProgress(null);
+                    setIsProcessingImport(false);
+                    onOpenChange(false);
+                }}
+            />
+        </>
     );
 };

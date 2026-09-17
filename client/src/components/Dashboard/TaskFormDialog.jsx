@@ -29,6 +29,7 @@ import { FormField } from '@/components/shared/FormField';
 import useSemesterStore from '@/store/useSemesterStore';
 import { SEMESTERS } from '@/lib/constants';
 import { validateRequired } from '@/lib/formUtils';
+import { DiscardConfirmDialog } from '@/components/shared/DiscardConfirmDialog';
 
 export const TaskFormDialog = ({
     open,
@@ -48,6 +49,17 @@ export const TaskFormDialog = ({
     const [deadline, setDeadline] = useState('');
     const [priority, setPriority] = useState(false);
     const [errors, setErrors] = useState({});
+    const [showDiscard, setShowDiscard] = useState(false);
+
+    const isDirty =
+        mode === 'edit' && initialData
+            ? semester !== (initialData.semester || '') ||
+              course !== String(initialData.course_content_id || '') ||
+              task !== (initialData.task || '') ||
+              description !== (initialData.description || '') ||
+              deadline !== (initialData.deadline || '') ||
+              priority !== Boolean(initialData.priority)
+            : course !== '' || task !== '' || description !== '' || deadline !== '' || priority;
 
     useEffect(() => {
         if (!open) {
@@ -114,9 +126,28 @@ export const TaskFormDialog = ({
         setErrors(result.errors || {});
     };
 
+    const requestClose = () => {
+        if (isDirty) {
+            setShowDiscard(true);
+            return;
+        }
+
+        onOpenChange(false);
+    };
+
+    const handleOpenChange = (nextOpen) => {
+        if (!nextOpen && isDirty) {
+            setShowDiscard(true);
+            return;
+        }
+
+        onOpenChange(nextOpen);
+    };
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-xl">
+        <>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+            <DialogContent className="sm:max-w-xl" persistent>
                 <DialogHeader>
                     <DialogTitle>{mode === 'create' ? 'Add New Task' : 'Edit Task'}</DialogTitle>
                     <DialogDescription>Enter the details of the task you want to do.</DialogDescription>
@@ -204,7 +235,7 @@ export const TaskFormDialog = ({
                     </div>
 
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                        <Button type="button" variant="outline" onClick={requestClose}>
                             Cancel
                         </Button>
                         <Button type="submit" disabled={isLoading}>
@@ -214,5 +245,14 @@ export const TaskFormDialog = ({
                 </form>
             </DialogContent>
         </Dialog>
+            <DiscardConfirmDialog
+                open={showDiscard}
+                onOpenChange={setShowDiscard}
+                onConfirm={() => {
+                    setShowDiscard(false);
+                    onOpenChange(false);
+                }}
+            />
+        </>
     );
 };

@@ -19,6 +19,7 @@ import {
 import { FormField } from '@/components/shared/FormField';
 import { SEMESTERS } from '@/lib/constants';
 import { getFieldError, validateRequired } from '@/lib/formUtils';
+import { DiscardConfirmDialog } from '@/components/shared/DiscardConfirmDialog';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -39,6 +40,26 @@ export const CourseContentFormDialog = ({
     const [hourStart, setHourStart] = useState('');
     const [hourEnd, setHourEnd] = useState('');
     const [errors, setErrors] = useState({});
+    const [showDiscard, setShowDiscard] = useState(false);
+
+    const isDirty =
+        mode === 'edit' && initialData
+            ? semester !== (initialData.semester || '') ||
+              code !== (initialData.code || '') ||
+              courseContent !== (initialData.course_content || '') ||
+              credits !== String(initialData.credits || '') ||
+              lecturer !== (initialData.lecturer || '') ||
+              day !== (initialData.day || '') ||
+              hourStart !== (initialData.hour_start || '') ||
+              hourEnd !== (initialData.hour_end || '')
+            : semester !== '' ||
+              code !== '' ||
+              courseContent !== '' ||
+              credits !== '' ||
+              lecturer !== '' ||
+              day !== '' ||
+              hourStart !== '' ||
+              hourEnd !== '';
 
     useEffect(() => {
         if (!open) {
@@ -110,9 +131,28 @@ export const CourseContentFormDialog = ({
         setErrors(result.errors || {});
     };
 
+    const requestClose = () => {
+        if (isDirty) {
+            setShowDiscard(true);
+            return;
+        }
+
+        onOpenChange(false);
+    };
+
+    const handleOpenChange = (nextOpen) => {
+        if (!nextOpen && isDirty) {
+            setShowDiscard(true);
+            return;
+        }
+
+        onOpenChange(nextOpen);
+    };
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-xl">
+        <>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+            <DialogContent className="sm:max-w-xl" persistent>
                 <DialogHeader>
                     <DialogTitle>{mode === 'create' ? 'Add New Course Content' : 'Update Course Content'}</DialogTitle>
                     <DialogDescription>
@@ -195,7 +235,7 @@ export const CourseContentFormDialog = ({
                     </FormField>
 
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                        <Button type="button" variant="outline" onClick={requestClose}>
                             Cancel
                         </Button>
                         <Button type="submit" disabled={isLoading}>
@@ -205,5 +245,14 @@ export const CourseContentFormDialog = ({
                 </form>
             </DialogContent>
         </Dialog>
+            <DiscardConfirmDialog
+                open={showDiscard}
+                onOpenChange={setShowDiscard}
+                onConfirm={() => {
+                    setShowDiscard(false);
+                    onOpenChange(false);
+                }}
+            />
+        </>
     );
 };
