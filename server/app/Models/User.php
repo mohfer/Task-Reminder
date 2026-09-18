@@ -85,6 +85,22 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->notify(new ResetPasswordNotification($token));
     }
 
+    /**
+     * Route notifications for the Telegram channel.
+     *
+     * Returns null when the user has not enabled Telegram or has no chat ID,
+     * in which case TelegramChannel skips delivery silently.
+     */
+    public function routeNotificationForTelegram(object $notification): ?string
+    {
+        $setting = $this->setting()->first();
+
+        if (! $setting || ! $setting->wantsTelegramChannel() || ! $setting->hasTelegramChatId()) {
+            return null;
+        }
+
+        return (string) $setting->telegram_chat_id;
+    }
     public function sendEmailVerificationNotification(): void
     {
         $this->notify(new VerifyEmailNotification());

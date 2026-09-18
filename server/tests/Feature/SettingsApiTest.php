@@ -2,7 +2,10 @@
 
 use App\Models\Setting;
 use App\Models\User;
+use App\Notifications\TestNotification;
 use App\Services\SiakangClient;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Notification;
 use Laravel\Sanctum\Sanctum;
 
 beforeEach(function () {
@@ -97,6 +100,57 @@ test('toggle task completed notification', function () {
 
     $response->assertOk()
         ->assertJsonPath('data.task_completed_notification', 0);
+});
+
+// ─── POST /api/settings/test-notification ───
+
+test('test notification sends email synchronously', function () {
+    Notification::fake();
+
+    $response = $this->postJson('/api/settings/test-notification');
+
+    $response->assertOk()
+        ->assertJsonPath('message', 'Test notification sent to Email');
+
+    Notification::assertSentTo($this->user, TestNotification::class);
+});
+
+test('test notification sends both channels synchronously', function () {
+    Notification::fake();
+    config()->set('services.telegram.bot_token', 'dummy-token');
+    Http::fake([
+        'api.telegram.org/*' => Http::response(['ok' => true], 200),
+    ]);
+
+    Setting::where('user_id', $this->user->id)->update([
+        'notification_channel' => Setting::CHANNEL_BOTH,
+        'telegram_chat_id' => '12345',
+    ]);
+
+    $response = $this->postJson('/api/settings/test-notification');
+
+    $response->assertOk()
+        ->assertJsonPath('message', 'Test notification sent to Email and Telegram');
+
+    Notification::assertSentTo($this->user, TestNotification::class);
+    Http::assertSent(function ($request) {
+        return $request['chat_id'] === '12345'
+            && str_contains($request['text'], 'Test Notification');
+    });
+});
+
+test('test notification returns 502 when telegram delivery fails', function () {
+    Notification::fake();
+    config()->set('services.telegram.bot_token', '');
+
+    Setting::where('user_id', $this->user->id)->update([
+        'notification_channel' => Setting::CHANNEL_TELEGRAM,
+        'telegram_chat_id' => '12345',
+    ]);
+
+    $response = $this->postJson('/api/settings/test-notification');
+
+    $response->assertStatus(502);
 });
 
 // ─── PUT /api/settings/siakang-credentials ───

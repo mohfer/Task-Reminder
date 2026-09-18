@@ -5,17 +5,11 @@ namespace App\Console\Commands;
 use Carbon\Carbon;
 use App\Models\Task;
 use App\Models\Setting;
-use App\Services\TelegramService;
-use App\Notifications\ReminderEmailNotifications;
+use App\Notifications\ReminderNotification;
 use Illuminate\Console\Command;
 
 class SendReminderEmailNotifications extends Command
 {
-    public function __construct(
-        private readonly TelegramService $telegramService
-    ) {
-        parent::__construct();
-    }
 
     /**
      * The name and signature of the console command.
@@ -29,7 +23,7 @@ class SendReminderEmailNotifications extends Command
      *
      * @var string
      */
-    protected $description = 'Send reminder email notifications';
+    protected $description = 'Send reminder notifications';
 
     /**
      * Execute the console command.
@@ -67,16 +61,10 @@ class SendReminderEmailNotifications extends Command
                     ];
                 }
 
-                if ($setting->wantsEmailChannel()) {
-                    $user->notify(new ReminderEmailNotifications($notifications));
-                }
-
-                if ($setting->wantsTelegramChannel() && $setting->hasTelegramChatId()) {
-                    $this->telegramService->sendReminderSummary((string) $setting->telegram_chat_id, $notifications);
-                }
+                $user->notify(new ReminderNotification($notifications));
             }
         }
 
-        $this->info('Notifications sent directly!');
+        $this->info('Notifications queued!');
     }
 }

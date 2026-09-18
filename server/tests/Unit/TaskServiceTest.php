@@ -4,18 +4,13 @@ use App\Models\CourseContent;
 use App\Models\Task;
 use App\Models\User;
 use App\Services\TaskService;
-use App\Services\TelegramService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 
 uses(Tests\TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
-    // Mock telegram service so no real HTTP calls happen
-    $this->telegramService = Mockery::mock(TelegramService::class);
-    $this->telegramService->shouldReceive('sendTaskCreated')->byDefault();
-    $this->telegramService->shouldReceive('sendTaskCompleted')->byDefault();
-    $this->service = new TaskService($this->telegramService);
+    $this->service = new TaskService();
     $this->user = User::factory()->create();
 });
 

@@ -3,14 +3,17 @@
 namespace App\Notifications;
 
 use Carbon\Carbon;
+use App\Models\Task;
+use App\Notifications\Concerns\ResolvesNotificationChannels;
+use App\Services\TelegramService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ReminderEmailNotifications extends Notification implements ShouldQueue
+class ReminderNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, ResolvesNotificationChannels;
 
     public $notifications = [];
     /**
@@ -28,7 +31,37 @@ class ReminderEmailNotifications extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return self::channelsFor($notifiable);
+    }
+
+    /**
+     * Get the Telegram representation of the notification.
+     */
+    public function toTelegram(object $notifiable): string
+    {
+        return app(TelegramService::class)->buildReminderSummaryMessage($this->notifications);
+    }
+
+    /**
+     * Sort reminders with priority tasks first, then by nearest deadline.
+     *
+     * @param array<int, array<string, mixed>> $notifications
+     * @return array<int, array<string, mixed>>
+     */
+    public static function sortByPriorityAndDeadline(array $notifications): array
+    {
+        usort($notifications, function (array $left, array $right) {
+            $leftPriority = ! empty($left['priority']) ? 1 : 0;
+            $rightPriority = ! empty($right['priority']) ? 1 : 0;
+
+            if ($leftPriority !== $rightPriority) {
+                return $rightPriority <=> $leftPriority;
+            }
+
+            return strtotime((string) ($left['deadline'] ?? '')) <=> strtotime((string) ($right['deadline'] ?? ''));
+        });
+
+        return $notifications;
     }
 
     /**
@@ -36,16 +69,18 @@ class ReminderEmailNotifications extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        usort($this->notifications, function ($a, $b) {
-            return strtotime($a['deadline']) <=> strtotime($b['deadline']);
-        });
+        $this->notifications = self::sortByPriorityAndDeadline($this->notifications);
 
         $formattedNotifications = array_map(function ($notification) {
+            $label = $notification['deadline_label'] ?? null;
+
             return [
                 'course_content' => $notification['course_content'],
                 'task' => $notification['task'],
-                'description' => $notification['description'] ?? null,
                 'deadline' => Carbon::parse($notification['deadline'])->format('j F Y'),
+                'deadline_label' => $label,
+                'deadline_color' => Task::deadlineBadgeColor($label),
+                'priority' => ! empty($notification['priority']),
             ];
         }, $this->notifications);
 

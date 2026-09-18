@@ -2,6 +2,8 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\ResolvesNotificationChannels;
+use App\Services\TelegramService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -9,7 +11,7 @@ use Illuminate\Notifications\Notification;
 
 class TaskCompletedNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, ResolvesNotificationChannels;
 
     public $task;
     /**
@@ -27,7 +29,18 @@ class TaskCompletedNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return self::channelsFor($notifiable);
+    }
+
+    /**
+     * Get the Telegram representation of the notification.
+     */
+    public function toTelegram(object $notifiable): string
+    {
+        return app(TelegramService::class)->buildTaskCompletedMessage(
+            $this->task->course_content->course_content,
+            $this->task->task
+        );
     }
 
     /**

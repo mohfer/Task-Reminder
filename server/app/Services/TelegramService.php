@@ -3,12 +3,15 @@
 namespace App\Services;
 
 use Carbon\Carbon;
+use App\Notifications\ReminderNotification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class TelegramService
 {
-    public function sendTaskCreated(string $chatId, string $courseContent, string $task, ?string $description, string $deadline): void
+    public const DASHBOARD_HINT = 'See full task details on your dashboard.';
+
+    public function buildTaskCreatedMessage(string $courseContent, string $task, string $deadline): string
     {
         $dashboardUrl = $this->getDashboardUrl();
         $message = [
@@ -17,16 +20,16 @@ class TelegramService
             '*Course:* ' . $this->escapeMarkdownV2($courseContent),
             '*Task:* ' . $this->escapeMarkdownV2($task),
             '*Deadline:* ' . $this->escapeMarkdownV2(Carbon::parse($deadline)->format('j F Y')),
+            '',
+            $this->escapeMarkdownV2(self::DASHBOARD_HINT),
+            '',
+            '[Open dashboard](' . $dashboardUrl . ')',
         ];
 
-        $this->appendDescriptionMarkdown($message, $description);
-        $message[] = '';
-        $message[] = '[Open dashboard](' . $dashboardUrl . ')';
-
-        $this->sendMessage($chatId, implode("\n", $message));
+        return implode("\n", $message);
     }
 
-    public function sendTaskCompleted(string $chatId, string $courseContent, string $task, ?string $description): void
+    public function buildTaskCompletedMessage(string $courseContent, string $task): string
     {
         $dashboardUrl = $this->getDashboardUrl();
         $message = [
@@ -34,25 +37,23 @@ class TelegramService
             '',
             '*Course:* ' . $this->escapeMarkdownV2($courseContent),
             '*Task:* ' . $this->escapeMarkdownV2($task),
+            '',
+            $this->escapeMarkdownV2(self::DASHBOARD_HINT),
+            '',
+            '[Open dashboard](' . $dashboardUrl . ')',
         ];
 
-        $this->appendDescriptionMarkdown($message, $description);
-        $message[] = '';
-        $message[] = '[Open dashboard](' . $dashboardUrl . ')';
-
-        $this->sendMessage($chatId, implode("\n", $message));
+        return implode("\n", $message);
     }
 
     /**
      * @param array<int, array<string, mixed>> $notifications
      */
-    public function sendReminderSummary(string $chatId, array $notifications): void
+    public function buildReminderSummaryMessage(array $notifications): string
     {
         $dashboardUrl = $this->getDashboardUrl();
 
-        usort($notifications, function (array $left, array $right) {
-            return strtotime((string) $left['deadline']) <=> strtotime((string) $right['deadline']);
-        });
+        $notifications = ReminderNotification::sortByPriorityAndDeadline($notifications);
 
         $count = count($notifications);
         $taskWord = $count === 1 ? 'task' : 'tasks';
@@ -65,27 +66,36 @@ class TelegramService
 
         foreach ($notifications as $index => $notification) {
             $message[] = '*Reminder ' . $this->escapeMarkdownV2((string) ($index + 1)) . '*';
-            $message[] = '*Task:* ' . $this->escapeMarkdownV2((string) $notification['task']);
-            $message[] = '*Course:* ' . $this->escapeMarkdownV2((string) $notification['course_content']);
-            $message[] = '*Deadline:* ' . $this->escapeMarkdownV2(Carbon::parse((string) $notification['deadline'])->format('j F Y'));
 
-            if (!empty($notification['description'])) {
-                $message[] = '*Description:*';
-                $lines = preg_split('/\r\n|\r|\n/', (string) $notification['description']) ?: [];
-                foreach ($lines as $line) {
-                    $trimmed = trim((string) $line);
-                    if ($trimmed !== '') {
-                        $message[] = '\\- ' . $this->escapeMarkdownV2($trimmed);
-                    }
-                }
+            if (! empty($notification['priority'])) {
+                $message[] = '*Priority*';
             }
 
+            $message[] = '*Task:* ' . $this->escapeMarkdownV2((string) $notification['task']);
+            $message[] = '*Course:* ' . $this->escapeMarkdownV2((string) $notification['course_content']);
+            $message[] = '*Deadline:* ' . $this->escapeMarkdownV2($this->deadlineText($notification));
             $message[] = '';
         }
 
+        $message[] = $this->escapeMarkdownV2(self::DASHBOARD_HINT);
+        $message[] = '';
         $message[] = '[Open dashboard](' . $dashboardUrl . ')';
 
-        $this->sendMessage($chatId, implode("\n", $message));
+        return implode("\n", $message);
+    }
+
+    /**
+     * @param array<string, mixed> $notification
+     */
+    private function deadlineText(array $notification): string
+    {
+        $text = Carbon::parse((string) $notification['deadline'])->format('j F Y');
+
+        if (! empty($notification['deadline_label'])) {
+            $text .= ' (' . $notification['deadline_label'] . ')';
+        }
+
+        return $text;
     }
 
     public function sendTestNotification(string $chatId, string $channel): bool
@@ -104,7 +114,7 @@ class TelegramService
         return $this->sendMessage($chatId, implode("\n", $message));
     }
 
-    private function sendMessage(string $chatId, string $message, string $parseMode = 'MarkdownV2'): bool
+    public function sendMessage(string $chatId, string $message, string $parseMode = 'MarkdownV2'): bool
     {
         $token = (string) config('services.telegram.bot_token');
 
@@ -140,26 +150,6 @@ class TelegramService
             ]);
 
             return false;
-        }
-    }
-
-    /**
-     * @param array<int, string> $message
-     */
-    private function appendDescriptionMarkdown(array &$message, ?string $description): void
-    {
-        if (!$description) {
-            return;
-        }
-
-        $message[] = '*Description:*';
-        $lines = preg_split('/\r\n|\r|\n/', $description) ?: [];
-
-        foreach ($lines as $line) {
-            $trimmed = trim((string) $line);
-            if ($trimmed !== '') {
-                $message[] = '\\- ' . $this->escapeMarkdownV2($trimmed);
-            }
         }
     }
 

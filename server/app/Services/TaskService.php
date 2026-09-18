@@ -8,13 +8,9 @@ use App\Models\Task;
 use App\Models\User;
 use App\Notifications\TaskCompletedNotification;
 use App\Notifications\TaskCreatedNotification;
-use App\Services\TelegramService;
 
 class TaskService
 {
-    public function __construct(
-        private readonly TelegramService $telegramService
-    ) {}
 
     public function create(User $user, array $data): Task
     {
@@ -34,24 +30,11 @@ class TaskService
 
         $settings = Setting::where('user_id', $user->id)->first();
         if ($settings && $settings->task_created_notification === 1) {
-            if ($settings->wantsEmailChannel()) {
-                $user->notify(new TaskCreatedNotification(
-                    $courseContent->course_content,
-                    $data['task'],
-                    $data['description'] ?? null,
-                    $data['deadline']
-                ));
-            }
-
-            if ($settings->wantsTelegramChannel() && $settings->hasTelegramChatId()) {
-                $this->telegramService->sendTaskCreated(
-                    (string) $settings->telegram_chat_id,
-                    $courseContent->course_content,
-                    $data['task'],
-                    $data['description'] ?? null,
-                    $data['deadline']
-                );
-            }
+            $user->notify(new TaskCreatedNotification(
+                $courseContent->course_content,
+                $data['task'],
+                $data['deadline']
+            ));
         }
 
         return $task;
@@ -94,18 +77,7 @@ class TaskService
         $newStatus = $task->status == 1 ? 0 : 1;
 
         if ($task->status == 0 && $newStatus == 1 && $settings && $settings->task_completed_notification === 1) {
-            if ($settings->wantsEmailChannel()) {
-                $user->notify(new TaskCompletedNotification($task));
-            }
-
-            if ($settings->wantsTelegramChannel() && $settings->hasTelegramChatId()) {
-                $this->telegramService->sendTaskCompleted(
-                    (string) $settings->telegram_chat_id,
-                    $task->course_content->course_content,
-                    $task->task,
-                    $task->description
-                );
-            }
+            $user->notify(new TaskCompletedNotification($task));
         }
 
         $task->update(['status' => $newStatus]);

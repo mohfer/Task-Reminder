@@ -2,10 +2,12 @@
 
 use App\Models\Setting;
 use App\Models\User;
+use App\Notifications\TestNotification;
 use App\Services\SettingsService;
 use App\Services\SiakangClient;
 use App\Services\TelegramService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
@@ -47,9 +49,12 @@ test('getSettings returns null for user without settings', function () {
 // ─── sendTestNotification ───
 
 test('sendTestNotification sends via email channel', function () {
+    Notification::fake();
+
     $result = $this->service->sendTestNotification($this->user->id);
 
     expect($result['channels'])->toContain(Setting::CHANNEL_EMAIL);
+    Notification::assertSentTo($this->user, TestNotification::class);
 });
 
 test('sendTestNotification throws when no channel enabled', function () {
