@@ -65,6 +65,7 @@ describe('getDeadlineBadgeClass', () => {
 
   it('returns secondary for uncategorized', () => {
     expect(getDeadlineBadgeClass('6 days left', 0)).toContain('bg-secondary');
+    expect(getDeadlineBadgeClass('10 days left', 0)).toContain('bg-secondary');
     expect(getDeadlineBadgeClass('Due in a week', 0)).toContain('bg-secondary');
     expect(getDeadlineBadgeClass('', 0)).toContain('bg-secondary');
     expect(getDeadlineBadgeClass(null, 0)).toContain('bg-secondary');

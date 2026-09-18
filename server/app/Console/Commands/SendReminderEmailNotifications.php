@@ -56,8 +56,9 @@ class SendReminderEmailNotifications extends Command
                     $notifications[] = [
                         'course_content' => $task->course_content->course_content,
                         'task' => $task->task,
-                        'description' => $task->description,
-                        'deadline' => $deadline
+                        'deadline' => $deadline,
+                        'deadline_label' => $task->deadline_label,
+                        'priority' => (bool) $task->priority,
                     ];
                 }
 

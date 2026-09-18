@@ -44,6 +44,39 @@ class Task extends Model
         }
     }
 
+    /**
+     * Hex background color for the deadline badge in emails.
+     * Mirrors the frontend getDeadlineBadgeClass() tiers.
+     */
+    public static function deadlineBadgeColor(?string $label): string
+    {
+        $normalized = strtolower(trim((string) $label));
+
+        if (str_contains($normalized, 'completed')) {
+            return '#16a34a';
+        }
+
+        if (str_contains($normalized, 'overdue') || str_contains($normalized, 'today')) {
+            return '#dc2626';
+        }
+
+        if (preg_match('/^(\d+)\s*days?\b/', $normalized, $matches) === 1) {
+            $days = (int) $matches[1];
+
+            if ($days <= 1) {
+                return '#dc2626';
+            }
+
+            if ($days <= 5) {
+                return '#d97706';
+            }
+
+            return '#64748b';
+        }
+
+        return '#64748b';
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

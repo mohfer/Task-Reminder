@@ -9,8 +9,10 @@
         @include('emails.components.task-card', [
             'courseContent' => $item['course_content'],
             'task' => $item['task'],
-            'description' => $item['description'] ?? null,
             'deadline' => $item['deadline'],
+            'deadlineLabel' => $item['deadline_label'] ?? null,
+            'deadlineLabelColor' => $item['deadline_color'] ?? null,
+            'priority' => $item['priority'] ?? false,
         ])
     @endforeach
 

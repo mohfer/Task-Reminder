@@ -20,16 +20,17 @@ export const getDeadlineBadgeClass = (label, status) => {
     if (Number(status) === 1 || normalized.includes('completed')) {
         return 'bg-success text-success-foreground hover:bg-success/80';
     }
-    if (
-        normalized.includes('overdue') ||
-        normalized.includes('today') ||
-        normalized.includes('0 day') ||
-        normalized.includes('1 day')
-    ) {
+    if (normalized.includes('overdue') || normalized.includes('today')) {
         return 'bg-destructive text-destructive-foreground hover:bg-destructive/80';
     }
-    if (/(2|3|4|5)\s*day/.test(normalized)) {
-        return 'bg-warning text-warning-foreground hover:bg-warning/80';
+    const days = parseInt(normalized, 10);
+    if (!Number.isNaN(days)) {
+        if (days <= 1) {
+            return 'bg-destructive text-destructive-foreground hover:bg-destructive/80';
+        }
+        if (days <= 5) {
+            return 'bg-warning text-warning-foreground hover:bg-warning/80';
+        }
     }
     return 'bg-secondary text-secondary-foreground hover:bg-secondary/80';
 };

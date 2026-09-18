@@ -85,6 +85,20 @@ test('task deadline_label reflects status and dates', function () {
     expect($t5->fresh()->deadline_label)->toBe('5 days left');
 });
 
+test('task deadlineBadgeColor mirrors frontend tiers', function () {
+    expect(Task::deadlineBadgeColor('Completed'))->toBe('#16a34a');
+    expect(Task::deadlineBadgeColor('Overdue'))->toBe('#dc2626');
+    expect(Task::deadlineBadgeColor('Due today'))->toBe('#dc2626');
+    expect(Task::deadlineBadgeColor('0 days left'))->toBe('#dc2626');
+    expect(Task::deadlineBadgeColor('1 day left'))->toBe('#dc2626');
+    expect(Task::deadlineBadgeColor('2 days left'))->toBe('#d97706');
+    expect(Task::deadlineBadgeColor('3 days left'))->toBe('#d97706');
+    expect(Task::deadlineBadgeColor('5 days left'))->toBe('#d97706');
+    expect(Task::deadlineBadgeColor('6 days left'))->toBe('#64748b');
+    expect(Task::deadlineBadgeColor('10 days left'))->toBe('#64748b');
+    expect(Task::deadlineBadgeColor(null))->toBe('#64748b');
+});
+
 test('task relations and fillable', function () {
     $user = User::factory()->create();
     $course = CourseContent::create(['semester'=>'S1','code'=>'MK001','course_content'=>'Kalkulus','credits'=>3,'lecturer'=>'A','day'=>'Senin','hour_start'=>'08:00','hour_end'=>'10:00','user_id'=>$user->id]);
