@@ -26,7 +26,7 @@
 - Custom grade scale management
 - Siakang sync for grades and schedules via siakang-scrapling
 - Notification channels: email, telegram, or both with test button
-- Queued email delivery and Telegram MarkdownV2 formatting
+- Queued email + Telegram delivery (MarkdownV2) with instant test notifications
 - User settings for profile, password, and notification preferences
 - Theme support: light, dark, and system
 - Responsive design for mobile, tablet, and desktop
@@ -71,7 +71,7 @@ cd client && pnpm dev
 ## Commands
 
 ```bash
-cd server && php artisan test                    # 232 tests (Feature + Unit)
+cd server && php artisan test                    # 254 tests (Feature + Unit)
 cd server && php artisan test --testsuite=Feature
 cd server && php artisan test --testsuite=Unit
 cd server && php artisan queue:listen --tries=1
