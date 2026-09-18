@@ -61,7 +61,6 @@ class TaskCreatedNotification extends Notification implements ShouldQueue
                 'userName' => $notifiable->name,
                 'courseContent' => $this->courseContent,
                 'task' => $this->task,
-                'description' => $this->description,
                 'deadline' => Carbon::parse($this->deadline)->format('j F Y'),
                 'dashboardUrl' => config('app.frontend_url') . '/dashboard',
             ]);

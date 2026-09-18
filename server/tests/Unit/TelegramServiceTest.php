@@ -13,64 +13,58 @@ beforeEach(function () {
 
 // ─── sendMessage (via public methods) ───
 
-test('sendTaskCreated posts formatted message to telegram', function () {
-    Http::fake([
-        'api.telegram.org/*' => Http::response(['ok' => true], 200),
-    ]);
+test('buildTaskCreatedMessage posts formatted message to telegram', function () {
+    $text = $this->service->buildTaskCreatedMessage('Kalkulus', 'PR Bab 1', '2025-06-15');
 
-    $this->service->sendTaskCreated('12345', 'Kalkulus', 'PR Bab 1', 'Kerjakan soal', '2025-06-15');
-
-    Http::assertSent(function ($request) {
-        return $request->url() === 'https://api.telegram.org/botdummy-token/sendMessage'
-            && $request['chat_id'] === '12345'
-            && str_contains($request['text'], 'Task Created Notification')
-            && str_contains($request['text'], 'Kalkulus');
-    });
+    expect($text)->toContain('Task Created Notification')
+        ->and($text)->toContain('Kalkulus')
+        ->and($text)->toContain('See full task details');
 });
 
-test('sendTaskCreated omits description when null', function () {
-    Http::fake([
-        'api.telegram.org/*' => Http::response(['ok' => true], 200),
-    ]);
+test('buildTaskCreatedMessage excludes description', function () {
+    $text = $this->service->buildTaskCreatedMessage('Kalkulus', 'PR', '2025-06-15');
 
-    $this->service->sendTaskCreated('12345', 'Kalkulus', 'PR', null, '2025-06-15');
-
-    Http::assertSent(function ($request) {
-        return !str_contains($request['text'], 'Description:');
-    });
+    expect($text)->not->toContain('Description:');
 });
 
-test('sendTaskCompleted posts completed notification', function () {
-    Http::fake([
-        'api.telegram.org/*' => Http::response(['ok' => true], 200),
-    ]);
+test('buildTaskCompletedMessage posts completed notification without description', function () {
+    $text = $this->service->buildTaskCompletedMessage('Fisika', 'Lab Report');
 
-    $this->service->sendTaskCompleted('12345', 'Fisika', 'Lab Report', 'Bab 1-3');
-
-    Http::assertSent(function ($request) {
-        return str_contains($request['text'], 'Task Completed Notification')
-            && str_contains($request['text'], 'Fisika');
-    });
+    expect($text)->toContain('Task Completed Notification')
+        ->and($text)->toContain('Fisika')
+        ->and($text)->toContain('See full task details')
+        ->and($text)->not->toContain('Description:');
 });
 
-test('sendReminderSummary posts multi-task reminder', function () {
-    Http::fake([
-        'api.telegram.org/*' => Http::response(['ok' => true], 200),
-    ]);
-
+test('buildReminderSummaryMessage puts priority tasks first with marker', function () {
     $notifications = [
-        ['task' => 'PR 1', 'course_content' => 'Kalkulus', 'deadline' => '2025-06-15', 'description' => null],
-        ['task' => 'PR 2', 'course_content' => 'Fisika', 'deadline' => '2025-06-20', 'description' => 'Penting'],
+        ['task' => 'Later normal', 'course_content' => 'Kalkulus', 'deadline' => '2025-06-15', 'deadline_label' => '3 days left'],
+        ['task' => 'Urgent priority', 'course_content' => 'Fisika', 'deadline' => '2025-06-20', 'deadline_label' => '8 days left', 'priority' => true],
     ];
 
-    $this->service->sendReminderSummary('12345', $notifications);
+    $text = $this->service->buildReminderSummaryMessage($notifications);
 
-    Http::assertSent(function ($request) {
-        return str_contains($request['text'], 'Reminder')
-            && str_contains($request['text'], 'Kalkulus')
-            && str_contains($request['text'], 'Fisika')
-            && str_contains($request['text'], 'pending');
-    });
+    expect($text)->toContain('*Priority*')
+        ->and(strpos($text, 'Urgent priority'))->toBeLessThan(strpos($text, 'Later normal'));
+});
+
+test('buildReminderSummaryMessage posts multi-task reminder without descriptions', function () {
+    $notifications = [
+        ['task' => 'PR 1', 'course_content' => 'Kalkulus', 'deadline' => '2025-06-15', 'deadline_label' => '3 days left', 'description' => 'Very long details that should not appear'],
+        ['task' => 'PR 2', 'course_content' => 'Fisika', 'deadline' => '2025-06-20', 'deadline_label' => '1 day left', 'description' => 'Penting'],
+    ];
+
+    $text = $this->service->buildReminderSummaryMessage($notifications);
+
+    expect($text)->toContain('Reminder')
+        ->and($text)->toContain('Kalkulus')
+        ->and($text)->toContain('Fisika')
+        ->and($text)->toContain('pending')
+        ->and($text)->toContain('See full task details')
+        ->and($text)->toContain('\\(3 days left\\)')
+        ->and($text)->toContain('\\(1 day left\\)')
+        ->and($text)->not->toContain('Very long details that should not appear')
+        ->and($text)->not->toContain('Description:');
 });
 
 test('sendTestNotification returns true on success', function () {

@@ -55,7 +55,6 @@ class TaskCompletedNotification extends Notification implements ShouldQueue
                 'userName' => $notifiable->name,
                 'courseContent' => $this->task->course_content->course_content,
                 'task' => $this->task->task,
-                'description' => $this->task->description,
                 'dashboardUrl' => config('app.frontend_url') . '/dashboard',
             ]);
     }

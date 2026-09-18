@@ -8,7 +8,6 @@
     @include('emails.components.task-card', [
         'courseContent' => $courseContent,
         'task' => $task,
-        'description' => $description,
         'deadline' => $deadline,
     ])
 
@@ -17,5 +16,5 @@
         'label' => 'Open Dashboard',
     ])
 
-    <p style="margin:12px 0 0;font-size:14px;line-height:1.6;color:#64748b;">Thank you for using our application.</p>
+    <p style="margin:12px 0 0;font-size:14px;line-height:1.6;color:#64748b;">{{ \App\Services\TelegramService::DASHBOARD_HINT }}</p>
 @endsection

@@ -7,7 +7,6 @@
     @include('emails.components.task-card', [
         'courseContent' => $courseContent,
         'task' => $task,
-        'description' => $description,
         'status' => 'Completed',
     ])
 
@@ -16,6 +15,5 @@
         'label' => 'Open Dashboard',
     ])
 
-    <p style="margin:12px 0 0;font-size:14px;line-height:1.6;color:#64748b;">Keep your momentum and complete your remaining
-        tasks.</p>
+    <p style="margin:12px 0 0;font-size:14px;line-height:1.6;color:#64748b;">{{ \App\Services\TelegramService::DASHBOARD_HINT }}</p>
 @endsection

@@ -19,6 +19,5 @@
         'label' => 'Open Dashboard',
     ])
 
-    <p style="margin:12px 0 0;font-size:14px;line-height:1.6;color:#64748b;">Please check your dashboard and prioritize tasks
-        with the nearest deadline.</p>
+    <p style="margin:12px 0 0;font-size:14px;line-height:1.6;color:#64748b;">{{ \App\Services\TelegramService::DASHBOARD_HINT }}</p>
 @endsection
