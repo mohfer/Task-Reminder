@@ -1,6 +1,6 @@
 export const ScheduleTimeColumn = ({ slots, rowHeight }) => {
     return (
-        <div className="w-14 shrink-0 border-r border-border bg-muted/30">
+        <div className="w-14 shrink-0 bg-muted/30">
             <div className="h-12 border-b border-border" />
             {slots.slice(0, -1).map((slot) => (
                 <div

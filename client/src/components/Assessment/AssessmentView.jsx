@@ -48,7 +48,7 @@ export const AssessmentView = () => {
     return (
         <div className="space-y-6">
             {settings?.has_siakang_credentials ? (
-                <div className="flex gap-4">
+                <div className="flex justify-end gap-4 lg:justify-start">
                     <Button variant="outline" onClick={syncDialog.open}>
                         <RefreshCw className="mr-2 h-4 w-4" /> Sync from Siakang
                     </Button>

@@ -40,8 +40,8 @@ export const WeeklySchedule = ({ courseContents = [], language = 'en', isLoading
 
                 <div className="relative">
                     <div className="overflow-x-auto">
-                        <div className="min-w-[980px] rounded-md border border-border bg-card">
-                            <div className="flex">
+                        <div className="min-w-[1115px] overflow-hidden rounded-md border border-border bg-card">
+                            <div className="flex divide-x divide-border">
                                 <ScheduleTimeColumn slots={slots} rowHeight={ROW_HEIGHT} />
 
                                 {days.map((day, index) => (

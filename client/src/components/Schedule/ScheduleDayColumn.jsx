@@ -60,7 +60,7 @@ export const ScheduleDayColumn = ({
 
     return (
         <div className={cn(
-            'min-w-[150px] flex-1 border-r border-border last:border-r-0',
+            'min-w-[150px] flex-1',
             isTodayColumn && 'bg-primary/5'
         )}>
             <div className={cn(
@@ -80,11 +80,11 @@ export const ScheduleDayColumn = ({
             </div>
 
             <div className="relative" style={{ height: totalHeight }}>
-                {slots.slice(0, -1).map((slot, index) => (
+                {slots.slice(1, -1).map((slot, index) => (
                     <div
                         key={`${day}-${slot}`}
                         className="absolute left-0 right-0 border-b border-border/70"
-                        style={{ top: index * rowHeight }}
+                        style={{ top: (index + 1) * rowHeight }}
                     />
                 ))}
 
