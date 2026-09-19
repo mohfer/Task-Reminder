@@ -109,6 +109,35 @@ test('update throws for another user task', function () {
     ]);
 })->throws(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
 
+test('update throws when new course_content belongs to another user', function () {
+    $ownCourse = CourseContent::create([
+        'semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus I',
+        'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin',
+        'hour_start' => '08:00', 'hour_end' => '10:00', 'user_id' => $this->user->id,
+    ]);
+
+    $otherUser = User::factory()->create();
+    $victimCourse = CourseContent::create([
+        'semester' => '2024/2025 Ganjil', 'code' => 'MK999', 'course_content' => 'Fisika I',
+        'credits' => 3, 'lecturer' => 'B', 'day' => 'Selasa',
+        'hour_start' => '08:00', 'hour_end' => '10:00', 'user_id' => $otherUser->id,
+    ]);
+
+    $task = Task::create([
+        'task' => 'Mine', 'deadline' => '2025-01-01', 'status' => 0, 'course_content_id' => $ownCourse->id, 'user_id' => $this->user->id,
+    ]);
+
+    try {
+        $this->service->update($this->user->id, $task->id, [
+            'task' => 'Hijack', 'deadline' => '2025-12-31', 'course_content_id' => $victimCourse->id,
+        ]);
+        $this->fail('Expected ModelNotFoundException for cross-owner parent');
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        expect($task->fresh()->course_content_id)->toBe($ownCourse->id);
+        throw $e;
+    }
+})->throws(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+
 // ─── delete ───
 
 test('delete removes task owned by user', function () {

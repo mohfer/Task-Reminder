@@ -142,12 +142,19 @@ export const useSettings = () => {
         async (data) => {
             try {
                 setIsMutating(true);
+                const previousEmail = userData?.email || localStorage.getItem('email');
                 const response = await userApi.updateProfile(data);
                 toast.success(response.data.message);
                 localStorage.setItem('name', data.name);
+                localStorage.setItem('email', data.email);
                 useSemesterStore.getState().setUserName(data.name);
+                if (previousEmail !== data.email) {
+                    localStorage.setItem('isEmailVerified', false);
+                    toast.info('Verification email sent to your new address. Please verify to continue.');
+                    return { success: true, emailChanged: true };
+                }
                 await fetchUserData(false);
-                return { success: true };
+                return { success: true, emailChanged: false };
             } catch (error) {
                 toast.error(error.response?.data?.message || 'Failed to update profile.');
                 return { success: false, errors: error.response?.data?.errors || {} };
@@ -155,7 +162,7 @@ export const useSettings = () => {
                 setIsMutating(false);
             }
         },
-        [fetchUserData]
+        [fetchUserData, userData]
     );
 
     const changePassword = useCallback(

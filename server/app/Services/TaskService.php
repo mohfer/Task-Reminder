@@ -46,6 +46,10 @@ class TaskService
             ->where('id', $taskId)
             ->firstOrFail();
 
+        CourseContent::where('id', $data['course_content_id'])
+            ->where('user_id', $userId)
+            ->firstOrFail();
+
         $task->update([
             'task' => $data['task'],
             'description' => $data['description'] ?? null,

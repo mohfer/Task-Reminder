@@ -59,6 +59,17 @@ test('update profile allows keeping same email', function () {
 
     $response->assertOk()
         ->assertJsonPath('data.email', $this->user->email);
+    expect($this->user->fresh()->email_verified_at)->not->toBeNull();
+});
+
+test('update profile clears verification when email changes', function () {
+    $response = $this->putJson('/api/settings/profile', [
+        'name' => $this->user->name,
+        'email' => 'changed@example.com',
+    ]);
+
+    $response->assertOk();
+    expect($this->user->fresh()->email_verified_at)->toBeNull();
 });
 
 // ─── PUT /api/settings/password ───

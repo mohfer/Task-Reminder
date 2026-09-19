@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FormField } from '@/components/shared/FormField';
@@ -11,6 +12,7 @@ export const ProfileForm = ({ userData, isLoading, onSubmit }) => {
     const [email, setEmail] = useState('');
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         setName(userData?.name || '');
@@ -35,6 +37,9 @@ export const ProfileForm = ({ userData, isLoading, onSubmit }) => {
             const result = await onSubmit({ name, email });
             if (result.success) {
                 setErrors({});
+                if (result.emailChanged) {
+                    navigate('/auth/verify-email');
+                }
                 return;
             }
             setErrors(result.errors || {});

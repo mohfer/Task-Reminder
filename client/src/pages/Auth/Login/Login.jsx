@@ -50,10 +50,15 @@ const Login = () => {
             localStorage.setItem('name', response.data.data.user.name);
             useSemesterStore.getState().setUserName(response.data.data.user.name);
 
-            const isEmailVerified = await authApi.checkEmail();
-            localStorage.setItem('isEmailVerified', isEmailVerified.data.status);
+            const emailCheck = await authApi.checkEmail();
+            const verified = emailCheck.data?.data?.verified === true;
+            localStorage.setItem('isEmailVerified', verified);
 
-            navigate('/dashboard');
+            if (verified) {
+                navigate('/dashboard');
+            } else {
+                navigate('/auth/verify-email');
+            }
         } catch (error) {
             const errors = error.response?.data?.errors || {};
             setMessage(errors);

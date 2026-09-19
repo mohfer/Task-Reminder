@@ -71,7 +71,7 @@ cd client && pnpm dev
 ## Commands
 
 ```bash
-cd server && php artisan test                    # 254 tests (Feature + Unit)
+cd server && php artisan test                    # 259 tests (Feature + Unit)
 cd server && php artisan test --testsuite=Feature
 cd server && php artisan test --testsuite=Unit
 cd server && php artisan queue:listen --tries=1

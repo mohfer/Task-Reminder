@@ -1,7 +1,9 @@
 import axiosInstance from './axiosInstance';
 
 export const authApi = {
-    login: (data) => axiosInstance.post('/auth/login', data),
+    // skipAuthLogout keeps failed-login toasts visible instead of wiping them
+    // via the global 401 redirect.
+    login: (data) => axiosInstance.post('/auth/login', data, { skipAuthLogout: true }),
 
     register: (data) =>
         axiosInstance.post('/auth/register', data, {

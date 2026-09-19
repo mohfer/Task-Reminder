@@ -85,6 +85,28 @@ test('update task returns 404 for another user task', function () {
     $response->assertStatus(404);
 });
 
+test('update task returns 404 when new course belongs to another user', function () {
+    $otherUser = User::factory()->create();
+    $victimCourse = CourseContent::create([
+        'semester' => '2024/2025 Ganjil', 'code' => 'MK999', 'course_content' => 'Fisika I',
+        'credits' => 3, 'lecturer' => 'B', 'day' => 'Selasa',
+        'hour_start' => '08:00', 'hour_end' => '10:00', 'user_id' => $otherUser->id,
+    ]);
+    $task = Task::create([
+        'task' => 'Mine', 'deadline' => '2025-01-01', 'status' => 0, 'course_content_id' => $this->course->id,
+        'user_id' => $this->user->id,
+    ]);
+
+    $response = $this->putJson("/api/tasks/{$task->id}", [
+        'task' => 'Hijack',
+        'deadline' => '2025-12-31',
+        'course_content_id' => $victimCourse->id,
+    ]);
+
+    $response->assertStatus(404);
+    expect($task->fresh()->course_content_id)->toBe($this->course->id);
+});
+
 // ─── DELETE /api/tasks/{id} ───
 
 test('delete task removes it', function () {

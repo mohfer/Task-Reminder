@@ -61,7 +61,7 @@ describe('API modules', () => {
 
   it('authApi calls correct endpoints', async () => {
     await authApi.login({ email: 'a@b.com', password: 'secret' });
-    expect(axiosInstance.post).toHaveBeenCalledWith('/auth/login', { email: 'a@b.com', password: 'secret' });
+    expect(axiosInstance.post).toHaveBeenCalledWith('/auth/login', { email: 'a@b.com', password: 'secret' }, { skipAuthLogout: true });
     await authApi.register({ name: 'Test' });
     expect(axiosInstance.post).toHaveBeenCalledWith('/auth/register', { name: 'Test' }, expect.any(Object));
     await authApi.logout();

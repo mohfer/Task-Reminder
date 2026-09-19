@@ -38,6 +38,8 @@ cd server && php artisan queue:listen --tries=1
 - **Controller → Service**: Controllers in `app/Http/Controllers/` delegate to services in `app/Services/`. All controllers use the `ApiResponse` trait for JSON responses.
 - **Validation**: All request validation lives in `app/Http/Requests/` Form Requests (20 classes), controllers use `$request->validated()` only. See `StoreTaskRequest`, `UpdateGradeRequest` etc for `authorize` and `rules`.
 - **Routes**: Standard CRUD uses `apiResource` (`server/routes/api.php:45,54,69`) for `course-contents`, `tasks`, `settings/grades`, custom routes are defined before the resource to avoid `{id}` collision. Non CRUD like `filter`, `sync-schedule` stays manual.
+- **Task parent ownership**: `TaskService::update` re-scopes the new `course_content_id` to the caller (`where user_id ... firstOrFail`), mirroring `create`, so cross-owner reparenting fails 404 without revealing parent existence.
+- **Email change reverification**: `UserService::updateProfile` clears `email_verified_at` and resends verification when the email changes; same-email updates keep the verified flag.
 - **Sanctum SPA auth**: Most API routes require `auth:sanctum` + `verified` middleware (`server/routes/api.php:32`). Auth routes are rate-limited (`throttle:10,1`).
 - **Queue**: Database driver. Non-test notifications (email + Telegram) use `ShouldQueue`. Must run a queue worker for delivery; test notifications are synchronous and need no worker.
 - **Notifications**: non-test notifications (`TaskCreatedNotification`, `TaskCompletedNotification`, `ReminderNotification`) are `ShouldQueue` and send via `mail` + custom `TelegramChannel` (MarkdownV2). Channels resolve per user `Setting` via `ResolvesNotificationChannels::channelsFor()` and chat ID via `User::routeNotificationForTelegram()`. Test notification (`TestNotification`, sync mail + sync Telegram via `TelegramService`) gives immediate success/failure feedback via `SettingsController::testNotification`.
@@ -45,11 +47,11 @@ cd server && php artisan queue:listen --tries=1
 ## Testing
 
 ```bash
-cd server && php artisan test                 # 254 tests (Feature + Unit)
+cd server && php artisan test                 # 259 tests (Feature + Unit)
 cd client && pnpm test                        # 103 tests Vitest + jsdom
 ```
 
-- **Server**: **Pest** (not bare PHPUnit), 254 tests. All `Feature` tests automatically use `RefreshDatabase` trait (`server/tests/Pest.php:14`). Testing DB connection is `mysql` → database `task_reminder_test` (`server/phpunit.xml:27`). A MySQL server with that database must exist before running tests. Test env sets `QUEUE_CONNECTION=sync` and `MAIL_MAILER=array`. Feature tests match API route groups: Auth, Task, CourseContent, Assessment, Dashboard, Grade, Settings, PasswordReset, User. Unit tests cover services one-to-one plus `RequestValidationTest` (20 Form Requests), `ModelTest` (Setting, Task deadline_label/deadlineBadgeColor, relations), `TelegramChannelTest`, and `ReminderNotificationTest`.
+- **Server**: **Pest** (not bare PHPUnit), 259 tests. All `Feature` tests automatically use `RefreshDatabase` trait (`server/tests/Pest.php:14`). Testing DB connection is `mysql` → database `task_reminder_test` (`server/phpunit.xml:27`). A MySQL server with that database must exist before running tests. Test env sets `QUEUE_CONNECTION=sync` and `MAIL_MAILER=array`. Feature tests match API route groups: Auth, Task, CourseContent, Assessment, Dashboard, Grade, Settings, PasswordReset, User. Unit tests cover services one-to-one plus `RequestValidationTest` (20 Form Requests), `ModelTest` (Setting, Task deadline_label/deadlineBadgeColor, relations), `TelegramChannelTest`, and `ReminderNotificationTest`. Cross-owner regression coverage: task update rejects a foreign `course_content_id` (Unit + Feature), profile email change clears `email_verified_at` and resends verification (Unit + Feature).
 - **Client**: **Vitest** 4 + `jsdom` + `@testing-library/react` + `jest-dom`. Config in `client/vite.config.js:13` (`environment: jsdom`, `setupFiles: src/test/setup.js`). Tests cover `src/lib/` (utils, constants, formUtils, tableUtils, scheduleUtils), `src/store/useSemesterStore`, `src/api/` (axiosInstance interceptors + 9 api modules), `src/hooks/` (useModal, useAuth, useChartData, useSemesterOverview, useGrades, useCourseContents, useDashboard, useAssessments, useSettings).
 
 ## Client conventions
@@ -58,6 +60,7 @@ cd client && pnpm test                        # 103 tests Vitest + jsdom
 - **shadcn/ui**: New York style, JSX (no TypeScript), Lucide icons. UI components in `src/components/ui/` are ESLint-ignored auto-generated code.
 - **State**: Zustand store `useSemesterStore` for semester ID persistence across pages.
 - **API**: Axios instance in `src/api/axiosInstance.js` — reads `VITE_API_URL` from env.
+- **Auth flow**: login reads the verified flag from `data.verified` (`checkEmail`) and routes unverified users to `/auth/verify-email`; the login request uses `skipAuthLogout` so failed-login toasts survive the global 401 redirect. After a profile email change, `updateProfile` syncs localStorage and `ProfileForm` navigates to `/auth/verify-email`.
 - **Routing**: React Router with code-split lazy pages. All protected pages wrap in `<ProtectedRoute>`.
 - **Alias**: `@/` → `src/` (vite + jsconfig).
 - **Testing**: Vitest + jsdom. Run `pnpm test` from `client/`. Setup file `src/test/setup.js` mocks `matchMedia` and storage.

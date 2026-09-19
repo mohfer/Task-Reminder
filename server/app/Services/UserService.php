@@ -9,10 +9,18 @@ class UserService
 {
     public function updateProfile(User $user, array $data): User
     {
-        $user->update([
-            'name' => $data['name'],
-            'email' => $data['email'],
-        ]);
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        if ($user->wasChanged('email')) {
+            $user->sendEmailVerificationNotification();
+        }
 
         return $user;
     }

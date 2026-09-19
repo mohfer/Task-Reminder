@@ -2,8 +2,10 @@
 
 use App\Models\Setting;
 use App\Models\User;
+use App\Notifications\VerifyEmailNotification;
 use App\Services\UserService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 
 uses(Tests\TestCase::class, RefreshDatabase::class);
 
@@ -22,6 +24,31 @@ test('updateProfile changes name and email', function () {
 
     expect($updated->name)->toBe('New Name');
     expect($updated->email)->toBe('new@example.com');
+});
+
+test('updateProfile clears verification and notifies when email changes', function () {
+    Notification::fake();
+    $user = User::factory()->create(['email_verified_at' => now()]);
+
+    $this->service->updateProfile($user, [
+        'name' => $user->name,
+        'email' => 'changed@example.com',
+    ]);
+
+    expect($user->fresh()->email_verified_at)->toBeNull();
+    Notification::assertSentTo($user, VerifyEmailNotification::class);
+});
+
+test('updateProfile keeps verification when email is unchanged', function () {
+    Notification::fake();
+
+    $this->service->updateProfile($this->user, [
+        'name' => 'Same Email',
+        'email' => $this->user->email,
+    ]);
+
+    expect($this->user->fresh()->email_verified_at)->not->toBeNull();
+    Notification::assertNothingSent();
 });
 
 // ─── changePassword ───
