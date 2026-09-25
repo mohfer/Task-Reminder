@@ -152,7 +152,7 @@ export const CourseContentFormDialog = ({
     return (
         <>
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="sm:max-w-xl" persistent>
+            <DialogContent className="sm:max-w-xl">
                 <DialogHeader>
                     <DialogTitle>{mode === 'create' ? 'Add New Course Content' : 'Update Course Content'}</DialogTitle>
                     <DialogDescription>

@@ -81,7 +81,7 @@ export const ScoreUpdateDialog = ({ open, onOpenChange, initialData, isLoading, 
     return (
         <>
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent persistent>
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Update Score</DialogTitle>
                     <DialogDescription>Update the score of the selected course content.</DialogDescription>

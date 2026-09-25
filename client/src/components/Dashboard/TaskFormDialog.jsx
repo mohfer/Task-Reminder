@@ -147,7 +147,7 @@ export const TaskFormDialog = ({
     return (
         <>
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="sm:max-w-xl" persistent>
+            <DialogContent className="sm:max-w-xl">
                 <DialogHeader>
                     <DialogTitle>{mode === 'create' ? 'Add New Task' : 'Edit Task'}</DialogTitle>
                     <DialogDescription>Enter the details of the task you want to do.</DialogDescription>
